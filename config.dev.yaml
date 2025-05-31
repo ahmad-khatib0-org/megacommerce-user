@@ -3,3 +3,5 @@ service:
   env: dev
   grpc_port: 50052
   grpc_host: localhost
+  common_service_grpc_host: localhost
+  common_service_grpc_port: 50051

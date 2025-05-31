@@ -3,11 +3,11 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"strings"
 
+	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 )
 
@@ -32,6 +32,10 @@ type AppError struct {
 }
 
 func (er *AppError) Error() string {
+	if er == nil {
+		return ""
+	}
+
 	var sb strings.Builder
 
 	// render the error information
@@ -128,16 +132,24 @@ func AppErrorFromJSON(r io.Reader) error {
 	var er AppError
 	err = json.NewDecoder(bytes.NewReader(data)).Decode(&er)
 	if err != nil {
-		// If the request exceeded FileSettings.MaxFileSize a plain error gets returned.
-		// Convert it into an AppError.
-		if string(data) == "http: request body too large\n" {
-			return errors.New("The request was too large. Consider asking your System Admin to raise the FileSettings.MaxFileSize setting.")
-		}
-
 		return fmt.Errorf("failed to decode JSON payload into AppError. Body: %s, err: %v", string(data), err)
 	}
 
 	return &er
+}
+
+func (ae *AppError) Default() *AppError {
+	return &AppError{
+		Id:              "",
+		Message:         "",
+		DetailedError:   "",
+		RequestId:       "",
+		StatusCode:      0,
+		Where:           "",
+		SkipTranslation: false,
+		Params:          make(map[string]any),
+		Wrapped:         nil,
+	}
 }
 
 func NewAppError(where string, id string, params map[string]any, details string, status int) *AppError {
@@ -151,4 +163,55 @@ func NewAppError(where string, id string, params map[string]any, details string,
 	}
 	// ap.Translate() // TODO: add translate
 	return ap
+}
+
+func AppErrorFromProto(protoErr *pb.AppError) *AppError {
+	if protoErr == nil {
+		ae := &AppError{}
+		return ae.Default()
+	}
+
+	return &AppError{
+		Id:              protoErr.Id,
+		Message:         protoErr.Message,
+		DetailedError:   protoErr.DetailedError,
+		RequestId:       protoErr.RequestId,
+		StatusCode:      int(protoErr.StatusCode),
+		Where:           protoErr.Where,
+		SkipTranslation: protoErr.SkipTranslation,
+		Params:          AppErrorConvertProtoParams(protoErr),
+	}
+}
+
+func AppErrorConvertProtoParams(ae *pb.AppError) map[string]any {
+	if ae.Params == nil {
+		return nil
+	}
+
+	switch {
+	case ae.Params.MessageIs(&pb.StringMap{}):
+		var sm pb.StringMap
+		if err := ae.Params.UnmarshalTo(&sm); err == nil {
+			params := make(map[string]any, len(sm.Data))
+			for k, v := range sm.Data {
+				params[k] = v
+			}
+			return params
+		}
+
+	case ae.Params.MessageIs(&pb.NestedStringMap{}):
+		var nsm pb.NestedStringMap
+		if err := ae.Params.UnmarshalTo(&nsm); err == nil {
+			params := make(map[string]any, len(nsm.Data))
+			for k, v := range nsm.Data {
+				params[k] = v
+			}
+			return params
+		}
+
+	default:
+		return nil // TODO: fatal here
+	}
+
+	return nil
 }
