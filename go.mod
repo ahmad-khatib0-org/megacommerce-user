@@ -3,7 +3,7 @@ module github.com/ahmad-khatib0-org/megacommerce-user
 go 1.23.6
 
 require (
-	github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250531081930-1e141adeef8e
+	github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250531190744-17f6b257f423
 	github.com/spf13/viper v1.20.1
 	google.golang.org/grpc v1.72.2
 )

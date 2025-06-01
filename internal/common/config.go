@@ -32,3 +32,31 @@ func (cc *CommonClient) ConfigGet() (*pb.Config, *utils.AppError) {
 
 	return nil, nil
 }
+
+func (cc *CommonClient) ConfigListener(clientID string) *utils.AppError {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	stream, err := cc.client.ConfigListener(ctx, &pb.ConfigListenerRequest{ClientId: clientID})
+	if err != nil {
+		sc, _ := status.FromError(err)
+		return utils.NewAppError("user.common.ConfigListener", "failed_listen_common_config", nil, fmt.Sprintf("failed to register a listener call: %v", err), int(sc.Code()))
+	}
+
+	for {
+		res, err := stream.Recv()
+		if err != nil {
+			fmt.Println("config listener stream closed")
+			break
+		}
+
+		switch x := res.Response.(type) {
+		case *pb.ConfigListenerResponse_Data:
+			fmt.Println("Config changed: ", x.Data)
+		case *pb.ConfigListenerResponse_Error:
+			fmt.Println("Error received: ", x.Error.Message)
+		}
+	}
+
+	return nil
+}

@@ -1,8 +1,10 @@
 package common
 
 import (
+	"context"
 	"fmt"
 	"net"
+	"time"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
@@ -18,7 +20,10 @@ func (cc *CommonClient) initCommonClient() *utils.AppError {
 		return utils.NewAppError("user.common.initCommonClient", "invalid_grpc_url", nil, fmt.Sprintf("invalid grpc url %s, : %v ", target, err), int(codes.Internal))
 	}
 
-	conn, err := grpc.NewClient(target, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(
+		target,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		return utils.NewAppError("user.common.initCommonClient", "common_service_connect_error", nil, fmt.Sprintf("invalid grpc url %s, : %v ", target, err), int(codes.Internal))
 	}
@@ -26,6 +31,14 @@ func (cc *CommonClient) initCommonClient() *utils.AppError {
 	fmt.Println("user service is listening on common grpc service on: " + target)
 	cc.client = pb.NewCommonServiceClient(conn)
 	cc.conn = conn
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err = cc.client.Ping(ctx, &pb.PingRequest{})
+	if err != nil {
+		return utils.NewAppError("user.common.initCommonClient", "common_service_connect_error", nil, fmt.Sprintf("grpc service at %s did not become READY in time", target), int(codes.Unavailable))
+	}
 
 	return nil
 }

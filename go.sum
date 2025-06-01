@@ -12,6 +12,10 @@ github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250530104231-cb91998a5d
 github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250530104231-cb91998a5d46/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250531081930-1e141adeef8e h1:KZacgQd8j2RF5eGoUFADODmhs5ezHMoMxCS2E4VWNHw=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250531081930-1e141adeef8e/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250531123125-908dab9f5826 h1:dqecB+oTFkJ0FR8m1cOYplfpEWeJRdm/877xtlGdhQM=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250531123125-908dab9f5826/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250531190744-17f6b257f423 h1:7uOj+zZBAWvZOwb4zHxgnQDMmU6ojB6lBPtH3jTcmxI=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250531190744-17f6b257f423/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
