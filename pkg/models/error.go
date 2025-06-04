@@ -1,4 +1,4 @@
-package utils
+package models
 
 import (
 	"bytes"
@@ -8,13 +8,13 @@ import (
 	"strings"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 )
 
 const maxErrorLength = 1024
 
 type AppError struct {
-	Id string `json:"id"`
+	Ctx *Context
+	Id  string `json:"id"`
 	// Message to be display to the end user without debugging information
 	Message string `json:"message"`
 	// Internal error string to help the developer
@@ -44,13 +44,13 @@ func (er *AppError) Error() string {
 		sb.WriteString(": ")
 	}
 
-	if er.Message != models.NoTranslation {
+	if er.Message != NoTranslation {
 		sb.WriteString(er.Message)
 	}
 
 	// only render the detailed error when it's present
 	if er.DetailedError != "" {
-		if er.Message != models.NoTranslation {
+		if er.Message != NoTranslation {
 			sb.WriteString(", ")
 		}
 		sb.WriteString(er.DetailedError)
@@ -70,7 +70,7 @@ func (er *AppError) Error() string {
 	return res
 }
 
-func (er *AppError) Translate(tf models.TranslateFunc) {
+func (er *AppError) Translate(tf TranslateFunc) {
 	if er.SkipTranslation {
 		return
 	}
@@ -79,7 +79,11 @@ func (er *AppError) Translate(tf models.TranslateFunc) {
 		er.Message = er.Id
 		return
 	} else {
-		er.Message = tf(er.Id)
+		tr, err := tf(er.Ctx.acceptLanguage, er.Id, er.Params)
+		if err != nil {
+			// Track error
+		}
+		er.Message = tr
 	}
 }
 
@@ -152,8 +156,16 @@ func (ae *AppError) Default() *AppError {
 	}
 }
 
-func NewAppError(where string, id string, params map[string]any, details string, status int) *AppError {
+func NewAppError(
+	ctx *Context,
+	where string,
+	id string,
+	params map[string]any,
+	details string,
+	status int,
+) *AppError {
 	ap := &AppError{
+		Ctx:           ctx,
 		Id:            id,
 		Params:        params,
 		Message:       id,
@@ -161,7 +173,7 @@ func NewAppError(where string, id string, params map[string]any, details string,
 		DetailedError: details,
 		StatusCode:    status,
 	}
-	// ap.Translate() // TODO: add translate
+	ap.Translate(Tr)
 	return ap
 }
 
@@ -215,3 +227,10 @@ func AppErrorConvertProtoParams(ae *pb.AppError) map[string]any {
 
 	return nil
 }
+
+// func ErrorFromProtoAppError ( *pb.AppError) error {
+// 	err := `
+// 	  id=
+// 	`
+//    // fmt.Errorf("", a ...any)
+// }

@@ -5,11 +5,18 @@ import (
 	"strings"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	"google.golang.org/grpc/codes"
 )
 
-func IsValidPassword(pass string, settings *pb.ConfigPassword, where, idPrefix string) *AppError {
-	id := "user.create.password."
+type InvalidPassword struct {
+	Id  string
+	Err string
+}
+
+// IsValidPassword validate a password with a given ConfigPassword,
+//
+// idPrefix is optional, E,g if not passed, min length error will be "password.min_length"
+func IsValidPassword(pass string, settings *pb.ConfigPassword, idPrefix string) *InvalidPassword {
+	id := "password."
 	isErr := false
 
 	if idPrefix != "" {
@@ -47,7 +54,10 @@ func IsValidPassword(pass string, settings *pb.ConfigPassword, where, idPrefix s
 	}
 
 	if isErr {
-		return NewAppError(where, id, nil, fmt.Sprintf("invalid password: %s, err: %s ", pass, id), int(codes.Internal))
+		return &InvalidPassword{
+			Id:  id,
+			Err: fmt.Sprintf("invalid password: %s, err: %s ", pass, id),
+		}
 	}
 
 	return nil
