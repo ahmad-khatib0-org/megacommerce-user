@@ -1,4 +1,4 @@
-package load
+package server
 
 import (
 	"fmt"
@@ -9,7 +9,18 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func LoadConfig(fileName string) (*models.Config, *utils.AppError) {
+func (a *App) initSharedConfig() {
+	config, err := a.commonClient.ConfigGet()
+	if err != nil {
+		a.done <- err
+	}
+
+	a.configMux.Lock()
+	a.config = config
+	a.configMux.Unlock()
+}
+
+func LoadServiceConfig(fileName string) (*models.Config, *utils.AppError) {
 	viper.AddConfigPath(".")
 	viper.SetConfigFile(fileName)
 	viper.SetConfigType("yaml")

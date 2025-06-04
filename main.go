@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ahmad-khatib0-org/megacommerce-user/internal/load"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/server"
 )
 
@@ -14,7 +13,7 @@ func main() {
 		env = "dev"
 	}
 
-	config, err := load.LoadConfig(fmt.Sprintf("config.%s.yaml", env))
+	config, err := server.LoadServiceConfig(fmt.Sprintf("config.%s.yaml", env))
 	if err != nil {
 		panic(err)
 	}
