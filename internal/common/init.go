@@ -7,17 +7,21 @@ import (
 	"time"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func (cc *CommonClient) initCommonClient() *utils.AppError {
+func (cc *CommonClient) initCommonClient() *models.InternalError {
 	target := fmt.Sprintf("%s:%d", cc.cfg.Service.CommonServiceGrpcHost, cc.cfg.Service.CommonServiceGrpcPort)
 
 	if _, err := net.ResolveTCPAddr("tcp", target); err != nil {
-		return utils.NewAppError("user.common.initCommonClient", "invalid_grpc_url", nil, fmt.Sprintf("invalid grpc url %s, : %v ", target, err), int(codes.Internal))
+		return &models.InternalError{
+			Temp: false,
+			Err:  err,
+			Msg:  "failed to init common service client, invalid grpc url",
+			Path: "user.config.initCommonClient",
+		}
 	}
 
 	conn, err := grpc.NewClient(
@@ -25,7 +29,12 @@ func (cc *CommonClient) initCommonClient() *utils.AppError {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		return utils.NewAppError("user.common.initCommonClient", "common_service_connect_error", nil, fmt.Sprintf("invalid grpc url %s, : %v ", target, err), int(codes.Internal))
+		return &models.InternalError{
+			Temp: false,
+			Err:  err,
+			Msg:  "failed to connect to the shared common service",
+			Path: "user.config.initCommonClient",
+		}
 	}
 
 	fmt.Println("user service is listening on common grpc service on: " + target)
@@ -37,7 +46,12 @@ func (cc *CommonClient) initCommonClient() *utils.AppError {
 
 	_, err = cc.client.Ping(ctx, &pb.PingRequest{})
 	if err != nil {
-		return utils.NewAppError("user.common.initCommonClient", "common_service_connect_error", nil, fmt.Sprintf("grpc service at %s did not become READY in time", target), int(codes.Unavailable))
+		return &models.InternalError{
+			Temp: false,
+			Err:  err,
+			Msg:  "failed to ping the common service",
+			Path: "user.config.initCommonClient",
+		}
 	}
 
 	return nil

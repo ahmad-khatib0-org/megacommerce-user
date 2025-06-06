@@ -6,19 +6,20 @@ import (
 	"time"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
-	"google.golang.org/grpc/status"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 )
 
-func (cc *CommonClient) ConfigGet() (*pb.Config, *utils.AppError) {
+func (cc *CommonClient) ConfigGet() (*pb.Config, *models.InternalError) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
 	res, err := cc.client.ConfigGet(ctx, &pb.ConfigGetRequest{})
 	if err != nil {
-		sc, ok := status.FromError(err)
-		if ok {
-			return nil, utils.NewAppError("user.common.ConfigGet", "failed_get_common_config", nil, fmt.Sprintf("failed to get configurations %v", err), int(sc.Code()))
+		return nil, &models.InternalError{
+			Temp: false,
+			Err:  err,
+			Msg:  "failed to get configurations from common service",
+			Path: "user.common.ConfigGet",
 		}
 	}
 
@@ -26,21 +27,31 @@ func (cc *CommonClient) ConfigGet() (*pb.Config, *utils.AppError) {
 	case *pb.ConfigGetResponse_Data:
 		return res.Data, nil
 	case *pb.ConfigGetResponse_Error:
-		err := utils.AppErrorFromProto(res.Error)
-		return nil, err
+		err := models.AppErrorFromProto(res.Error)
+		return nil, &models.InternalError{
+			Temp: false,
+			Err:  err,
+			Msg:  "failed to get configurations from common service",
+			Path: "user.common.ConfigGet",
+		}
 	}
 
 	return nil, nil
 }
 
-func (cc *CommonClient) ConfigListener(clientID string) *utils.AppError {
+// TODO: complete this listener
+func (cc *CommonClient) ConfigListener(clientID string) *models.InternalError {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	stream, err := cc.client.ConfigListener(ctx, &pb.ConfigListenerRequest{ClientId: clientID})
 	if err != nil {
-		sc, _ := status.FromError(err)
-		return utils.NewAppError("user.common.ConfigListener", "failed_listen_common_config", nil, fmt.Sprintf("failed to register a listener call: %v", err), int(sc.Code()))
+		return &models.InternalError{
+			Temp: false,
+			Err:  err,
+			Msg:  "failed to register a listener call",
+			Path: "user.common.ConfigListener",
+		}
 	}
 
 	for {

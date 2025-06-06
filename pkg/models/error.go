@@ -12,6 +12,31 @@ import (
 
 const maxErrorLength = 1024
 
+type InternalError struct {
+	Temp bool   `json:"temp"`
+	Err  error  `json:"err"`
+	Msg  string `json:"msg"`
+	Path string `json:"path"`
+}
+
+func (ie *InternalError) Error() string {
+	var sb strings.Builder
+
+	if ie.Path != "" {
+		sb.WriteString(ie.Path)
+		sb.WriteString(": ")
+	}
+
+	if ie.Msg != "" {
+		sb.WriteString(ie.Msg)
+		sb.WriteString(", ")
+	}
+
+	sb.WriteString(fmt.Sprintf(", temp: %t", ie.Temp))
+
+	return sb.String()
+}
+
 type AppError struct {
 	Ctx *Context
 	Id  string `json:"id"`
