@@ -37,6 +37,10 @@ func (ie *InternalError) Error() string {
 	return sb.String()
 }
 
+func (ie *InternalError) Message() string {
+	return ie.Msg
+}
+
 type AppError struct {
 	Ctx *Context
 	Id  string `json:"id"`

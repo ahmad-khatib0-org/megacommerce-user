@@ -5,7 +5,7 @@ import (
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 )
 
-func (a *App) initTrans() map[string]*commonPb.TranslationElements {
+func (a *Server) initTrans() map[string]*commonPb.TranslationElements {
 	trans, err := a.commonClient.TranslationsGet()
 	if err != nil {
 		a.done <- err

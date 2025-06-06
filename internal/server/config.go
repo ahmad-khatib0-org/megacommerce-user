@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func (a *App) initSharedConfig() {
+func (a *Server) initSharedConfig() {
 	config, err := a.commonClient.ConfigGet()
 	if err != nil {
 		a.done <- err

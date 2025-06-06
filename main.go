@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/server"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
 )
 
 func main() {
@@ -12,14 +13,16 @@ func main() {
 	if env != "dev" && env != "test" && env != "prod" {
 		env = "dev"
 	}
-
 	config, err := server.LoadServiceConfig(fmt.Sprintf("config.%s.yaml", env))
 	if err != nil {
 		panic(err)
 	}
 
-	err = server.RunServer(config)
+	logger, err := logger.InitLogger(config.Service.Env)
 	if err != nil {
 		panic(err)
 	}
+
+	srv := &server.ServerArgs{Log: logger, Cfg: config}
+	server.RunServer(srv)
 }
