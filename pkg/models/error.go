@@ -256,10 +256,3 @@ func AppErrorConvertProtoParams(ae *pb.AppError) map[string]any {
 
 	return nil
 }
-
-// func ErrorFromProtoAppError ( *pb.AppError) error {
-// 	err := `
-// 	  id=
-// 	`
-//    // fmt.Errorf("", a ...any)
-// }

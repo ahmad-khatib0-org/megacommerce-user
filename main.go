@@ -22,6 +22,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer logger.Sync()
 
 	srv := &server.ServerArgs{Log: logger, Cfg: config}
 	server.RunServer(srv)

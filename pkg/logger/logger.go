@@ -39,3 +39,7 @@ func InitLogger(env string) (*Logger, error) {
 	l := &Logger{zap: logger}
 	return l, nil
 }
+
+func (l *Logger) Sync() func() error {
+	return l.zap.Sync
+}

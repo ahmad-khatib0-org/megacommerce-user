@@ -30,6 +30,10 @@ func (c *Context) clone() *Context {
 	return &cp
 }
 
+func (c *Context) Ctx() context.Context {
+	return c.context
+}
+
 func (c *Context) RequestId() string {
 	return c.requestId
 }

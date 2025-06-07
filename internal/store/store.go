@@ -7,5 +7,5 @@ import (
 )
 
 type UsersStore interface {
-	SignupSupplier(ctx context.Context, s *pb.SupplierCreateRequest) error
+	SignupSupplier(ctx context.Context, s *pb.User) error
 }
