@@ -19,6 +19,7 @@ type Server struct {
 	done           chan *models.InternalError
 	tracerProvider *sdktrace.TracerProvider
 	metrics        *grpcprom.ServerMetrics
+	log            *logger.Logger
 }
 
 type ServerArgs struct {
@@ -31,6 +32,7 @@ func RunServer(s *ServerArgs) error {
 	app := &Server{
 		commonClient: com,
 		done:         make(chan *models.InternalError, 1),
+		log:          s.Log,
 	}
 
 	if err != nil {

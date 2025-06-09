@@ -2,10 +2,12 @@ package server
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
@@ -16,7 +18,7 @@ import (
 
 func (c *Server) initTracerProvider(ctx context.Context) {
 	exp, err := otlptracehttp.New(ctx,
-		otlptracehttp.WithEndpoint(*c.config.Services.JaegerCollectorEndpoint),
+		otlptracehttp.WithEndpoint(c.config.Services.GetJaegerCollectorEndpoint()),
 		otlptracehttp.WithInsecure(),
 	)
 	if err != nil {
@@ -45,9 +47,24 @@ func (s *Server) initMetrics() {
 
 	reg := prometheus.WrapRegistererWith(
 		prometheus.Labels{"env": *s.config.Main.Env},
-		prometheus.NewRegistry(),
+		prometheus.DefaultRegisterer,
 	)
 
 	reg.MustRegister(metrics)
 	s.metrics = metrics
+
+	srv := &http.Server{Addr: s.config.Services.GetUserServicePrometheusUrl()}
+	m := http.NewServeMux()
+	m.Handle("/metrics", promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{EnableOpenMetrics: true}))
+
+	srv.Handler = m
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			if err := srv.Close(); err != nil {
+				msg := "failed to stop http server"
+				e := &models.InternalError{Err: err, Path: "user.server.initMetrics", Msg: msg}
+				s.log.ErrorStruct(msg, e)
+			}
+		}
+	}()
 }
