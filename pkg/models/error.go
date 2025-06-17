@@ -108,7 +108,7 @@ func (er *AppError) Translate(tf TranslateFunc) {
 		er.Message = er.Id
 		return
 	} else {
-		tr, err := tf(er.Ctx.acceptLanguage, er.Id, er.Params)
+		tr, err := tf(er.Ctx.AcceptLanguage, er.Id, er.Params)
 		if err != nil {
 			// Track error
 		}

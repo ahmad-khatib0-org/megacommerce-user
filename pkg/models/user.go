@@ -1,8 +1,14 @@
 package models
 
+type UserType string
+
+const (
+	UserTypeSupplier UserType = "supplier"
+	UserTypeBuyer    UserType = "buyer"
+)
+
 const (
 	UserEmailMaxLength    = 256
-	UserNicknameMaxRunes  = 64
 	UserFirstNameMaxRunes = 64
 	UserFirstNameMinRunes = 2
 	UserLastNameMaxRunes  = 64

@@ -2,11 +2,11 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"net"
 
-	v1 "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors"
@@ -15,6 +15,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type ContextKey string
@@ -34,19 +35,21 @@ var traceIdForMethods = map[string]bool{
 
 type Controller struct {
 	pb.UnimplementedUserServiceServer
-	cfg            *v1.Config
+	cfg            *common.Config
 	tracerProvider *sdktrace.TracerProvider
 	metrics        *grpcprom.ServerMetrics
+	log            *logger.Logger
 }
 
 type ControllerArgs struct {
-	Cfg            *v1.Config
+	Cfg            *common.Config
 	TracerProvider *sdktrace.TracerProvider
 	Metrics        *grpcprom.ServerMetrics
+	Log            *logger.Logger
 }
 
-func NewController(ca *Controller) (*Controller, *models.InternalError) {
-	c := &Controller{cfg: ca.cfg, tracerProvider: ca.tracerProvider, metrics: ca.metrics}
+func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
+	c := &Controller{cfg: ca.Cfg, tracerProvider: ca.TracerProvider, metrics: ca.Metrics, log: ca.Log}
 
 	authMatcher := func(ctx context.Context, callMeta interceptors.CallMeta) bool {
 		_, ok := protectedMethods[callMeta.Method]
@@ -56,24 +59,29 @@ func NewController(ca *Controller) (*Controller, *models.InternalError) {
 	s := grpc.NewServer(
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
-			unaryMethodNameInterceptor(),
+			unaryMetadataInterceptor(),
 			c.metrics.UnaryServerInterceptor(grpcprom.WithExemplarFromContext(traceID)),
 			selector.UnaryServerInterceptor(auth.UnaryServerInterceptor(authMiddleware), selector.MatchFunc(authMatcher)),
 		),
 		grpc.ChainStreamInterceptor(
-			streamMethodNameInterceptor(),
+			streamMetadataInterceptor(),
 			c.metrics.StreamServerInterceptor(grpcprom.WithExemplarFromContext(traceID)),
 			selector.StreamServerInterceptor(auth.StreamServerInterceptor(authMiddleware), selector.MatchFunc(authMatcher)),
 		),
 	)
 
-	addr := fmt.Sprintf("%s:%d", c.cfg.GetServices().GetUserServiceGrpcHost(), c.cfg.GetServices().GetUserServiceGrpcPort())
+	addr := c.cfg.GetServices().GetUserServiceGrpcUrl()
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return nil, &models.InternalError{Path: "user.controller.NewController", Err: err, Msg: "failed to initiate an http listener"}
 	}
 
+	reflection.Register(s)
+	pb.RegisterUserServiceServer(s, c)
+	c.metrics.InitializeMetrics(s)
+
 	go func() {
+		c.log.Infof("grpc user service is running on %s", addr)
 		if err := s.Serve(listener); err != nil {
 			s.GracefulStop()
 			s.Stop()

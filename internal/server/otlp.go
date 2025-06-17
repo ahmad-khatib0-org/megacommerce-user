@@ -9,7 +9,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -17,9 +17,9 @@ import (
 )
 
 func (c *Server) initTracerProvider(ctx context.Context) {
-	exp, err := otlptracehttp.New(ctx,
-		otlptracehttp.WithEndpoint(c.config.Services.GetJaegerCollectorEndpoint()),
-		otlptracehttp.WithInsecure(),
+	exp, err := otlptracegrpc.New(ctx,
+		otlptracegrpc.WithEndpoint(c.config.Services.GetJaegerCollectorUrl()),
+		otlptracegrpc.WithInsecure(),
 	)
 	if err != nil {
 		c.done <- &models.InternalError{Err: err, Msg: "failed to init jaeger tracer", Path: "user.controller.getTracerProvider"}
@@ -46,7 +46,7 @@ func (s *Server) initMetrics() {
 	)
 
 	reg := prometheus.WrapRegistererWith(
-		prometheus.Labels{"env": *s.config.Main.Env},
+		prometheus.Labels{"env": s.config.Main.GetEnv()},
 		prometheus.DefaultRegisterer,
 	)
 

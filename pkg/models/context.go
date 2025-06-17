@@ -2,25 +2,29 @@ package models
 
 import "context"
 
+type StringMap map[string]string
+
 type Context struct {
-	context        context.Context
-	requestId      string
-	ipAddress      string
-	xForwardedFor  string
-	path           string
-	userAgent      string
-	acceptLanguage string
+	Context        context.Context
+	Session        *Session
+	RequestId      string
+	IPAddress      string
+	XForwardedFor  string
+	Path           string
+	UserAgent      string
+	AcceptLanguage string
 }
 
-func NewContext(ctx context.Context, requestId, ipAddress, xForwardedFor, path, userAgent, acceptLanguage string) *Context {
+func NewContext(ctx context.Context, session *Session, requestId, ipAddress, xForwardedFor, path, userAgent, acceptLanguage string) *Context {
 	return &Context{
-		context:        ctx,
-		requestId:      requestId,
-		ipAddress:      ipAddress,
-		xForwardedFor:  xForwardedFor,
-		path:           path,
-		userAgent:      userAgent,
-		acceptLanguage: acceptLanguage,
+		Context:        ctx,
+		Session:        session,
+		RequestId:      requestId,
+		IPAddress:      ipAddress,
+		XForwardedFor:  xForwardedFor,
+		Path:           path,
+		UserAgent:      userAgent,
+		AcceptLanguage: acceptLanguage,
 	}
 }
 
@@ -31,31 +35,86 @@ func (c *Context) clone() *Context {
 }
 
 func (c *Context) Ctx() context.Context {
-	return c.context
+	return c.Context
 }
 
-func (c *Context) RequestId() string {
-	return c.requestId
+func (c *Context) GetSession() *Session {
+	return c.Session
 }
 
-func (c *Context) IPAddress() string {
-	return c.ipAddress
+func (c *Context) GetRequestId() string {
+	return c.RequestId
 }
 
-func (c *Context) XForwardedFor() string {
-	return c.xForwardedFor
+func (c *Context) GetIPAddress() string {
+	return c.IPAddress
 }
 
-func (c *Context) Path() string {
-	return c.path
+func (c *Context) GetXForwardedFor() string {
+	return c.XForwardedFor
 }
 
-func (c *Context) UserAgent() string {
-	return c.userAgent
+func (c *Context) GetPath() string {
+	return c.Path
 }
 
-func (c *Context) AcceptLanguage() string {
-	return c.acceptLanguage
+func (c *Context) GetUserAgent() string {
+	return c.UserAgent
 }
 
-type RequestContext struct{}
+func (c *Context) GetAcceptLanguage() string {
+	return c.AcceptLanguage
+}
+
+type Session struct {
+	Id             string    `json:"id"`
+	Token          string    `json:"token"`
+	CreatedAt      int64     `json:"created_at"`
+	ExpiresAt      int64     `json:"expires_at"`
+	LastActivityAt int64     `json:"last_activity_at"`
+	UserId         string    `json:"user_id"`
+	DeviceId       string    `json:"device_id"`
+	Roles          string    `json:"roles"`
+	IsOAuth        bool      `json:"is_oauth"`
+	Props          StringMap `json:"props"`
+}
+
+func (s *Session) GetId() string {
+	return s.Id
+}
+
+func (s *Session) GetToken() string {
+	return s.Token
+}
+
+func (s *Session) GetCreatedAt() float64 {
+	return float64(s.CreatedAt)
+}
+
+func (s *Session) GetExpiresAt() float64 {
+	return float64(s.ExpiresAt)
+}
+
+func (s *Session) GetLastActivityAt() float64 {
+	return float64(s.LastActivityAt)
+}
+
+func (s *Session) GetUserID() string {
+	return s.UserId
+}
+
+func (s *Session) GetDeviceID() string {
+	return s.DeviceId
+}
+
+func (s *Session) GetRoles() string {
+	return s.Roles
+}
+
+func (s *Session) GetIsAuth() bool {
+	return s.IsOAuth
+}
+
+func (s *Session) GetProps() StringMap {
+	return s.Props
+}

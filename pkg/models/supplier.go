@@ -2,52 +2,99 @@ package models
 
 import (
 	"fmt"
+	"strings"
 	"unicode/utf8"
 
 	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	user "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	"google.golang.org/grpc/codes"
 )
 
-func IsValidSignupSupplierRequest(ctx *Context, s *pb.SupplierCreateRequest, passCfg *common.ConfigPassword) *AppError {
+func SignupSupplierRequestSanitize(s *user.SupplierCreateRequest) *user.SupplierCreateRequest {
+	return &user.SupplierCreateRequest{
+		Username:  utils.SanitizeUnicode(s.GetUsername()),
+		Email:     strings.ToLower(s.GetEmail()),
+		FirstName: utils.SanitizeUnicode(s.GetFirstName()),
+		LastName:  utils.SanitizeUnicode(s.GetLastName()),
+	}
+}
+
+func SignupSupplierRequestIsValid(ctx *Context, s *user.SupplierCreateRequest, passCfg *common.ConfigPassword) *AppError {
 	un := s.GetUsername()
 	email := s.GetEmail()
 	fn := s.GetFirstName()
 	ln := s.GetLastName()
 	pass := s.GetPassword()
-	// mem := s.GetMembership()
 
 	if un == "" || utf8.RuneCountInString(un) > UserNameMaxLength || utf8.RuneCountInString(un) < UserNameMinLength {
-		return InvalidSupplierErrorBuilder(ctx, "username", un)
+		return signupSupplierRequestErrorBuilder(ctx, "username", un, map[string]any{"Min": UserNameMinLength, "Max": UserNameMaxLength})
+	}
+
+	if !utils.IsValidUsernameChars(un) {
+		return signupSupplierRequestErrorBuilder(ctx, "username.valid", un, nil)
 	}
 
 	if email == "" || !utils.IsValidEmail(email) {
-		return InvalidSupplierErrorBuilder(ctx, "email", email)
+		return signupSupplierRequestErrorBuilder(ctx, "email", email, nil)
 	}
 
 	if fn != "" {
 		if utf8.RuneCountInString(fn) > UserFirstNameMaxRunes || utf8.RuneCountInString(fn) < UserFirstNameMinRunes {
-			return InvalidSupplierErrorBuilder(ctx, "first_name", fn)
+			return signupSupplierRequestErrorBuilder(ctx, "first_name", fn, map[string]any{"Min": UserFirstNameMinRunes, "Max": UserFirstNameMaxRunes})
 		}
 	}
 
 	if ln != "" {
 		if utf8.RuneCountInString(ln) > UserLastNameMaxRunes || utf8.RuneCountInString(fn) < UserLastNameMinRunes {
-			return InvalidSupplierErrorBuilder(ctx, "first_name", fn)
+			return signupSupplierRequestErrorBuilder(ctx, "first_name", fn, map[string]any{"Min": UserLastNameMinRunes, "Max": UserLastNameMaxRunes})
 		}
 	}
 
 	if err := utils.IsValidPassword(pass, passCfg, ""); err != nil {
-		return NewAppError(ctx, "user.models.SupplierCreateRequest", err.Id, nil, fmt.Sprintf("invalid password %s ", pass), int(codes.Internal))
+		return NewAppError(ctx, "user.models.SupplierCreateRequest.password", err.Id, nil, fmt.Sprintf("invalid password %s ", pass), int(codes.Internal))
 	}
 
 	return nil
 }
 
-func InvalidSupplierErrorBuilder(ctx *Context, fieldName string, fieldValue any) *AppError {
-	where := "user.models.SupplierCreateRequest.IsValidSignupSupplierRequest"
+func signupSupplierRequestErrorBuilder(ctx *Context, fieldName string, fieldValue any, params map[string]any) *AppError {
+	where := "user.models.SupplierCreateRequest.SignupSupplierRequestIsValid"
 	id := fmt.Sprintf("user.create.%s.error", fieldName)
 	details := fmt.Sprintf(" %s=%v ", fieldName, fieldValue)
-	return NewAppError(ctx, where, id, nil, details, int(codes.Internal))
+	return NewAppError(ctx, where, id, params, details, int(codes.Internal))
+}
+
+// SignupSupplierRequestToUser() convert SupplierCreateRequest to User
+// and populate the necessary fields with values to be stored in db
+func SignupSupplierRequestPreSave(s *user.User) *user.User {
+	u := &user.User{
+		Id:                 utils.NewIDPointer(),
+		Username:           utils.NewPointer(s.GetUsername()),
+		FirstName:          utils.NewPointer(s.GetFirstName()),
+		LastName:           utils.NewPointer(s.GetLastName()),
+		Email:              utils.NewPointer(s.GetEmail()),
+		UserType:           utils.NewPointer(string(UserTypeSupplier)),
+		Membership:         utils.NewPointer(s.GetMembership()),
+		IsEmailVerified:    utils.NewPointer(false),
+		Password:           utils.NewPointer(s.GetPassword()),
+		AuthData:           utils.NewPointer(s.GetAuthData()),
+		AuthService:        utils.NewPointer(s.GetAuthService()),
+		Roles:              utils.NewPointer(s.GetRoles()),
+		Props:              s.GetProps(),
+		NotifyProps:        s.GetNotifyProps(),
+		Locale:             utils.NewPointer(s.GetLocale()),
+		MfaActive:          utils.NewPointer(s.GetMfaActive()),
+		LastPasswordUpdate: nil,
+		LastPictureUpdate:  nil,
+		FailedAttempts:     nil,
+		MfaSecret:          nil,
+		LastActivityAt:     nil,
+		LastLogin:          nil,
+		UpdatedAt:          nil,
+		DeletedAt:          nil,
+		CreatedAt:          utils.NewPointer(utils.TimeGetMillis()),
+	}
+
+	return u
 }
