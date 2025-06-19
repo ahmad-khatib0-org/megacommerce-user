@@ -47,12 +47,12 @@ func SignupSupplierRequestIsValid(ctx *Context, s *user.SupplierCreateRequest, p
 
 	if ln != "" {
 		if utf8.RuneCountInString(ln) > UserLastNameMaxRunes || utf8.RuneCountInString(fn) < UserLastNameMinRunes {
-			return signupSupplierRequestErrorBuilder(ctx, "first_name", fn, map[string]any{"Min": UserLastNameMinRunes, "Max": UserLastNameMaxRunes})
+			return signupSupplierRequestErrorBuilder(ctx, "last_name", fn, map[string]any{"Min": UserLastNameMinRunes, "Max": UserLastNameMaxRunes})
 		}
 	}
 
 	if err := utils.IsValidPassword(pass, passCfg, ""); err != nil {
-		return NewAppError(ctx, "user.models.SupplierCreateRequest.password", err.Id, nil, fmt.Sprintf("invalid password %s ", pass), int(codes.Internal))
+		return NewAppError(ctx, "user.models.SupplierCreateRequest.password", err.Id, nil, fmt.Sprintf("invalid password %s ", pass), int(codes.Internal), err)
 	}
 
 	return nil
@@ -62,12 +62,27 @@ func signupSupplierRequestErrorBuilder(ctx *Context, fieldName string, fieldValu
 	where := "user.models.SupplierCreateRequest.SignupSupplierRequestIsValid"
 	id := fmt.Sprintf("user.create.%s.error", fieldName)
 	details := fmt.Sprintf(" %s=%v ", fieldName, fieldValue)
-	return NewAppError(ctx, where, id, params, details, int(codes.Internal))
+	return NewAppError(ctx, where, id, params, details, int(codes.Internal), nil)
+}
+
+func SignupSupplierRequestAuditable(s *user.SupplierCreateRequest) map[string]string {
+	return map[string]string{
+		"username":   s.GetUsername(),
+		"email":      s.GetEmail(),
+		"first_name": s.GetFirstName(),
+		"last_name":  s.GetLastName(),
+		"membership": s.GetMembership(),
+	}
 }
 
 // SignupSupplierRequestToUser() convert SupplierCreateRequest to User
 // and populate the necessary fields with values to be stored in db
-func SignupSupplierRequestPreSave(s *user.User) *user.User {
+func SignupSupplierRequestPreSave(ctx *Context, s *user.User) (*user.User, *AppError) {
+	pass, err := utils.PasswordHash(s.GetPassword())
+	if err != nil {
+		return nil, NewAppError(ctx, "user.models.SignupSupplierRequestPreSave", "server.internal.error", nil, "failed to generate password %v", int(codes.Internal), err)
+	}
+
 	u := &user.User{
 		Id:                 utils.NewIDPointer(),
 		Username:           utils.NewPointer(s.GetUsername()),
@@ -76,8 +91,8 @@ func SignupSupplierRequestPreSave(s *user.User) *user.User {
 		Email:              utils.NewPointer(s.GetEmail()),
 		UserType:           utils.NewPointer(string(UserTypeSupplier)),
 		Membership:         utils.NewPointer(s.GetMembership()),
-		IsEmailVerified:    utils.NewPointer(false),
-		Password:           utils.NewPointer(s.GetPassword()),
+		IsEmailVerified:    utils.NewPointer(s.GetIsEmailVerified()),
+		Password:           utils.NewPointer(pass),
 		AuthData:           utils.NewPointer(s.GetAuthData()),
 		AuthService:        utils.NewPointer(s.GetAuthService()),
 		Roles:              utils.NewPointer(s.GetRoles()),
@@ -96,5 +111,5 @@ func SignupSupplierRequestPreSave(s *user.User) *user.User {
 		CreatedAt:          utils.NewPointer(utils.TimeGetMillis()),
 	}
 
-	return u
+	return u, nil
 }

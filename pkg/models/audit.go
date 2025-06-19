@@ -1,13 +1,5 @@
 package models
 
-import (
-	"log"
-	"sync"
-
-	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	"google.golang.org/protobuf/types/known/anypb"
-)
-
 type EventName string
 
 const (
@@ -22,43 +14,86 @@ const (
 	EventStatusAttempt EventStatus = "attempt"
 )
 
-var (
-	cachedAuditEventDataFieldValue *anypb.Any
-	cachedAuditEventDataFieldOnce  sync.Once
-)
-
-func getCachedAuditEventDataFieldValue() *anypb.Any {
-	cachedAuditEventDataFieldOnce.Do(func() {
-		value, err := anypb.New(cachedAuditEventDataFieldValue)
-		if err != nil {
-			log.Fatalf("failed to marshal an empty map[string]any value, err: %v", &InternalError{
-				Err:  err,
-				Path: "user.models.audit.getCachedAuditEventDataFieldValue",
-				Msg:  "failed to marshal an empty map[string]any value",
-			})
-		}
-		cachedAuditEventDataFieldValue = value
-	})
-
-	return cachedAuditEventDataFieldValue
+// AuditRecord provides a consistent set of fields used for all audit logging.
+type AuditRecord struct {
+	EventName EventName       `json:"event_name"`
+	Status    EventStatus     `json:"status"`
+	EventData AuditEventData  `json:"event"`
+	Actor     AuditEventActor `json:"actor"`
+	Meta      map[string]any  `json:"meta"`
+	Error     EventError      `json:"error,omitempty"`
 }
 
-func AuditRecordNew(ctx *Context, event EventName, initialStatus EventStatus) *common.AuditRecord {
-	return &common.AuditRecord{
-		EventName: string(event),
-		Status:    string(initialStatus),
-		Actor: &common.AuditEventActor{
+// AuditEventData contains all event specific data about the modified entity
+type AuditEventData struct {
+	Parameters  map[string]any `json:"parameters"`      // Payload and parameters being processed as part of the request
+	PriorState  map[string]any `json:"prior_state"`     // Prior state of the object being modified, nil if no prior state
+	ResultState map[string]any `json:"resulting_state"` // Resulting object after creating or modifying it
+	ObjectType  string         `json:"object_type"`     // String representation of the object type. eg. "post"
+}
+
+// AuditEventActor is the subject triggering the event
+type AuditEventActor struct {
+	UserId        string `json:"user_id"`
+	SessionId     string `json:"session_id"`
+	Client        string `json:"client"`
+	IpAddress     string `json:"ip_address"`
+	XForwardedFor string `json:"x_forwarded_for"`
+}
+
+// EventError contains error information in case of failure of the event
+type EventError struct {
+	Description string `json:"description,omitempty"`
+	Code        int    `json:"status_code,omitempty"`
+}
+
+// Success marks the audit record status as successful.
+func (rec *AuditRecord) Success() {
+	rec.Status = EventStatusSuccess
+}
+
+// Fail marks the audit record status as failed.
+func (rec *AuditRecord) Fail() {
+	rec.Status = EventStatusFail
+}
+
+func AuditRecordNew(ctx *Context, event EventName, initialStatus EventStatus) *AuditRecord {
+	return &AuditRecord{
+		EventName: event,
+		Status:    initialStatus,
+		Actor: AuditEventActor{
 			UserId:        ctx.Session.UserId,
 			SessionId:     ctx.Session.Id,
 			IpAddress:     ctx.IPAddress,
 			Client:        ctx.UserAgent,
 			XForwardedFor: ctx.XForwardedFor,
 		},
-		Meta: &common.AuditRecordMeta{Path: ctx.Path},
-		EventData: &common.AuditEventData{
-			Parameters:     getCachedAuditEventDataFieldValue(),
-			PriorState:     getCachedAuditEventDataFieldValue(),
-			ResultingState: getCachedAuditEventDataFieldValue(),
+		Meta: map[string]any{},
+		EventData: AuditEventData{
+			Parameters:  map[string]any{},
+			PriorState:  map[string]any{},
+			ResultState: map[string]any{},
 		},
 	}
+}
+
+func AuditEventDataParameter(ar *AuditRecord, key string, val any) {
+	if ar.EventData.Parameters == nil {
+		ar.EventData.Parameters = make(map[string]any)
+	}
+	ar.EventData.Parameters[key] = val
+}
+
+func (ar *AuditRecord) AuditEventDataPriorState(data map[string]any) {
+	if ar.EventData.PriorState == nil {
+		ar.EventData.PriorState = make(map[string]any)
+	}
+	ar.EventData.PriorState = data
+}
+
+func (ar *AuditRecord) AuditEventDataResultState(data map[string]any) {
+	if ar.EventData.ResultState == nil {
+		ar.EventData.ResultState = make(map[string]any)
+	}
+	ar.EventData.ResultState = data
 }

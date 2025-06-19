@@ -5,11 +5,16 @@ import (
 	"strings"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type InvalidPassword struct {
 	Id  string
 	Err string
+}
+
+func (ip InvalidPassword) Error() string {
+	return ip.Err
 }
 
 // IsValidPassword validate a password with a given ConfigPassword,
@@ -61,4 +66,14 @@ func IsValidPassword(pass string, settings *pb.ConfigPassword, idPrefix string) 
 	}
 
 	return nil
+}
+
+// PasswordHash generates a hash using the bcrypt.GenerateFromPassword
+func PasswordHash(pass string) (string, error) {
+	hashed, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashed), nil
 }

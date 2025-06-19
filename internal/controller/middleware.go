@@ -7,6 +7,7 @@ import (
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	middleware "github.com/grpc-ecosystem/go-grpc-middleware/v2"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/trace"
@@ -24,6 +25,11 @@ func authMiddleware(ctx context.Context) (context.Context, error) {
 	return ctx, nil
 }
 
+func authMatcher(ctx context.Context, callMeta interceptors.CallMeta) bool {
+	_, ok := protectedMethods[callMeta.Method]
+	return ok
+}
+
 func traceID(ctx context.Context) prometheus.Labels {
 	method, ok := ctx.Value(ContextKeyMethodName).(string)
 	if !ok || !traceIdForMethods[method] {
@@ -38,24 +44,24 @@ func traceID(ctx context.Context) prometheus.Labels {
 	return prometheus.Labels{"trace_id": spanCtx.SpanID().String()}
 }
 
-func unaryMetadataInterceptor() grpc.UnaryServerInterceptor {
+func unaryMetadataInterceptor(defaultAcceptLang string) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		ctx = context.WithValue(ctx, ContextKeyMethodName, info.FullMethod)
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			ctx = extractMetadataToContext(ctx, md)
+			ctx = extractMetadataToContext(ctx, md, defaultAcceptLang)
 		}
 
 		return handler(ctx, req)
 	}
 }
 
-func streamMetadataInterceptor() grpc.StreamServerInterceptor {
+func streamMetadataInterceptor(defaultAcceptLang string) grpc.StreamServerInterceptor {
 	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		ctx := context.WithValue(ss.Context(), ContextKeyMethodName, info.FullMethod)
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			ctx = extractMetadataToContext(ctx, md)
+			ctx = extractMetadataToContext(ctx, md, defaultAcceptLang)
 		}
 
 		wrapped := middleware.WrapServerStream(ss)
@@ -65,7 +71,7 @@ func streamMetadataInterceptor() grpc.StreamServerInterceptor {
 	}
 }
 
-func extractMetadataToContext(ctx context.Context, md metadata.MD) context.Context {
+func extractMetadataToContext(ctx context.Context, md metadata.MD, defAcceptLang string) context.Context {
 	c := &models.Context{}
 	c.Session = &models.Session{}
 
@@ -86,6 +92,8 @@ func extractMetadataToContext(ctx context.Context, md metadata.MD) context.Conte
 	}
 	if vals := md.Get(models.HeaderAcceptLanguage); len(vals) > 0 {
 		c.AcceptLanguage = vals[0]
+	} else {
+		c.AcceptLanguage = defAcceptLang
 	}
 	if vals := md.Get(models.HeaderSessionID); len(vals) > 0 {
 		c.Session.Id = vals[0]

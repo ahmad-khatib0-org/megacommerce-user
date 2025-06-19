@@ -1,8 +1,12 @@
 package server
 
 import (
+	"context"
+
 	commonPb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store/dbstore"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func (a *Server) initTrans() map[string]*commonPb.TranslationElements {
@@ -21,4 +25,22 @@ func (a *Server) initTrans() map[string]*commonPb.TranslationElements {
 	}
 
 	return trans
+}
+
+func (s *Server) initDB() {
+	pool, err := pgxpool.New(context.Background(), s.config.Sql.GetDataSource())
+	if err != nil {
+		err := &models.InternalError{
+			Msg:  "failed to init db pool",
+			Err:  err,
+			Path: "user.server.initDB",
+		}
+		s.done <- err
+	}
+	s.db = pool
+}
+
+func (s *Server) initStore() {
+	store := dbstore.NewDBStore(s.db)
+	s.dbStore = store
 }

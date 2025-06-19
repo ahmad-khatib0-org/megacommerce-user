@@ -8,7 +8,7 @@ import (
 )
 
 // TODO: enhance tracking by E,g adding and audit
-func getContext(ctx context.Context) (*models.Context, error) {
+func getContext(ctx context.Context) (*models.Context, *models.AppError) {
 	c, ok := ctx.Value(ContextKeyMetadata).(*models.Context)
 	if !ok {
 		return nil, &models.AppError{

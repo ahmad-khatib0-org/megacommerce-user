@@ -192,6 +192,7 @@ func NewAppError(
 	params map[string]any,
 	details string,
 	status int,
+	err error,
 ) *AppError {
 	ap := &AppError{
 		Ctx:           ctx,
@@ -201,6 +202,7 @@ func NewAppError(
 		Where:         where,
 		DetailedError: details,
 		StatusCode:    status,
+		Wrapped:       err,
 	}
 	ap.Translate(Tr)
 	return ap

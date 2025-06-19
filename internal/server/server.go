@@ -7,9 +7,11 @@ import (
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/common"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/controller"
+	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
+	"github.com/jackc/pgx/v5/pgxpool"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
@@ -21,6 +23,8 @@ type Server struct {
 	tracerProvider *sdktrace.TracerProvider
 	metrics        *grpcprom.ServerMetrics
 	log            *logger.Logger
+	db             *pgxpool.Pool
+	dbStore        store.UsersStore
 }
 
 type ServerArgs struct {
@@ -47,11 +51,16 @@ func RunServer(s *ServerArgs) error {
 	app.initTracerProvider(ctx)
 	app.initMetrics()
 
+	app.initDB()
+	defer app.db.Close()
+	app.initStore()
+
 	_, err = controller.NewController(&controller.ControllerArgs{
 		Cfg:            app.config,
 		TracerProvider: app.tracerProvider,
 		Metrics:        app.metrics,
 		Log:            app.log,
+		Store:          app.dbStore,
 	})
 	if err != nil {
 		app.done <- err

@@ -53,6 +53,7 @@ func TranslationsInit(translations map[string]*pb.TranslationElements) error {
 
 // Tr translate a given message id with the passed params (if passed)
 func Tr(lang string, id string, params map[string]any) (string, error) {
+	fmt.Printf("lang %s, id %s", lang, id)
 	if transStore == nil {
 		panic("trans keys are not initialized, call models.TranslationsInit on server init")
 	}

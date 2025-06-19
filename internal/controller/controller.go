@@ -1,15 +1,14 @@
 package controller
 
 import (
-	"context"
 	"net"
 
 	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/selector"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -35,6 +34,7 @@ var traceIdForMethods = map[string]bool{
 
 type Controller struct {
 	pb.UnimplementedUserServiceServer
+	store          store.UsersStore
 	cfg            *common.Config
 	tracerProvider *sdktrace.TracerProvider
 	metrics        *grpcprom.ServerMetrics
@@ -46,25 +46,22 @@ type ControllerArgs struct {
 	TracerProvider *sdktrace.TracerProvider
 	Metrics        *grpcprom.ServerMetrics
 	Log            *logger.Logger
+	Store          store.UsersStore
 }
 
 func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
-	c := &Controller{cfg: ca.Cfg, tracerProvider: ca.TracerProvider, metrics: ca.Metrics, log: ca.Log}
-
-	authMatcher := func(ctx context.Context, callMeta interceptors.CallMeta) bool {
-		_, ok := protectedMethods[callMeta.Method]
-		return ok
-	}
+	c := &Controller{cfg: ca.Cfg, tracerProvider: ca.TracerProvider, metrics: ca.Metrics, log: ca.Log, store: ca.Store}
+	defaultAcceptLang := c.cfg.Localization.GetDefaultClientLocale()
 
 	s := grpc.NewServer(
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
-			unaryMetadataInterceptor(),
+			unaryMetadataInterceptor(defaultAcceptLang),
 			c.metrics.UnaryServerInterceptor(grpcprom.WithExemplarFromContext(traceID)),
 			selector.UnaryServerInterceptor(auth.UnaryServerInterceptor(authMiddleware), selector.MatchFunc(authMatcher)),
 		),
 		grpc.ChainStreamInterceptor(
-			streamMetadataInterceptor(),
+			streamMetadataInterceptor(defaultAcceptLang),
 			c.metrics.StreamServerInterceptor(grpcprom.WithExemplarFromContext(traceID)),
 			selector.StreamServerInterceptor(auth.StreamServerInterceptor(authMiddleware), selector.MatchFunc(authMatcher)),
 		),

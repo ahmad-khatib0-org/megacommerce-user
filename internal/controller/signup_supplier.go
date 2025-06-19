@@ -2,17 +2,60 @@ package controller
 
 import (
 	"context"
+	"fmt"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"google.golang.org/grpc/codes"
 )
 
-func (c *Controller) CreateSupplier(context context.Context, s *pb.SupplierCreateRequest) (*pb.SupplierCreateResponse, error) {
+func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCreateRequest) (*pb.SupplierCreateResponse, error) {
 	ctx, err := getContext(context)
 	if err != nil {
 		return nil, err
 	}
 
-	c.log.InfoStruct("incoming context is ", ctx)
+	ar := models.AuditRecordNew(ctx, models.EventNameSupplierCreate, models.EventStatusFail)
+	models.AuditEventDataParameter(ar, "supplier", models.SignupSupplierRequestAuditable(req))
+	defer c.ProcessAudit(ar)
+
+	sanitized := models.SignupSupplierRequestSanitize(req)
+	if err = models.SignupSupplierRequestIsValid(ctx, sanitized, c.cfg.Password); err != nil {
+		return nil, err
+	}
+
+	dbPay, err := models.SignupSupplierRequestPreSave(
+		ctx,
+		&pb.User{
+			Username:   utils.NewPointer(sanitized.GetUsername()),
+			FirstName:  utils.NewPointer(sanitized.GetFirstName()),
+			LastName:   utils.NewPointer(sanitized.GetLastName()),
+			Email:      utils.NewPointer(sanitized.GetEmail()),
+			Membership: utils.NewPointer("free"),
+			Password:   utils.NewPointer(sanitized.GetPassword()),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := c.store.SignupSupplier(ctx, dbPay); err != nil {
+		if err.ErrType == store.DBErrorTypeUniqueViolation {
+			return nil, models.NewAppError(ctx,
+				"user.controller.SignupSupplier",
+				"user.create.email.not_unique", nil,
+				fmt.Sprintf("the email: %s is already in use", dbPay.GetEmail()),
+				int(codes.AlreadyExists),
+				err,
+			)
+		} else {
+			return nil, models.NewAppError(ctx, "user.controller.SignupSupplier", "server.internal.error", nil, "", int(codes.Internal), err)
+		}
+	}
+
+	ar.Success()
 
 	return &pb.SupplierCreateResponse{}, nil
 }
