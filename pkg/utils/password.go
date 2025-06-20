@@ -9,8 +9,9 @@ import (
 )
 
 type InvalidPassword struct {
-	Id  string
-	Err string
+	Id     string
+	Err    string
+	Params map[string]any
 }
 
 func (ip InvalidPassword) Error() string {
@@ -23,6 +24,7 @@ func (ip InvalidPassword) Error() string {
 func IsValidPassword(pass string, settings *pb.ConfigPassword, idPrefix string) *InvalidPassword {
 	id := "password."
 	isErr := false
+	var params map[string]any
 
 	if idPrefix != "" {
 		id = idPrefix
@@ -31,37 +33,30 @@ func IsValidPassword(pass string, settings *pb.ConfigPassword, idPrefix string) 
 	if len(pass) < int(settings.GetMinimumLength()) {
 		id += "min_length"
 		isErr = true
-	}
-
-	if len(pass) < int(settings.GetMaximumLenght()) {
-		id += "min_length"
+		params = map[string]any{"Min": settings.GetMinimumLength()}
+	} else if len(pass) > int(settings.GetMaximumLength()) {
+		id += "max_length"
 		isErr = true
-	}
-
-	if settings.GetLowercase() && !strings.ContainsAny(pass, LowercaseLetters) {
+		params = map[string]any{"Max": settings.GetMaximumLength()}
+	} else if settings.GetLowercase() && !strings.ContainsAny(pass, LowercaseLetters) {
 		id += "lowercase"
 		isErr = true
-	}
-
-	if settings.GetUppercase() && !strings.ContainsAny(pass, UppercaseLetters) {
+	} else if settings.GetUppercase() && !strings.ContainsAny(pass, UppercaseLetters) {
 		id += "uppercase"
 		isErr = true
-	}
-
-	if settings.GetNumber() && !strings.ContainsAny(pass, Numbers) {
+	} else if settings.GetNumber() && !strings.ContainsAny(pass, Numbers) {
 		id += "numbers"
 		isErr = true
-	}
-
-	if settings.GetSymbol() && !strings.ContainsAny(pass, Symbols) {
+	} else if settings.GetSymbol() && !strings.ContainsAny(pass, Symbols) {
 		id += "symbols"
 		isErr = true
 	}
 
 	if isErr {
 		return &InvalidPassword{
-			Id:  id,
-			Err: fmt.Sprintf("invalid password: %s, err: %s ", pass, id),
+			Id:     id,
+			Err:    fmt.Sprintf("invalid password: %s, err: %s ", pass, id),
+			Params: params,
 		}
 	}
 

@@ -17,6 +17,7 @@ func SignupSupplierRequestSanitize(s *user.SupplierCreateRequest) *user.Supplier
 		Email:     strings.ToLower(s.GetEmail()),
 		FirstName: utils.SanitizeUnicode(s.GetFirstName()),
 		LastName:  utils.SanitizeUnicode(s.GetLastName()),
+		Password:  s.GetPassword(),
 	}
 }
 
@@ -52,7 +53,8 @@ func SignupSupplierRequestIsValid(ctx *Context, s *user.SupplierCreateRequest, p
 	}
 
 	if err := utils.IsValidPassword(pass, passCfg, ""); err != nil {
-		return NewAppError(ctx, "user.models.SupplierCreateRequest.password", err.Id, nil, fmt.Sprintf("invalid password %s ", pass), int(codes.Internal), err)
+		fmt.Println("password is ", pass, "passCfg is ", err.Id)
+		return NewAppError(ctx, "user.models.SupplierCreateRequest.password", err.Id, err.Params, fmt.Sprintf("invalid password %s ", pass), int(codes.InvalidArgument), err)
 	}
 
 	return nil
@@ -62,7 +64,7 @@ func signupSupplierRequestErrorBuilder(ctx *Context, fieldName string, fieldValu
 	where := "user.models.SupplierCreateRequest.SignupSupplierRequestIsValid"
 	id := fmt.Sprintf("user.create.%s.error", fieldName)
 	details := fmt.Sprintf(" %s=%v ", fieldName, fieldValue)
-	return NewAppError(ctx, where, id, params, details, int(codes.Internal), nil)
+	return NewAppError(ctx, where, id, params, details, int(codes.InvalidArgument), nil)
 }
 
 func SignupSupplierRequestAuditable(s *user.SupplierCreateRequest) map[string]string {

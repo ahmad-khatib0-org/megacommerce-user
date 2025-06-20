@@ -38,7 +38,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 			LastName:   utils.NewPointer(sanitized.GetLastName()),
 			Email:      utils.NewPointer(sanitized.GetEmail()),
 			Membership: utils.NewPointer("free"),
-			Password:   utils.NewPointer(sanitized.GetPassword()),
+			Password:   utils.NewPointer(req.GetPassword()),
 		},
 	)
 	if err != nil {

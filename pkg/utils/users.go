@@ -9,6 +9,8 @@ func IsValidUsernameChars(un string) bool {
 
 // SanitizeUnicode will remove undesirable Unicode characters from a string.
 func SanitizeUnicode(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.ReplaceAll(s, "\n", "")
 	return strings.Map(filterBlocklist, s)
 }
 
