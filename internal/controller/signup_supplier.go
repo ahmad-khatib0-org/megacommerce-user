@@ -13,8 +13,12 @@ import (
 
 func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCreateRequest) (*pb.SupplierCreateResponse, error) {
 	ctx, err := getContext(context)
+	errBuilder := func(e *models.AppError) (*pb.SupplierCreateResponse, error) {
+		return &pb.SupplierCreateResponse{Response: &pb.SupplierCreateResponse_Error{Error: models.AppErrorToProto(e)}}, nil
+	}
+
 	if err != nil {
-		return nil, err
+		return errBuilder(err)
 	}
 
 	ar := models.AuditRecordNew(ctx, models.EventNameSupplierCreate, models.EventStatusFail)
@@ -23,7 +27,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 
 	sanitized := models.SignupSupplierRequestSanitize(req)
 	if err = models.SignupSupplierRequestIsValid(ctx, sanitized, c.cfg.Password); err != nil {
-		return nil, err
+		return errBuilder(err)
 	}
 
 	dbPay, err := models.SignupSupplierRequestPreSave(
@@ -38,24 +42,26 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 		},
 	)
 	if err != nil {
-		return nil, err
+		return errBuilder(err)
 	}
 
 	if err := c.store.SignupSupplier(ctx, dbPay); err != nil {
 		if err.ErrType == store.DBErrorTypeUniqueViolation {
-			return nil, models.NewAppError(ctx,
-				"user.controller.SignupSupplier",
-				"user.create.email.not_unique", nil,
-				fmt.Sprintf("the email: %s is already in use", dbPay.GetEmail()),
-				int(codes.AlreadyExists),
-				err,
-			)
+			return errBuilder(
+				models.NewAppError(
+					ctx, "user.controller.SignupSupplier",
+					"user.create.email.not_unique", nil,
+					fmt.Sprintf("the email: %s is already in use", dbPay.GetEmail()),
+					int(codes.AlreadyExists), err,
+				))
 		} else {
-			return nil, models.NewAppError(ctx, "user.controller.SignupSupplier", "server.internal.error", nil, "", int(codes.Internal), err)
+			return errBuilder(
+				models.NewAppError(ctx, "user.controller.SignupSupplier", "server.internal.error", nil, "", int(codes.Internal), err),
+			)
 		}
 	}
 
 	ar.Success()
 
-	return &pb.SupplierCreateResponse{}, nil
+	return &pb.SupplierCreateResponse{Response: &pb.SupplierCreateResponse_Data{}}, nil
 }

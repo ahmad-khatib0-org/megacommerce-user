@@ -37,7 +37,12 @@ func TranslationsInit(translations map[string]*pb.TranslationElements) error {
 				return fmt.Errorf("encountered an empty translation key, key: %s value: %s", trID, v.Tr)
 			}
 
-			goTemp, hasVars := parseTranslateIdVars(trID)
+			trVal := v.GetTr()
+			if trVal == "" {
+				return fmt.Errorf("encountered an empty translation value, value: %s key: %s", trVal, trID)
+			}
+
+			goTemp, hasVars := parseTranslateIdVars(trVal)
 			tmp, err := template.New("msg").Parse(goTemp)
 			if err != nil {
 				return fmt.Errorf("an error occurred while trying to parse a translation template %v", err)
@@ -53,7 +58,6 @@ func TranslationsInit(translations map[string]*pb.TranslationElements) error {
 
 // Tr translate a given message id with the passed params (if passed)
 func Tr(lang string, id string, params map[string]any) (string, error) {
-	fmt.Printf("lang %s, id %s", lang, id)
 	if transStore == nil {
 		panic("trans keys are not initialized, call models.TranslationsInit on server init")
 	}
@@ -64,6 +68,10 @@ func Tr(lang string, id string, params map[string]any) (string, error) {
 	}
 
 	var buf bytes.Buffer
+	if value.HasVars && len(params) == 0 {
+		panic("this translation id: %s, must has params associated with it")
+	}
+
 	if err := value.Temp.Execute(&buf, params); err != nil {
 		return "", err
 	}

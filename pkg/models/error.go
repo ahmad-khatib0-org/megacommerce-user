@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"strings"
 
-	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	shared "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
 )
 
 const maxErrorLength = 1024
@@ -42,8 +43,8 @@ func (ie *InternalError) Message() string {
 }
 
 type AppError struct {
-	Ctx *Context
-	Id  string `json:"id"`
+	Ctx *Context `json:"ctx"`
+	Id  string   `json:"id"`
 	// Message to be display to the end user without debugging information
 	Message string `json:"message"`
 	// Internal error string to help the developer
@@ -51,8 +52,10 @@ type AppError struct {
 	// The RequestId that's also set in the header
 	RequestId string `json:"request_id,omitempty"`
 	// The grpc status code
-	StatusCode int            `json:"status_code,omitempty"`
-	Params     map[string]any `json:"params"`
+	StatusCode   int                          `json:"status_code,omitempty"`
+	TrParams     map[string]any               `json:"tr_params"`
+	Params       map[string]string            `json:"params,omitempty"`
+	NestedParams map[string]map[string]string `json:"nested_params,omitempty"`
 	// The function where it happened in the form of Struct.Func
 	Where string `json:"-"`
 	// Whether translation for the error should be skipped.
@@ -108,7 +111,7 @@ func (er *AppError) Translate(tf TranslateFunc) {
 		er.Message = er.Id
 		return
 	} else {
-		tr, err := tf(er.Ctx.AcceptLanguage, er.Id, er.Params)
+		tr, err := tf(er.Ctx.AcceptLanguage, er.Id, er.TrParams)
 		if err != nil {
 			// Track error
 		}
@@ -180,7 +183,9 @@ func (ae *AppError) Default() *AppError {
 		StatusCode:      0,
 		Where:           "",
 		SkipTranslation: false,
-		Params:          make(map[string]any),
+		TrParams:        make(map[string]any),
+		Params:          make(map[string]string),
+		NestedParams:    make(map[string]map[string]string),
 		Wrapped:         nil,
 	}
 }
@@ -189,7 +194,7 @@ func NewAppError(
 	ctx *Context,
 	where string,
 	id string,
-	params map[string]any,
+	trParams map[string]any,
 	details string,
 	status int,
 	err error,
@@ -197,64 +202,86 @@ func NewAppError(
 	ap := &AppError{
 		Ctx:           ctx,
 		Id:            id,
-		Params:        params,
+		TrParams:      trParams,
 		Message:       id,
 		Where:         where,
 		DetailedError: details,
 		StatusCode:    status,
 		Wrapped:       err,
 	}
+
 	ap.Translate(Tr)
 	return ap
 }
 
-func AppErrorFromProto(protoErr *pb.AppError) *AppError {
-	if protoErr == nil {
+func AppErrorFromProto(ae *shared.AppError) *AppError {
+	if ae == nil {
 		ae := &AppError{}
 		return ae.Default()
 	}
 
+	params, nested := AppErrorConvertProtoParams(ae)
+
 	return &AppError{
-		Id:              protoErr.Id,
-		Message:         protoErr.Message,
-		DetailedError:   protoErr.DetailedError,
-		RequestId:       protoErr.RequestId,
-		StatusCode:      int(protoErr.StatusCode),
-		Where:           protoErr.Where,
-		SkipTranslation: protoErr.SkipTranslation,
-		Params:          AppErrorConvertProtoParams(protoErr),
+		Id:              ae.Id,
+		Message:         ae.Message,
+		DetailedError:   ae.DetailedError,
+		RequestId:       ae.RequestId,
+		StatusCode:      int(ae.StatusCode),
+		Where:           ae.Where,
+		SkipTranslation: ae.SkipTranslation,
+		Params:          params,
+		NestedParams:    nested,
 	}
 }
 
-func AppErrorConvertProtoParams(ae *pb.AppError) map[string]any {
-	if ae.Params == nil {
-		return nil
+func AppErrorToProto(e *AppError) *shared.AppError {
+	nested := make(map[string]*shared.StringMap, len(e.NestedParams))
+
+	if len(e.NestedParams) > 0 {
+		for k, v := range e.NestedParams {
+			nested[k] = &shared.StringMap{Data: v}
+		}
 	}
 
-	switch {
-	case ae.Params.MessageIs(&pb.StringMap{}):
-		var sm pb.StringMap
-		if err := ae.Params.UnmarshalTo(&sm); err == nil {
-			params := make(map[string]any, len(sm.Data))
-			for k, v := range sm.Data {
-				params[k] = v
-			}
-			return params
-		}
+	return &shared.AppError{
+		Id:              e.Id,
+		Message:         e.Message,
+		DetailedError:   e.DetailedError,
+		StatusCode:      int32(e.StatusCode),
+		Where:           e.Where,
+		SkipTranslation: e.SkipTranslation,
+		Params:          &shared.StringMap{Data: e.Params},
+		NestedParams:    &shared.NestedStringMap{Data: nested},
+	}
+}
 
-	case ae.Params.MessageIs(&pb.NestedStringMap{}):
-		var nsm pb.NestedStringMap
-		if err := ae.Params.UnmarshalTo(&nsm); err == nil {
-			params := make(map[string]any, len(nsm.Data))
-			for k, v := range nsm.Data {
-				params[k] = v
-			}
-			return params
-		}
-
-	default:
-		return nil // TODO: fatal here
+func AppErrorConvertProtoParams(ae *shared.AppError) (map[string]string, map[string]map[string]string) {
+	if ae.Params == nil && ae.NestedParams == nil {
+		return nil, nil
 	}
 
-	return nil
+	shallowCount := 0
+	nestedCount := 0
+	if ae.Params != nil && len(ae.Params.Data) > 0 {
+		shallowCount = len(ae.Params.Data)
+	}
+	if ae.NestedParams != nil && len(ae.NestedParams.Data) > 0 {
+		nestedCount = len(ae.NestedParams.Data)
+	}
+
+	shallow := make(map[string]string, shallowCount)
+	nested := make(map[string]map[string]string, nestedCount)
+
+	if ae.Params != nil && len(ae.Params.Data) > 0 {
+		maps.Copy(shallow, ae.Params.Data)
+	}
+
+	if ae.NestedParams != nil && len(ae.NestedParams.Data) > 0 {
+		for k, v := range ae.NestedParams.Data {
+			nested[k] = v.Data
+		}
+	}
+
+	return shallow, nested
 }

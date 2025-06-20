@@ -3,7 +3,7 @@ module github.com/ahmad-khatib0-org/megacommerce-user
 go 1.23.6
 
 require (
-	github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250614181819-89956dc38ea4
+	github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250619172535-69cfe35f2d9f
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.0.1
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.1.0
 	github.com/jackc/pgx/v5 v5.7.5
