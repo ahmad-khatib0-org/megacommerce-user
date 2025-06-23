@@ -3,20 +3,23 @@ package controller
 import (
 	"context"
 	"fmt"
+	"time"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
+	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/hibiken/asynq"
 	"google.golang.org/grpc/codes"
 )
 
 func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCreateRequest) (*pb.SupplierCreateResponse, error) {
-	ctx, err := getContext(context)
 	errBuilder := func(e *models.AppError) (*pb.SupplierCreateResponse, error) {
 		return &pb.SupplierCreateResponse{Response: &pb.SupplierCreateResponse_Error{Error: models.AppErrorToProto(e)}}, nil
 	}
 
+	ctx, err := models.ContextGet(context)
 	if err != nil {
 		return errBuilder(err)
 	}
@@ -55,12 +58,24 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 					int(codes.AlreadyExists), err,
 				))
 		} else {
-			return errBuilder(
-				models.NewAppError(ctx, "user.controller.SignupSupplier", "server.internal.error", nil, "", int(codes.Internal), err),
-			)
+			return errBuilder(InternalError(ctx, err))
 		}
 	}
 
+	optoins := []asynq.Option{asynq.MaxRetry(10), asynq.ProcessIn(time.Second * 10), asynq.Queue(worker.QueuePriorityCritical)}
+	taskPayload := &models.TaskSendVerifyEmailPayload{
+		Ctx:   ctx,
+		Email: dbPay.GetEmail(),
+		Token: "token",
+		Hours: 333,
+	}
+
+	if err := c.tasker.SendVerifyEmail(context, taskPayload, optoins...); err != nil {
+		c.log.Errorf("error sending verify email ", err)
+		return errBuilder(InternalError(ctx, err))
+	}
+
+	ar.AuditEventDataResultState(models.SignupSupplierRequestResultState(dbPay))
 	ar.Success()
 
 	return &pb.SupplierCreateResponse{Response: &pb.SupplierCreateResponse_Data{}}, nil

@@ -16,14 +16,14 @@ const (
 type StringMap map[string]string
 
 type Context struct {
-	Context        context.Context
-	Session        *Session
-	RequestId      string
-	IPAddress      string
-	XForwardedFor  string
-	Path           string
-	UserAgent      string
-	AcceptLanguage string
+	Context        context.Context `json:"-"`
+	Session        *Session        `json:"session"`
+	RequestId      string          `json:"request_id"`
+	IPAddress      string          `json:"ip_address"`
+	XForwardedFor  string          `json:"x_forwarded_for"`
+	Path           string          `json:"path"`
+	UserAgent      string          `json:"user_agent"`
+	AcceptLanguage string          `json:"accept_language"`
 }
 
 func NewContext(ctx context.Context, session *Session, requestId, ipAddress, xForwardedFor, path, userAgent, acceptLanguage string) *Context {
@@ -90,6 +90,10 @@ func ContextGet(ctx context.Context) (*Context, *AppError) {
 	}
 
 	return c, nil
+}
+
+func ContextWith(ctx context.Context, appCtx *Context) context.Context {
+	return context.WithValue(ctx, ContextKeyMetadata, appCtx)
 }
 
 type Session struct {

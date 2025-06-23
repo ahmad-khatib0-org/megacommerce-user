@@ -31,7 +31,7 @@ func authMatcher(ctx context.Context, callMeta interceptors.CallMeta) bool {
 }
 
 func traceID(ctx context.Context) prometheus.Labels {
-	method, ok := ctx.Value(ContextKeyMethodName).(string)
+	method, ok := ctx.Value(models.ContextKeyMethodName).(string)
 	if !ok || !traceIdForMethods[method] {
 		return nil
 	}
@@ -46,7 +46,7 @@ func traceID(ctx context.Context) prometheus.Labels {
 
 func unaryMetadataInterceptor(defaultAcceptLang string) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		ctx = context.WithValue(ctx, ContextKeyMethodName, info.FullMethod)
+		ctx = context.WithValue(ctx, models.ContextKeyMethodName, info.FullMethod)
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
 			ctx = extractMetadataToContext(ctx, md, defaultAcceptLang)
@@ -58,7 +58,7 @@ func unaryMetadataInterceptor(defaultAcceptLang string) grpc.UnaryServerIntercep
 
 func streamMetadataInterceptor(defaultAcceptLang string) grpc.StreamServerInterceptor {
 	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		ctx := context.WithValue(ss.Context(), ContextKeyMethodName, info.FullMethod)
+		ctx := context.WithValue(ss.Context(), models.ContextKeyMethodName, info.FullMethod)
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
 			ctx = extractMetadataToContext(ctx, md, defaultAcceptLang)
@@ -125,5 +125,5 @@ func extractMetadataToContext(ctx context.Context, md metadata.MD, defAcceptLang
 	}
 
 	c.Context = ctx
-	return context.WithValue(ctx, ContextKeyMetadata, c)
+	return context.WithValue(ctx, models.ContextKeyMetadata, c)
 }

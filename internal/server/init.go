@@ -50,7 +50,23 @@ func (s *Server) initStore() {
 }
 
 func (s *Server) initMailer() {
-	m := mailer.NewMailer(&mailer.MailerArgs{ConfigFn: s.configFn, Store: s.dbStore})
+	dir := "./internal/mailer/templates"
+	watcher, errCh, err := mailer.NewTemplateContainerWatcher(dir)
+	if err != nil {
+		s.errors <- &models.InternalError{
+			Err:  err,
+			Msg:  "failed to initialize the template watcher",
+			Path: "user.server.initMailer",
+		}
+	}
+
+	go func() {
+		for e := range errCh {
+			s.log.Warnf("templates watcher error: %v", e)
+		}
+	}()
+
+	m := mailer.NewMailer(&mailer.MailerArgs{ConfigFn: s.configFn, Store: s.dbStore, TemplateContainer: watcher})
 	s.mailer = m
 }
 

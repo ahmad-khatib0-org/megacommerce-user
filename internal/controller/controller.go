@@ -6,6 +6,7 @@ import (
 	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
+	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
@@ -14,14 +15,8 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
-)
-
-type ContextKey string
-
-const (
-	ContextKeyMetadata   ContextKey = "metadata"
-	ContextKeyMethodName ContextKey = "method_name"
 )
 
 var protectedMethods = map[string]bool{
@@ -39,6 +34,7 @@ type Controller struct {
 	tracerProvider *sdktrace.TracerProvider
 	metrics        *grpcprom.ServerMetrics
 	log            *logger.Logger
+	tasker         worker.TaskDistributor
 }
 
 type ControllerArgs struct {
@@ -47,12 +43,20 @@ type ControllerArgs struct {
 	Metrics        *grpcprom.ServerMetrics
 	Log            *logger.Logger
 	Store          store.UsersStore
+	Tasker         worker.TaskDistributor
 }
 
 func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
-	c := &Controller{cfg: ca.Cfg, tracerProvider: ca.TracerProvider, metrics: ca.Metrics, log: ca.Log, store: ca.Store}
-	defaultAcceptLang := c.cfg.Localization.GetDefaultClientLocale()
+	c := &Controller{
+		cfg:            ca.Cfg,
+		tracerProvider: ca.TracerProvider,
+		metrics:        ca.Metrics,
+		log:            ca.Log,
+		store:          ca.Store,
+		tasker:         ca.Tasker,
+	}
 
+	defaultAcceptLang := c.cfg.Localization.GetDefaultClientLocale()
 	s := grpc.NewServer(
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
@@ -86,4 +90,8 @@ func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
 	}()
 
 	return c, nil
+}
+
+func InternalError(ctx *models.Context, err error) *models.AppError {
+	return models.NewAppError(ctx, "user.controller.SignupSupplier", "server.internal.error", nil, "", int(codes.Internal), err)
 }

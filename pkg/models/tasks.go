@@ -15,9 +15,10 @@ const (
 )
 
 type TaskSendVerifyEmailPayload struct {
-	Email string `json:"email"`
-	Token string `json:"token"`
-	Hours int    `json:"hours"`
+	Ctx   *Context `json:"ctx"`
+	Email string   `json:"email"`
+	Token string   `json:"token"`
+	Hours int      `json:"hours"`
 }
 
 type ScheduledTask struct {

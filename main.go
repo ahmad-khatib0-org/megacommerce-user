@@ -13,6 +13,7 @@ func main() {
 	if env != "dev" && env != "test" && env != "prod" {
 		env = "dev"
 	}
+
 	config, err := server.LoadServiceConfig(fmt.Sprintf("config.%s.yaml", env))
 	if err != nil {
 		panic(err)
