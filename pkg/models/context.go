@@ -1,6 +1,17 @@
 package models
 
-import "context"
+import (
+	"context"
+
+	"google.golang.org/grpc/codes"
+)
+
+type ContextKey string
+
+const (
+	ContextKeyMetadata   ContextKey = "metadata"
+	ContextKeyMethodName ContextKey = "method_name"
+)
 
 type StringMap map[string]string
 
@@ -64,6 +75,21 @@ func (c *Context) GetUserAgent() string {
 
 func (c *Context) GetAcceptLanguage() string {
 	return c.AcceptLanguage
+}
+
+func ContextGet(ctx context.Context) (*Context, *AppError) {
+	c, ok := ctx.Value(ContextKeyMetadata).(*Context)
+	if !ok {
+		return nil, &AppError{
+			Ctx:           c,
+			Id:            "server.internal.error",
+			DetailedError: "failed to get the context from the incoming request",
+			Where:         "user.models.ContextGet",
+			StatusCode:    int(codes.Internal),
+		}
+	}
+
+	return c, nil
 }
 
 type Session struct {

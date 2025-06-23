@@ -115,3 +115,33 @@ func SignupSupplierRequestPreSave(ctx *Context, s *user.User) (*user.User, *AppE
 
 	return u, nil
 }
+
+func SignupSupplierRequestResultState(s *user.User) map[string]any {
+	return map[string]any{
+		"id":                   s.GetId(),
+		"username":             s.GetUsername(),
+		"first_name":           s.GetFirstName(),
+		"last_name":            s.GetLastName(),
+		"email":                s.GetEmail(),
+		"user_type":            s.GetUserType(),
+		"membership":           s.GetMembership(),
+		"is_email_verified":    s.GetIsEmailVerified(),
+		"password":             s.GetPassword(),
+		"auth_data":            s.GetAuthData(),
+		"auth_service":         s.GetAuthService(),
+		"roles":                s.GetRoles(),
+		"props":                s.GetProps(),
+		"notify_props":         s.GetNotifyProps(),
+		"locale":               s.GetLocale(),
+		"mfa_active":           s.GetMfaActive(),
+		"last_password_update": nil,
+		"last_picture_update":  nil,
+		"failed_attempts":      nil,
+		"mfa_secret":           nil,
+		"last_activity_at":     nil,
+		"last_login":           nil,
+		"updated_at":           nil,
+		"deleted_at":           nil,
+		"created_at":           s.GetCreatedAt(),
+	}
+}

@@ -10,8 +10,15 @@ type TaskName string
 type TaskFunc func()
 
 const (
-	TaskNameEmailBatching TaskName = "email_batching"
+	TaskNameEmailBatching   TaskName = "email_batching"
+	TaskNameSendVerifyEmail TaskName = "send_verify_email"
 )
+
+type TaskSendVerifyEmailPayload struct {
+	Email string `json:"email"`
+	Token string `json:"token"`
+	Hours int    `json:"hours"`
+}
 
 type ScheduledTask struct {
 	Name                 string        `json:"name"`
