@@ -1,0 +1,40 @@
+{{define "verify_email"}}
+<!doctype html>
+<html lang="{{.Props.Lang}}">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{.Props.Title}}</title>
+
+  <style>
+    body {
+      width: 90%;
+      text-align: center;
+      margin: 30px auto;
+      background-color: #e3e6ed;
+    }
+
+    h2 {
+      color: #003151;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>{{ .Props.Welcome }}</h1>
+  <br />
+  <p>{{ .Props.Welcome2 }}</p>
+  <p>
+    <a href="{{ .Props.Url }}">{{ .Props.Click }}</a>
+    {{ .Props.Redirect }}
+  </p>
+  <br />
+  <p>{{ .Props.Note }}</p>
+  <br />
+  {{ template "footer" . }}
+</body>
+
+</html>
+{{end}}

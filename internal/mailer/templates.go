@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/fsnotify/fsnotify"
 )
 
@@ -24,6 +25,18 @@ type TemplateContainer struct {
 type TemplateData struct {
 	Props map[string]any
 	Html  map[string]template.HTML
+}
+
+func (s *Mailer) NewTemplateData(lang string) (*TemplateData, error) {
+	footer, err := models.Tr(lang, "templates.footer.part1", map[string]any{
+		"SupportEmail": s.config().GetSupport().GetSupportEmail(),
+		"SiteName":     s.config().Main.GetSiteName(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &TemplateData{Props: map[string]any{"Footer": footer}}, nil
 }
 
 func NewTemplateContainerFromTemplate(t *template.Template) *TemplateContainer {
