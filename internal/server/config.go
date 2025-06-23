@@ -1,6 +1,7 @@
 package server
 
 import (
+	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/spf13/viper"
 )
@@ -8,9 +9,10 @@ import (
 func (a *Server) initSharedConfig() {
 	config, err := a.commonClient.ConfigGet()
 	if err != nil {
-		a.done <- err
+		a.errors <- err
 	}
 
+	a.configFn = func() *com.Config { return config }
 	a.configMux.Lock()
 	a.config = config
 	a.configMux.Unlock()

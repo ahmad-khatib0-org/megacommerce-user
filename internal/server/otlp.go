@@ -22,7 +22,7 @@ func (c *Server) initTracerProvider(ctx context.Context) {
 		otlptracegrpc.WithInsecure(),
 	)
 	if err != nil {
-		c.done <- &models.InternalError{Err: err, Msg: "failed to init jaeger tracer", Path: "user.controller.getTracerProvider"}
+		c.errors <- &models.InternalError{Err: err, Msg: "failed to init jaeger tracer", Path: "user.controller.getTracerProvider"}
 	}
 
 	tp := sdktrace.NewTracerProvider(
