@@ -4,15 +4,15 @@ import (
 	"context"
 	"time"
 
-	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 )
 
-func (cc *CommonClient) TranslationsGet() (map[string]*pb.TranslationElements, *models.InternalError) {
+func (cc *CommonClient) TranslationsGet() (map[string]*com.TranslationElements, *models.InternalError) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	res, err := cc.client.TranslationsGet(ctx, &pb.TranslationsGetRequest{})
+	res, err := cc.client.TranslationsGet(ctx, &com.TranslationsGetRequest{})
 	if err != nil {
 		return nil, &models.InternalError{
 			Temp: false,

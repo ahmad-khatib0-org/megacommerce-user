@@ -1,0 +1,10 @@
+---
+packages:
+  github.com/ahmad-khatib0-org/megacommerce-user/internal/worker:
+    config:
+      dir: "internal/worker/mocks"
+      filename: "{{.InterfaceName}}.go"
+      pkgname: mocks
+    interfaces:
+      TaskProcessor: {}
+      TaskDistributor: {}

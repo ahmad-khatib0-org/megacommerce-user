@@ -38,7 +38,7 @@ type ServerArgs struct {
 }
 
 func RunServer(s *ServerArgs) error {
-	com, err := common.NewCommonClient(s.Cfg)
+	com, err := common.NewCommonClient(&common.CommonArgs{Config: s.Cfg, Log: s.Log})
 	app := &Server{
 		commonClient: com,
 		errors:       make(chan *models.InternalError, 1),

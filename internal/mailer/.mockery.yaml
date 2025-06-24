@@ -1,0 +1,9 @@
+---
+packages:
+  github.com/ahmad-khatib0-org/megacommerce-user/internal/mailer:
+    config:
+      dir: internal/mailer/mocks
+      filename: "{{.InterfaceName}}.go"
+      pkgname: "mocks"
+    interfaces:
+      MailerService: {}

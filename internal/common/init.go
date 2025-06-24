@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -38,13 +38,13 @@ func (cc *CommonClient) initCommonClient() *models.InternalError {
 	}
 
 	fmt.Println("user service is listening on common grpc service on: " + target)
-	cc.client = pb.NewCommonServiceClient(conn)
+	cc.client = com.NewCommonServiceClient(conn)
 	cc.conn = conn
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err = cc.client.Ping(ctx, &pb.PingRequest{})
+	_, err = cc.client.Ping(ctx, &com.PingRequest{})
 	if err != nil {
 		return &models.InternalError{
 			Temp: false,

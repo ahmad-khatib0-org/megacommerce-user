@@ -1,0 +1,9 @@
+---
+packages:
+  github.com/ahmad-khatib0-org/megacommerce-user/internal/store:
+    config:
+      dir: "internal/store/mocks"
+      filename: "{{.InterfaceName}}.go"
+      pkgname: mocks
+    interfaces:
+      UsersStore: {}

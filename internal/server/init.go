@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	commonPb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/mailer"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store/dbstore"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func (a *Server) initTrans() map[string]*commonPb.TranslationElements {
+func (a *Server) initTrans() map[string]*com.TranslationElements {
 	trans, err := a.commonClient.TranslationsGet()
 	if err != nil {
 		a.errors <- err
