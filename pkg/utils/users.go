@@ -1,6 +1,26 @@
 package utils
 
-import "strings"
+import (
+	"math/rand"
+	"strings"
+)
+
+// RandomUserName generates a random username that matches the
+// ValidUserNameRegex. The length is between minLen and maxLen (inclusive).
+func RandomUserName(min, max int) string {
+	const validUsernameChars = LowercaseLetters + UppercaseLetters + Numbers + "._-"
+	if min < 1 || max < min {
+		panic("invalid min/max length")
+	}
+
+	length := rand.Intn(max-min+1) + min
+	username := make([]byte, length)
+	for i := range username {
+		username[i] = validUsernameChars[rand.Intn(len(validUsernameChars))]
+	}
+
+	return string(username)
+}
 
 // IsValidUsernameChars( ) checks if the username characters are allowed
 func IsValidUsernameChars(un string) bool {

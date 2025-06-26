@@ -30,8 +30,8 @@ func NewCommonClient(ca *CommonArgs) (*CommonClient, *models.InternalError) {
 	return c, nil
 }
 
-func (c *CommonClient) Close() {
-	c.conn.Close()
+func (c *CommonClient) Close() error {
+	return c.conn.Close()
 }
 
 func (c *CommonClient) Conn() *grpc.ClientConn {

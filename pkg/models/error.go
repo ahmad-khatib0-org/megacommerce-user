@@ -33,6 +33,10 @@ func (ie *InternalError) Error() string {
 		sb.WriteString(", ")
 	}
 
+	if ie.Err != nil {
+		sb.WriteString(fmt.Sprintf("%v", ie.Err))
+	}
+
 	sb.WriteString(fmt.Sprintf(", temp: %t", ie.Temp))
 
 	return sb.String()
