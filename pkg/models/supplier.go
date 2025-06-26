@@ -40,20 +40,15 @@ func SignupSupplierRequestIsValid(ctx *Context, s *user.SupplierCreateRequest, p
 		return signupSupplierRequestErrorBuilder(ctx, "email", email, nil)
 	}
 
-	if fn != "" {
-		if utf8.RuneCountInString(fn) > UserFirstNameMaxRunes || utf8.RuneCountInString(fn) < UserFirstNameMinRunes {
-			return signupSupplierRequestErrorBuilder(ctx, "first_name", fn, map[string]any{"Min": UserFirstNameMinRunes, "Max": UserFirstNameMaxRunes})
-		}
+	if utf8.RuneCountInString(fn) > UserFirstNameMaxRunes || utf8.RuneCountInString(fn) < UserFirstNameMinRunes {
+		return signupSupplierRequestErrorBuilder(ctx, "first_name", fn, map[string]any{"Min": UserFirstNameMinRunes, "Max": UserFirstNameMaxRunes})
 	}
 
-	if ln != "" {
-		if utf8.RuneCountInString(ln) > UserLastNameMaxRunes || utf8.RuneCountInString(fn) < UserLastNameMinRunes {
-			return signupSupplierRequestErrorBuilder(ctx, "last_name", fn, map[string]any{"Min": UserLastNameMinRunes, "Max": UserLastNameMaxRunes})
-		}
+	if utf8.RuneCountInString(ln) > UserLastNameMaxRunes || utf8.RuneCountInString(ln) < UserLastNameMinRunes {
+		return signupSupplierRequestErrorBuilder(ctx, "last_name", ln, map[string]any{"Min": UserLastNameMinRunes, "Max": UserLastNameMaxRunes})
 	}
 
 	if err := utils.IsValidPassword(pass, passCfg, ""); err != nil {
-		fmt.Println("password is ", pass, "passCfg is ", err.Id)
 		return NewAppError(ctx, "user.models.SupplierCreateRequest.password", err.Id, err.Params, fmt.Sprintf("invalid password %s ", pass), int(codes.InvalidArgument), err)
 	}
 
