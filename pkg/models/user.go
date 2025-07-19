@@ -4,7 +4,7 @@ type UserType string
 
 const (
 	UserTypeSupplier UserType = "supplier"
-	UserTypeBuyer    UserType = "buyer"
+	UserTypeCustomer UserType = "customer"
 )
 
 const (

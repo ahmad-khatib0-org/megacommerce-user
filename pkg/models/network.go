@@ -1,6 +1,5 @@
 package models
 
-// Auto-generated header constants
 const (
 	HeaderAuthorization  = "authorization"
 	HeaderXRequestID     = "x-request-id"

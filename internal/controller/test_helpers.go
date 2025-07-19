@@ -34,8 +34,8 @@ type TestHelper struct {
 	store      *storeMocks.MockUsersStore
 	tasker     *workerMocks.MockTaskDistributor
 	mailer     *mailerMocks.MockMailerService
-	Buyer1     *TestingUser
-	Buyer2     *TestingUser
+	Customer1  *TestingUser
+	Customer2  *TestingUser
 	Supplier1  *TestingUser
 	Supplier2  *TestingUser
 }
@@ -86,13 +86,13 @@ func (th *TestHelper) TearDown() {
 }
 
 func (th *TestHelper) initUsers() {
-	th.Buyer1 = &TestingUser{
+	th.Customer1 = &TestingUser{
 		Ctx:  th.getContext(),
-		User: th.createUser(models.UserTypeBuyer, models.RoleIdBuyer),
+		User: th.createUser(models.UserTypeCustomer, models.RoleIdCustomer),
 	}
-	th.Buyer2 = &TestingUser{
+	th.Customer2 = &TestingUser{
 		Ctx:  th.getContext(),
-		User: th.createUser(models.UserTypeBuyer, models.RoleIdBuyer),
+		User: th.createUser(models.UserTypeCustomer, models.RoleIdCustomer),
 	}
 	th.Supplier1 = &TestingUser{
 		Ctx:  th.getContext(),
@@ -113,7 +113,7 @@ func (th *TestHelper) createUser(userType models.UserType, roleId models.RoleId)
 		LastName:           utils.NewPointer(gofakeit.LastName()),
 		UserType:           utils.NewPointer(string(userType)),
 		Password:           utils.NewPointer(gofakeit.Password(true, true, true, true, false, 8)),
-		Roles:              utils.NewPointer(string(roleId)),
+		Roles:              []string{string(roleId)},
 		IsEmailVerified:    utils.NewPointer(true),
 		AuthData:           utils.NewPointer(""),
 		AuthService:        utils.NewPointer(""),

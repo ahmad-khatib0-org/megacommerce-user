@@ -92,7 +92,7 @@ func SignupSupplierRequestPreSave(ctx *Context, s *user.User) (*user.User, *AppE
 		Password:           utils.NewPointer(pass),
 		AuthData:           utils.NewPointer(s.GetAuthData()),
 		AuthService:        utils.NewPointer(s.GetAuthService()),
-		Roles:              utils.NewPointer(s.GetRoles()),
+		Roles:              s.GetRoles(),
 		Props:              s.GetProps(),
 		NotifyProps:        s.GetNotifyProps(),
 		Locale:             utils.NewPointer(s.GetLocale()),

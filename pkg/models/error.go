@@ -124,28 +124,8 @@ func (er *AppError) Translate(tf TranslateFunc) {
 }
 
 func (er *AppError) ToJSON() string {
-	// turn the wrapped error into a detailed message
-	detailed := er.DetailedError
-	defer func() {
-		er.DetailedError = detailed
-	}()
-
-	er.wrappedToDetailed()
-
 	b, _ := json.Marshal(er)
 	return string(b)
-}
-
-func (er *AppError) wrappedToDetailed() {
-	if er.Wrapped == nil {
-		return
-	}
-
-	if er.DetailedError != "" {
-		er.DetailedError += ", "
-	}
-
-	er.DetailedError += er.Wrapped.Error()
 }
 
 func (er *AppError) Unwrap() error {
