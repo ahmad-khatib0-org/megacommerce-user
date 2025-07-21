@@ -3,12 +3,11 @@ package dbstore
 import (
 	"encoding/json"
 
-	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	"github.com/jackc/pgx/v5"
-	"github.com/oklog/ulid/v2"
 )
 
 func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.Token) *store.DBError {
@@ -90,7 +89,7 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 	`
 
 	args = []any{
-		ulid.Make().String(),
+		token.Id,
 		token.Token,
 		string(models.TokenTypeEmailConfirmation),
 		utils.TimeGetMillis(),

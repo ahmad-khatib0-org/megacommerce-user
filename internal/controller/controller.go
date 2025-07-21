@@ -4,7 +4,7 @@ import (
 	"net"
 
 	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
@@ -27,7 +27,7 @@ var traceIdForMethods = map[string]bool{
 }
 
 type Controller struct {
-	pb.UnimplementedUserServiceServer
+	pb.UnimplementedUsersServiceServer
 	store          store.UsersStore
 	cfg            *common.Config
 	tracerProvider *sdktrace.TracerProvider
@@ -77,7 +77,7 @@ func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
 	}
 
 	reflection.Register(s)
-	pb.RegisterUserServiceServer(s, c)
+	pb.RegisterUsersServiceServer(s, c)
 	c.metrics.InitializeMetrics(s)
 
 	go func() {
@@ -90,7 +90,3 @@ func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
 
 	return c, nil
 }
-
-// func InternalError(ctx *models.Context, err error) *models.AppError {
-// 	return models.NewAppError(ctx, "user.controller.SignupSupplier", models.ErrMsgInternal, nil, "", int(codes.Internal), err)
-// }

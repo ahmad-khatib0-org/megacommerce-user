@@ -5,10 +5,12 @@ import (
 	"encoding/base64"
 	"time"
 
+	"github.com/oklog/ulid/v2"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Token struct {
+	Id     string    `json:"id"`
 	Token  string    `json:"token"`
 	Expiry time.Time `json:"expiry"`
 	Hash   []byte    `json:"-"`
@@ -16,7 +18,7 @@ type Token struct {
 
 // GenerateToken() generate a token for a specified ttl (time to life)
 func (t *Token) GenerateToken(ttl time.Duration) (*Token, error) {
-	token := &Token{Expiry: time.Now().Add(ttl)}
+	token := &Token{Expiry: time.Now().Add(ttl), Id: ulid.Make().String()}
 
 	bytes := make([]byte, 32)
 	_, err := rand.Read(bytes)

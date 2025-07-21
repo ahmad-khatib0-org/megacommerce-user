@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
@@ -67,10 +67,11 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 
 	optoins := []asynq.Option{asynq.MaxRetry(10), asynq.ProcessIn(time.Second * 10), asynq.Queue(worker.QueuePriorityCritical)}
 	taskPayload := &models.TaskSendVerifyEmailPayload{
-		Ctx:   ctx,
-		Email: dbPay.GetEmail(),
-		Token: tokenData.Token,
-		Hours: int(c.cfg.Security.GetTokenConfirmationExpiryInHours()),
+		Ctx:     ctx,
+		Email:   dbPay.GetEmail(),
+		Token:   tokenData.Token,
+		TokenId: tokenData.Id,
+		Hours:   int(c.cfg.Security.GetTokenConfirmationExpiryInHours()),
 	}
 
 	// TODO: handle error

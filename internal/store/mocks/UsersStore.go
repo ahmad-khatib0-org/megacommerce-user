@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	"github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"

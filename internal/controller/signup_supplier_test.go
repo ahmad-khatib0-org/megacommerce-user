@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	userPb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	userPb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	"github.com/stretchr/testify/mock"

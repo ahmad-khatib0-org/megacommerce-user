@@ -143,6 +143,6 @@ func (es *Mailer) GetPerHourEmailRateLimiter() *throttled.GCRARateLimiterCtx {
 type MailerService interface {
 	GetPerDayEmailRateLimiter() *throttled.GCRARateLimiterCtx
 	GetPerHourEmailRateLimiter() *throttled.GCRARateLimiterCtx
-	SendVerifyEmail(lang, email, token string, hours int) error
+	SendVerifyEmail(lang, email, token, tokenId string, hours int) error
 	InitEmailBatching()
 }

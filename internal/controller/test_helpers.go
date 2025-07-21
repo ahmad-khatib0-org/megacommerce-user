@@ -8,7 +8,7 @@ import (
 	"time"
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	user "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	user "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/common"
 	mailerMocks "github.com/ahmad-khatib0-org/megacommerce-user/internal/mailer/mocks"
 	storeMocks "github.com/ahmad-khatib0-org/megacommerce-user/internal/store/mocks"

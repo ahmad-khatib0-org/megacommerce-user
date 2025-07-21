@@ -12,6 +12,7 @@ import (
 
 // SendVerifyEmail implements TaskDistributor.
 func (a *AsynqTaksDistributor) SendVerifyEmail(context context.Context, payload *models.TaskSendVerifyEmailPayload, opts ...asynq.Option) *models.AppError {
+	path := "user.worker.SendVerifyEmail"
 	ctx, Err := models.ContextGet(context)
 	if Err != nil {
 		return Err
@@ -19,13 +20,13 @@ func (a *AsynqTaksDistributor) SendVerifyEmail(context context.Context, payload 
 
 	pay, err := json.Marshal(payload)
 	if err != nil {
-		return models.NewAppError(ctx, "user.worker.SendVerifyEmail", models.ErrMsgInternal, nil, fmt.Sprintf("failed to marshal json payload, err: %v", err), int(codes.Internal), err)
+		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to marshal json payload, err: %v", err), int(codes.Internal), err)
 	}
 
 	task := asynq.NewTask(string(models.TaskNameSendVerifyEmail), pay, opts...)
 	info, err := a.cli.EnqueueContext(context, task)
 	if err != nil {
-		return models.NewAppError(ctx, "user.worker.SendVerifyEmail", models.ErrMsgInternal, nil, fmt.Sprintf("failed to enqueue a task , err: %v", err), int(codes.Internal), err)
+		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to enqueue a task , err: %v", err), int(codes.Internal), err)
 	}
 
 	if a.config().Main.GetEnv() == "dev" {
@@ -43,7 +44,7 @@ func (a *AsynqTaksProcessor) ProcessSendVerifyEmail(context context.Context, tas
 		return models.NewAppError(pay.Ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to unmarshal json payload, err: %v", err), int(codes.Internal), err)
 	}
 
-	if err := a.mailer.SendVerifyEmail(pay.Ctx.GetAcceptLanguage(), pay.Email, pay.Email, pay.Hours); err != nil {
+	if err := a.mailer.SendVerifyEmail(pay.Ctx.GetAcceptLanguage(), pay.Email, pay.Email, pay.TokenId, pay.Hours); err != nil {
 		return models.NewAppError(pay.Ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to send an email, err: %v", err), int(codes.Internal), err)
 	}
 

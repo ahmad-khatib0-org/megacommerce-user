@@ -12,6 +12,8 @@ github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250719141052-f6306bba82
 github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250719141052-f6306bba8200/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250721085310-3c4b2203b683 h1:r99zCXy2odpLhXlH/ERwdyOVUNQMhRUw2Lvo9VAEbCQ=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250721085310-3c4b2203b683/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250721132553-b0d86f7d25f1 h1:hjGV0Iy7WbVa2fvo/qdr3ec6UKC28qKAf+hjTu2aEzo=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250721132553-b0d86f7d25f1/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/andybalholm/cascadia v1.3.3 h1:AG2YHrzJIm4BZ19iwJ/DAua6Btl3IwJX+VI4kktS1LM=
 github.com/andybalholm/cascadia v1.3.3/go.mod h1:xNd9bqTn98Ln4DwST8/nG+H0yuB8Hmgu1YHNnWw0GeA=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=

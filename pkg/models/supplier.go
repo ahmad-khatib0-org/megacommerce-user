@@ -6,7 +6,7 @@ import (
 	"unicode/utf8"
 
 	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	user "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
+	user "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	"google.golang.org/grpc/codes"
 )

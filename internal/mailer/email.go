@@ -6,7 +6,7 @@ import (
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 )
 
-func (s *Mailer) SendVerifyEmail(lang, email, token string, hours int) error {
+func (s *Mailer) SendVerifyEmail(lang, email, token, tokenId string, hours int) error {
 	td, err := s.NewTemplateData(lang)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (s *Mailer) SendVerifyEmail(lang, email, token string, hours int) error {
 	td.Props["Click"] = click
 	td.Props["Redirect"] = redirect
 	td.Props["Note"] = note
-	td.Props["Url"] = fmt.Sprintf("%s?token=%s&email=%s", s.config().Security.GetEmailConfirmationUrl(), token, email)
+	td.Props["Url"] = fmt.Sprintf("%s?token=%s&token_id=%s&email=%s", s.config().Security.GetEmailConfirmationUrl(), token, tokenId, email)
 
 	body, err := s.templateContainer.RenderToString("verify_email", *td)
 	if err != nil {
