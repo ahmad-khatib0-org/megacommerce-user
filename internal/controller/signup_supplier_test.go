@@ -46,7 +46,7 @@ func TestSignupSupplier(t *testing.T) {
 		th.store.On("SignupSupplier", mock.AnythingOfType("*models.Context"), mock.MatchedBy(func(u *userPb.User) bool {
 			return u.GetEmail() == s.GetEmail() &&
 				u.GetUsername() == s.GetUsername()
-		})).Return(nil)
+		}), mock.AnythingOfType("*models.Token")).Return(nil)
 
 		th.tasker.On("SendVerifyEmail", mock.Anything, utils.WithMockDebug("models.TaskSendVerifyEmailPayload", func(p *models.TaskSendVerifyEmailPayload) bool {
 			return p.Email == s.GetEmail()

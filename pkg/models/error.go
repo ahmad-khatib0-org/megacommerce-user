@@ -9,6 +9,11 @@ import (
 	"strings"
 
 	shared "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
+	"google.golang.org/grpc/codes"
+)
+
+const (
+	ErrMsgInternal = "server.internal.error"
 )
 
 const maxErrorLength = 1024
@@ -53,8 +58,6 @@ type AppError struct {
 	Message string `json:"message"`
 	// Internal error string to help the developer
 	DetailedError string `json:"detailed_error"`
-	// The RequestId that's also set in the header
-	RequestId string `json:"request_id,omitempty"`
 	// The grpc status code
 	StatusCode   int                          `json:"status_code,omitempty"`
 	TrParams     map[string]any               `json:"tr_params"`
@@ -158,12 +161,22 @@ func AppErrorFromJSON(r io.Reader) error {
 	return &er
 }
 
+// ToInternal() convert to server interval error, store path if not nil
+func (ae *AppError) ToInternal(err error, path *string) *AppError {
+	ae.Wrapped = err
+	ae.StatusCode = int(codes.Internal)
+	ae.Id = ErrMsgInternal
+	if path != nil {
+		ae.Where = *path
+	}
+	return ae
+}
+
 func (ae *AppError) Default() *AppError {
 	return &AppError{
 		Id:              "",
 		Message:         "",
 		DetailedError:   "",
-		RequestId:       "",
 		StatusCode:      0,
 		Where:           "",
 		SkipTranslation: false,
@@ -198,6 +211,17 @@ func NewAppError(
 	return ap
 }
 
+func AppErrorInternal(err error, ctx *Context, where string, msg string) *AppError {
+	return &AppError{
+		Ctx:        ctx,
+		Id:         ErrMsgInternal,
+		Message:    msg,
+		StatusCode: int(codes.Internal),
+		Where:      where,
+		Wrapped:    err,
+	}
+}
+
 func AppErrorFromProto(ae *shared.AppError) *AppError {
 	if ae == nil {
 		ae := &AppError{}
@@ -210,7 +234,6 @@ func AppErrorFromProto(ae *shared.AppError) *AppError {
 		Id:              ae.Id,
 		Message:         ae.Message,
 		DetailedError:   ae.DetailedError,
-		RequestId:       ae.RequestId,
 		StatusCode:      int(ae.StatusCode),
 		Where:           ae.Where,
 		SkipTranslation: ae.SkipTranslation,

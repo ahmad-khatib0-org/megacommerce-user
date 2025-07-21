@@ -82,7 +82,7 @@ func ContextGet(ctx context.Context) (*Context, *AppError) {
 	if !ok {
 		return nil, &AppError{
 			Ctx:           c,
-			Id:            "server.internal.error",
+			Id:            ErrMsgInternal,
 			DetailedError: "failed to get the context from the incoming request",
 			Where:         "user.models.ContextGet",
 			StatusCode:    int(codes.Internal),

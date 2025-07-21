@@ -15,6 +15,7 @@ import (
 )
 
 func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCreateRequest) (*pb.SupplierCreateResponse, error) {
+	path := "user.controller.SignupSupplier"
 	errBuilder := func(e *models.AppError) (*pb.SupplierCreateResponse, error) {
 		return &pb.SupplierCreateResponse{Response: &pb.SupplierCreateResponse_Error{Error: models.AppErrorToProto(e)}}, nil
 	}
@@ -42,23 +43,25 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 			Email:      utils.NewPointer(sanitized.GetEmail()),
 			Membership: utils.NewPointer("free"),
 			Password:   utils.NewPointer(req.GetPassword()),
+			Roles:      []string{string(models.RoleIdSupplierAdmin)},
 		},
 	)
 	if err != nil {
 		return errBuilder(err)
 	}
 
-	if err := c.store.SignupSupplier(ctx, dbPay); err != nil {
+	token := &utils.Token{}
+	tokenData, errTok := token.GenerateToken(time.Duration(time.Hour * time.Duration(c.cfg.Security.GetTokenConfirmationExpiryInHours())))
+	if errTok != nil {
+		return errBuilder(err.ToInternal(err, nil))
+	}
+
+	if err := c.store.SignupSupplier(ctx, dbPay, tokenData); err != nil {
 		if err.ErrType == store.DBErrorTypeUniqueViolation {
-			return errBuilder(
-				models.NewAppError(
-					ctx, "user.controller.SignupSupplier",
-					"user.create.email.not_unique", nil,
-					fmt.Sprintf("the email: %s is already in use", dbPay.GetEmail()),
-					int(codes.AlreadyExists), err,
-				))
+			details := fmt.Sprintf("the email %s is already in use", dbPay.GetEmail())
+			return errBuilder(models.NewAppError(ctx, path, "user.create.email.not_unique", nil, details, int(codes.AlreadyExists), err))
 		} else {
-			return errBuilder(InternalError(ctx, err))
+			return errBuilder(models.AppErrorInternal(err, ctx, err.Path, err.Msg))
 		}
 	}
 
@@ -66,13 +69,13 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 	taskPayload := &models.TaskSendVerifyEmailPayload{
 		Ctx:   ctx,
 		Email: dbPay.GetEmail(),
-		Token: "token",
-		Hours: 333,
+		Token: tokenData.Token,
+		Hours: int(c.cfg.Security.GetTokenConfirmationExpiryInHours()),
 	}
 
+	// TODO: handle error
 	if err := c.tasker.SendVerifyEmail(context, taskPayload, optoins...); err != nil {
-		c.log.Errorf("error sending verify email ", err)
-		return errBuilder(InternalError(ctx, err))
+		return errBuilder(models.AppErrorInternal(err, ctx, err.Where, err.Message))
 	}
 
 	ar.AuditEventDataResultState(models.SignupSupplierRequestResultState(dbPay))

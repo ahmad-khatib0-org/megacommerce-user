@@ -77,7 +77,7 @@ func SignupSupplierRequestAuditable(s *user.SupplierCreateRequest) map[string]st
 func SignupSupplierRequestPreSave(ctx *Context, s *user.User) (*user.User, *AppError) {
 	pass, err := utils.PasswordHash(s.GetPassword())
 	if err != nil {
-		return nil, NewAppError(ctx, "user.models.SignupSupplierRequestPreSave", "server.internal.error", nil, "failed to generate password %v", int(codes.Internal), err)
+		return nil, NewAppError(ctx, "user.models.SignupSupplierRequestPreSave", ErrMsgInternal, nil, "failed to generate password %v", int(codes.Internal), err)
 	}
 
 	u := &user.User{

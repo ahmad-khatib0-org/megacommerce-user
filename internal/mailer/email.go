@@ -43,7 +43,7 @@ func (s *Mailer) SendVerifyEmail(lang, email, token string, hours int) error {
 	td.Props["Click"] = click
 	td.Props["Redirect"] = redirect
 	td.Props["Note"] = note
-	td.Props["Url"] = fmt.Sprintf("%s?token=%s&email=%s", s.config().Security.GetEmailConfirmationUrl(), email, token)
+	td.Props["Url"] = fmt.Sprintf("%s?token=%s&email=%s", s.config().Security.GetEmailConfirmationUrl(), token, email)
 
 	body, err := s.templateContainer.RenderToString("verify_email", *td)
 	if err != nil {

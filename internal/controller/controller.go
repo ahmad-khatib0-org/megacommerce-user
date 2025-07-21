@@ -15,7 +15,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -92,6 +91,6 @@ func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
 	return c, nil
 }
 
-func InternalError(ctx *models.Context, err error) *models.AppError {
-	return models.NewAppError(ctx, "user.controller.SignupSupplier", "server.internal.error", nil, "", int(codes.Internal), err)
-}
+// func InternalError(ctx *models.Context, err error) *models.AppError {
+// 	return models.NewAppError(ctx, "user.controller.SignupSupplier", models.ErrMsgInternal, nil, "", int(codes.Internal), err)
+// }

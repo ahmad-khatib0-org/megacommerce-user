@@ -6,9 +6,18 @@ import (
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/jackc/pgx/v5"
+	"github.com/oklog/ulid/v2"
 )
 
-func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User) *store.DBError {
+func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.Token) *store.DBError {
+	path := "user.store.SignupSupplier"
+	tr, err := ds.db.BeginTx(ctx.Context, pgx.TxOptions{})
+	if err != nil {
+		return store.StartTransactionError(err, path)
+	}
+
 	stmt := `
 	  INSERT INTO users(
 			id,
@@ -34,33 +43,20 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User) *store.DBErro
 	  )
 	`
 
-	var err error
 	var props any
 	var nontifyProps any
 
 	if len(u.GetProps()) > 0 {
 		props, err = json.Marshal(u.GetProps())
 		if err != nil {
-			return &store.DBError{
-				ErrType: store.DBErrorTypeJsonMarshal,
-				Err:     err,
-				Msg:     "failed to marshal props into json",
-				Path:    "user.store.SignupSupplier",
-				Details: "an error occurred while trying to encode User.props",
-			}
+			return store.JsonMarshalError(err, path, "an error occurred while trying to encode User.props")
 		}
 	}
 
 	if len(u.GetNotifyProps()) > 0 {
 		nontifyProps, err = json.Marshal(u.GetNotifyProps())
 		if err != nil {
-			return &store.DBError{
-				ErrType: store.DBErrorTypeJsonMarshal,
-				Err:     err,
-				Msg:     "failed to marshal notify_props",
-				Path:    "user.store.SignupSupplier",
-				Details: "an error occurred while trying to encode User.notify_props",
-			}
+			return store.JsonMarshalError(err, path, "an error occurred while trying to encode User.notify_props")
 		}
 	}
 
@@ -84,9 +80,26 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User) *store.DBErro
 		u.GetCreatedAt(),
 	}
 
-	_, err = ds.db.Exec(ctx.Ctx(), stmt, args...)
+	_, err = tr.Exec(ctx.Context, stmt, args...)
 	if err != nil {
-		return store.HandleDBError(err, "user.store.SignupSupplier")
+		return store.HandleDBError(ctx, err, path, tr)
+	}
+
+	stmt = `
+	  INSERT INTO tokens(id, token, type, created_at, expires_at) VALUES($1, $2, $3, $4, $5)
+	`
+
+	args = []any{
+		ulid.Make().String(),
+		token.Token,
+		string(models.TokenTypeEmailConfirmation),
+		utils.TimeGetMillis(),
+		utils.TimeGetMillisFromTime(token.Expiry),
+	}
+
+	_, err = tr.Exec(ctx.Context, stmt, args...)
+	if err != nil {
+		return store.HandleDBError(ctx, err, path, tr)
 	}
 
 	return nil

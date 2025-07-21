@@ -8,6 +8,7 @@ import (
 	"github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/user/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -39,16 +40,16 @@ func (_m *MockUsersStore) EXPECT() *MockUsersStore_Expecter {
 }
 
 // SignupSupplier provides a mock function for the type MockUsersStore
-func (_mock *MockUsersStore) SignupSupplier(ctx *models.Context, s *v1.User) *store.DBError {
-	ret := _mock.Called(ctx, s)
+func (_mock *MockUsersStore) SignupSupplier(ctx *models.Context, s *v1.User, token *utils.Token) *store.DBError {
+	ret := _mock.Called(ctx, s, token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SignupSupplier")
 	}
 
 	var r0 *store.DBError
-	if returnFunc, ok := ret.Get(0).(func(*models.Context, *v1.User) *store.DBError); ok {
-		r0 = returnFunc(ctx, s)
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, *v1.User, *utils.Token) *store.DBError); ok {
+		r0 = returnFunc(ctx, s, token)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*store.DBError)
@@ -65,11 +66,12 @@ type MockUsersStore_SignupSupplier_Call struct {
 // SignupSupplier is a helper method to define mock.On call
 //   - ctx *models.Context
 //   - s *v1.User
-func (_e *MockUsersStore_Expecter) SignupSupplier(ctx interface{}, s interface{}) *MockUsersStore_SignupSupplier_Call {
-	return &MockUsersStore_SignupSupplier_Call{Call: _e.mock.On("SignupSupplier", ctx, s)}
+//   - token *utils.Token
+func (_e *MockUsersStore_Expecter) SignupSupplier(ctx interface{}, s interface{}, token interface{}) *MockUsersStore_SignupSupplier_Call {
+	return &MockUsersStore_SignupSupplier_Call{Call: _e.mock.On("SignupSupplier", ctx, s, token)}
 }
 
-func (_c *MockUsersStore_SignupSupplier_Call) Run(run func(ctx *models.Context, s *v1.User)) *MockUsersStore_SignupSupplier_Call {
+func (_c *MockUsersStore_SignupSupplier_Call) Run(run func(ctx *models.Context, s *v1.User, token *utils.Token)) *MockUsersStore_SignupSupplier_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 *models.Context
 		if args[0] != nil {
@@ -79,9 +81,14 @@ func (_c *MockUsersStore_SignupSupplier_Call) Run(run func(ctx *models.Context, 
 		if args[1] != nil {
 			arg1 = args[1].(*v1.User)
 		}
+		var arg2 *utils.Token
+		if args[2] != nil {
+			arg2 = args[2].(*utils.Token)
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -92,7 +99,7 @@ func (_c *MockUsersStore_SignupSupplier_Call) Return(dBError *store.DBError) *Mo
 	return _c
 }
 
-func (_c *MockUsersStore_SignupSupplier_Call) RunAndReturn(run func(ctx *models.Context, s *v1.User) *store.DBError) *MockUsersStore_SignupSupplier_Call {
+func (_c *MockUsersStore_SignupSupplier_Call) RunAndReturn(run func(ctx *models.Context, s *v1.User, token *utils.Token) *store.DBError) *MockUsersStore_SignupSupplier_Call {
 	_c.Call.Return(run)
 	return _c
 }
