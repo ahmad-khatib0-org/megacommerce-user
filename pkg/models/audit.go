@@ -3,7 +3,8 @@ package models
 type EventName string
 
 const (
-	EventNameSupplierCreate = "supplier_create"
+	EventNameSupplierCreate    = "supplier_create"
+	EventNameEmailConfirmation = "email_confirmation"
 )
 
 type EventStatus string

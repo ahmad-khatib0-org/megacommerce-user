@@ -8,4 +8,6 @@ import (
 
 type UsersStore interface {
 	SignupSupplier(ctx *models.Context, s *pb.User, token *utils.Token) *DBError
+	TokensGet(ctx *models.Context, tokenId string) (*pb.Token, *DBError)
+	MarkEmailAsConfirmed(ctx *models.Context, tokenId string) *DBError
 }

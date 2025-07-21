@@ -23,6 +23,7 @@ const (
 	DBErrorTypeConnection          DBErrorType = "connection_exception"
 	DBErrorTypePrivileges          DBErrorType = "insufficient_privilege"
 	DBErrorTypeStartTransaction    DBErrorType = "start_transaction"
+	DBErrorTypeCommitTransaction   DBErrorType = "commit_transaction"
 	DBErrorTypeInternal            DBErrorType = "insufficient_privilege"
 )
 
@@ -76,6 +77,15 @@ func StartTransactionError(err error, path string) *DBError {
 	}
 }
 
+func CommitTransactionError(err error, path string) *DBError {
+	return &DBError{
+		ErrType: DBErrorTypeCommitTransaction,
+		Err:     err,
+		Msg:     "failed to commit a db transaction",
+		Path:    path,
+	}
+}
+
 func JsonMarshalError(err error, path, msg string) *DBError {
 	return &DBError{
 		ErrType: DBErrorTypeJsonMarshal,
@@ -87,14 +97,14 @@ func JsonMarshalError(err error, path, msg string) *DBError {
 
 // HandleDBError builds a DBError, rollback the transaction if
 func HandleDBError(ctx *models.Context, err error, path string, tr pgx.Tx) *DBError {
+	if err == nil {
+		return nil
+	}
+
 	// TODO: track rolling back error
 	if tr != nil {
 		errRb := tr.Rollback(ctx.Context)
 		fmt.Printf("error rolling back the transaction %v", errRb)
-	}
-
-	if err == nil {
-		return nil
 	}
 
 	intErr := func() *DBError {

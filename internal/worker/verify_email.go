@@ -44,7 +44,7 @@ func (a *AsynqTaksProcessor) ProcessSendVerifyEmail(context context.Context, tas
 		return models.NewAppError(pay.Ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to unmarshal json payload, err: %v", err), int(codes.Internal), err)
 	}
 
-	if err := a.mailer.SendVerifyEmail(pay.Ctx.GetAcceptLanguage(), pay.Email, pay.Email, pay.TokenId, pay.Hours); err != nil {
+	if err := a.mailer.SendVerifyEmail(pay.Ctx.GetAcceptLanguage(), pay.Email, pay.Token, pay.TokenId, pay.Hours); err != nil {
 		return models.NewAppError(pay.Ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to send an email, err: %v", err), int(codes.Internal), err)
 	}
 

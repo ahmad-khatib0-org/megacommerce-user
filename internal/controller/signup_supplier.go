@@ -61,7 +61,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 			details := fmt.Sprintf("the email %s is already in use", dbPay.GetEmail())
 			return errBuilder(models.NewAppError(ctx, path, "user.create.email.not_unique", nil, details, int(codes.AlreadyExists), err))
 		} else {
-			return errBuilder(models.AppErrorInternal(err, ctx, err.Path, err.Msg))
+			return errBuilder(models.AppErrorInternal(ctx, err, err.Path, err.Msg))
 		}
 	}
 
@@ -76,7 +76,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 
 	// TODO: handle error
 	if err := c.tasker.SendVerifyEmail(context, taskPayload, optoins...); err != nil {
-		return errBuilder(models.AppErrorInternal(err, ctx, err.Where, err.Message))
+		return errBuilder(models.AppErrorInternal(ctx, err, err.Where, err.Message))
 	}
 
 	ar.AuditEventDataResultState(models.SignupSupplierRequestResultState(dbPay))

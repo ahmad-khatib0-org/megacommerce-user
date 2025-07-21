@@ -211,7 +211,7 @@ func NewAppError(
 	return ap
 }
 
-func AppErrorInternal(err error, ctx *Context, where string, msg string) *AppError {
+func AppErrorInternal(ctx *Context, err error, where string, msg string) *AppError {
 	return &AppError{
 		Ctx:        ctx,
 		Id:         ErrMsgInternal,

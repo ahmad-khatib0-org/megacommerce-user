@@ -90,7 +90,7 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 
 	args = []any{
 		token.Id,
-		token.Token,
+		string(token.Hash),
 		string(models.TokenTypeEmailConfirmation),
 		utils.TimeGetMillis(),
 		utils.TimeGetMillisFromTime(token.Expiry),
@@ -101,5 +101,8 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 		return store.HandleDBError(ctx, err, path, tr)
 	}
 
+	if err := tr.Commit(ctx.Context); err != nil {
+		return store.CommitTransactionError(err, path)
+	}
 	return nil
 }
