@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 
 	pbSh "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
@@ -16,7 +15,6 @@ import (
 func (c *Controller) EmailConfirmation(context context.Context, req *pb.EmailConfirmationRequest) (*pb.EmailConfirmationResponse, error) {
 	path := "users.controller.EmailConfirmation"
 	errBuilder := func(e *models.AppError) (*pb.EmailConfirmationResponse, error) {
-		fmt.Println(e)
 		return &pb.EmailConfirmationResponse{Response: &pb.EmailConfirmationResponse_Error{Error: models.AppErrorToProto(e)}}, nil
 	}
 	sucBuilder := func(data *pbSh.SuccessResponse) (*pb.EmailConfirmationResponse, error) {

@@ -2,7 +2,10 @@ package models
 
 import (
 	"context"
+	"time"
 
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/brianvoe/gofakeit/v7"
 	"google.golang.org/grpc/codes"
 )
 
@@ -94,6 +97,28 @@ func ContextGet(ctx context.Context) (*Context, *AppError) {
 
 func ContextWith(ctx context.Context, appCtx *Context) context.Context {
 	return context.WithValue(ctx, ContextKeyMetadata, appCtx)
+}
+
+// ContextForTesting get a context with dummy filled data for testing
+func ContextForTesting() *Context {
+	ctx := &Context{
+		RequestId:      utils.NewID(),
+		IPAddress:      gofakeit.IPv4Address(),
+		XForwardedFor:  gofakeit.IPv4Address(),
+		UserAgent:      gofakeit.UserAgent(),
+		AcceptLanguage: "en",
+		Session: &Session{
+			Id:        utils.NewID(),
+			Token:     utils.NewID(),
+			CreatedAt: utils.TimeGetMillis(),
+			ExpiresAt: utils.TimeGetMillis() + time.Duration(time.Hour).Milliseconds(),
+			UserId:    utils.NewID(),
+			DeviceId:  utils.NewID(),
+			IsOAuth:   gofakeit.Bool(),
+		},
+	}
+
+	return ctx
 }
 
 type Session struct {

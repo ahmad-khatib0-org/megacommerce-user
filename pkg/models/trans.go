@@ -58,18 +58,22 @@ func TranslationsInit(translations map[string]*pb.TranslationElements) error {
 
 // Tr translate a given message id with the passed params (if passed)
 func Tr(lang string, id string, params map[string]any) (string, error) {
+	returnErr := func(msg string) (string, error) {
+		return "", InternalError{Err: errors.New(msg), Path: "users.models.Tr", Msg: msg}
+	}
+
 	if transStore == nil {
-		panic("trans keys are not initialized, call models.TranslationsInit on server init")
+		return returnErr("trans keys are not initialized, call models.TranslationsInit on server init")
 	}
 
 	value, ok := transStore[lang][id]
 	if !ok {
-		panic(fmt.Errorf("the specified key: %s is not existed", id))
+		return returnErr(fmt.Sprintf("the specified key: %s is not existed", id))
 	}
 
 	var buf bytes.Buffer
 	if value.HasVars && len(params) == 0 {
-		panic("this translation id: %s, must has params associated with it")
+		return returnErr(fmt.Sprintf("this translation id: %s, must has params associated with it", id))
 	}
 
 	if err := value.Temp.Execute(&buf, params); err != nil {

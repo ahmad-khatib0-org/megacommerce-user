@@ -25,7 +25,7 @@ type InternalError struct {
 	Path string `json:"path"`
 }
 
-func (ie *InternalError) Error() string {
+func (ie InternalError) Error() string {
 	var sb strings.Builder
 
 	if ie.Path != "" {
