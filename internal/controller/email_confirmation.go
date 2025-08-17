@@ -17,7 +17,7 @@ func (c *Controller) EmailConfirmation(context context.Context, req *pb.EmailCon
 	errBuilder := func(e *models.AppError) (*pb.EmailConfirmationResponse, error) {
 		return &pb.EmailConfirmationResponse{Response: &pb.EmailConfirmationResponse_Error{Error: models.AppErrorToProto(e)}}, nil
 	}
-	sucBuilder := func(data *pbSh.SuccessResponse) (*pb.EmailConfirmationResponse, error) {
+	sucBuilder := func(data *pbSh.SuccessResponseData) (*pb.EmailConfirmationResponse, error) {
 		return &pb.EmailConfirmationResponse{Response: &pb.EmailConfirmationResponse_Data{Data: data}}, nil
 	}
 
@@ -33,18 +33,18 @@ func (c *Controller) EmailConfirmation(context context.Context, req *pb.EmailCon
 	ar := models.AuditRecordNew(ctx, models.EventNameEmailConfirmation, models.EventStatusFail)
 	defer c.ProcessAudit(ar)
 
-	token, errDb := c.store.TokensGet(ctx, req.TokenId)
-	if errDb != nil {
-		if errDb.ErrType == store.DBErrorTypeNoRows {
-			return errBuilder(models.NewAppError(ctx, errDb.Path, "email_confirm.token.not_found", nil, "", int(codes.NotFound), err))
+	token, errDB := c.store.TokensGet(ctx, req.TokenId)
+	if errDB != nil {
+		if errDB.ErrType == store.DBErrorTypeNoRows {
+			return errBuilder(models.NewAppError(ctx, errDB.Path, "email_confirm.token.not_found", nil, "", int(codes.NotFound), err))
 		} else {
-			return errBuilder(models.AppErrorInternal(ctx, errDb, errDb.Path, ""))
+			return errBuilder(models.AppErrorInternal(ctx, errDB, errDB.Path, ""))
 		}
 	}
 
 	if token.Used {
 		msg, _ := models.Tr(ctx.AcceptLanguage, "email_confirm.already_confirmed", nil)
-		return sucBuilder(&pbSh.SuccessResponse{Message: &msg})
+		return sucBuilder(&pbSh.SuccessResponseData{Message: &msg})
 	}
 
 	if token.ExpiresAt < utils.TimeGetMillis() {
@@ -53,7 +53,7 @@ func (c *Controller) EmailConfirmation(context context.Context, req *pb.EmailCon
 
 	if err := bcrypt.CompareHashAndPassword([]byte(token.Token), []byte(req.Token)); err != nil {
 		msg, _ := models.Tr(ctx.AcceptLanguage, "email_confirm.token.error", nil)
-		return sucBuilder(&pbSh.SuccessResponse{Message: &msg})
+		return sucBuilder(&pbSh.SuccessResponseData{Message: &msg})
 	}
 
 	if err := c.store.MarkEmailAsConfirmed(ctx, req.TokenId); err != nil {
@@ -62,5 +62,5 @@ func (c *Controller) EmailConfirmation(context context.Context, req *pb.EmailCon
 
 	ar.Success()
 	msg, _ := models.Tr(ctx.AcceptLanguage, "email_confirm.confirmed_successfully", nil)
-	return sucBuilder(&pbSh.SuccessResponse{Message: &msg})
+	return sucBuilder(&pbSh.SuccessResponseData{Message: &msg})
 }

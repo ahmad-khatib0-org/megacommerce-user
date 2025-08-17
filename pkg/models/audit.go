@@ -35,10 +35,10 @@ type AuditEventData struct {
 
 // AuditEventActor is the subject triggering the event
 type AuditEventActor struct {
-	UserId        string `json:"user_id"`
-	SessionId     string `json:"session_id"`
+	UserID        string `json:"user_id"`
+	SessionID     string `json:"session_id"`
 	Client        string `json:"client"`
-	IpAddress     string `json:"ip_address"`
+	IPAddress     string `json:"ip_address"`
 	XForwardedFor string `json:"x_forwarded_for"`
 }
 
@@ -49,13 +49,13 @@ type EventError struct {
 }
 
 // Success marks the audit record status as successful.
-func (rec *AuditRecord) Success() {
-	rec.Status = EventStatusSuccess
+func (ar *AuditRecord) Success() {
+	ar.Status = EventStatusSuccess
 }
 
 // Fail marks the audit record status as failed.
-func (rec *AuditRecord) Fail() {
-	rec.Status = EventStatusFail
+func (ar *AuditRecord) Fail() {
+	ar.Status = EventStatusFail
 }
 
 func AuditRecordNew(ctx *Context, event EventName, initialStatus EventStatus) *AuditRecord {
@@ -63,9 +63,9 @@ func AuditRecordNew(ctx *Context, event EventName, initialStatus EventStatus) *A
 		EventName: event,
 		Status:    initialStatus,
 		Actor: AuditEventActor{
-			UserId:        ctx.Session.UserId,
-			SessionId:     ctx.Session.Id,
-			IpAddress:     ctx.IPAddress,
+			UserID:        ctx.Session.UserID,
+			SessionID:     ctx.Session.ID,
+			IPAddress:     ctx.IPAddress,
 			Client:        ctx.UserAgent,
 			XForwardedFor: ctx.XForwardedFor,
 		},

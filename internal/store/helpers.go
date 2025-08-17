@@ -18,8 +18,8 @@ const (
 	DBErrorTypeUniqueViolation     DBErrorType = "unique_violation"
 	DBErrorTypeForeignKeyViolation DBErrorType = "foreign_key_violation"
 	DBErrorTypeNotNullViolation    DBErrorType = "not_null_violation"
-	DBErrorTypeJsonMarshal         DBErrorType = "json_marshal"
-	DBErrorTypeJsonUnmarshal       DBErrorType = "json_unmarshal"
+	DBErrorTypeJSONMarshal         DBErrorType = "json_marshal"
+	DBErrorTypeJSONUnmarshal       DBErrorType = "json_unmarshal"
 	DBErrorTypeConnection          DBErrorType = "connection_exception"
 	DBErrorTypePrivileges          DBErrorType = "insufficient_privilege"
 	DBErrorTypeStartTransaction    DBErrorType = "start_transaction"
@@ -86,9 +86,9 @@ func CommitTransactionError(err error, path string) *DBError {
 	}
 }
 
-func JsonMarshalError(err error, path, msg string) *DBError {
+func JSONMarshalError(err error, path, msg string) *DBError {
 	return &DBError{
-		ErrType: DBErrorTypeJsonMarshal,
+		ErrType: DBErrorTypeJSONMarshal,
 		Err:     err,
 		Msg:     msg,
 		Path:    path,

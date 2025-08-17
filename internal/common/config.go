@@ -39,8 +39,8 @@ func (cc *CommonClient) ConfigGet() (*com.Config, *models.InternalError) {
 	return nil, nil
 }
 
-// TODO: complete this listener
 func (cc *CommonClient) ConfigListener(clientID string) *models.InternalError {
+	// TODO: complete this listener
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

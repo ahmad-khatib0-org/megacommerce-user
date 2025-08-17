@@ -32,7 +32,7 @@ func authMatcher(ctx context.Context, callMeta interceptors.CallMeta) bool {
 
 func traceID(ctx context.Context) prometheus.Labels {
 	method, ok := ctx.Value(models.ContextKeyMethodName).(string)
-	if !ok || !traceIdForMethods[method] {
+	if !ok || !traceIDForMethods[method] {
 		return nil
 	}
 
@@ -79,7 +79,7 @@ func extractMetadataToContext(ctx context.Context, md metadata.MD, defAcceptLang
 		c.UserAgent = vals[0]
 	}
 	if vals := md.Get(string(models.HeaderXRequestID)); len(vals) > 0 {
-		c.RequestId = vals[0]
+		c.RequestID = vals[0]
 	}
 	if vals := md.Get(models.HeaderAuthorization); len(vals) > 0 {
 		c.Session.Token = vals[0]
@@ -96,7 +96,7 @@ func extractMetadataToContext(ctx context.Context, md metadata.MD, defAcceptLang
 		c.AcceptLanguage = defAcceptLang
 	}
 	if vals := md.Get(models.HeaderSessionID); len(vals) > 0 {
-		c.Session.Id = vals[0]
+		c.Session.ID = vals[0]
 	}
 	if vals := md.Get(models.HeaderToken); len(vals) > 0 {
 		c.Session.Token = vals[0]
@@ -112,10 +112,10 @@ func extractMetadataToContext(ctx context.Context, md metadata.MD, defAcceptLang
 		}
 	}
 	if vals := md.Get(models.HeaderUserID); len(vals) > 0 {
-		c.Session.UserId = vals[0]
+		c.Session.UserID = vals[0]
 	}
 	if vals := md.Get(models.HeaderDeviceID); len(vals) > 0 {
-		c.Session.DeviceId = vals[0]
+		c.Session.DeviceID = vals[0]
 	}
 	if vals := md.Get(models.HeaderRoles); len(vals) > 0 {
 		c.Session.Roles = vals[0]

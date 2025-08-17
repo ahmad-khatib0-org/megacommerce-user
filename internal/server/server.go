@@ -1,3 +1,5 @@
+// Package server binds everything required together for this service,
+// E,g grpc, init metrics, listen to errors, init clients....
 package server
 
 import (

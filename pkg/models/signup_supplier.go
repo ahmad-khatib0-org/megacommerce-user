@@ -49,7 +49,7 @@ func SignupSupplierRequestIsValid(ctx *Context, s *user.SupplierCreateRequest, p
 	}
 
 	if err := utils.IsValidPassword(pass, passCfg, ""); err != nil {
-		return NewAppError(ctx, "user.models.SupplierCreateRequest.password", err.Id, err.Params, fmt.Sprintf("invalid password %s ", pass), int(codes.InvalidArgument), err)
+		return NewAppError(ctx, "user.models.SupplierCreateRequest.password", err.ID, err.Params, fmt.Sprintf("invalid password %s ", pass), int(codes.InvalidArgument), err)
 	}
 
 	return nil
@@ -72,7 +72,7 @@ func SignupSupplierRequestAuditable(s *user.SupplierCreateRequest) map[string]st
 	}
 }
 
-// SignupSupplierRequestToUser() convert SupplierCreateRequest to User
+// SignupSupplierRequestPreSave convert SupplierCreateRequest to User
 // and populate the necessary fields with values to be stored in db
 func SignupSupplierRequestPreSave(ctx *Context, s *user.User) (*user.User, *AppError) {
 	pass, err := utils.PasswordHash(s.GetPassword())

@@ -1,3 +1,4 @@
+// Package models contains models for user, config, context....
 package models
 
 import (
@@ -21,7 +22,7 @@ type StringMap map[string]string
 type Context struct {
 	Context        context.Context `json:"-"`
 	Session        *Session        `json:"session"`
-	RequestId      string          `json:"request_id"`
+	RequestID      string          `json:"request_id"`
 	IPAddress      string          `json:"ip_address"`
 	XForwardedFor  string          `json:"x_forwarded_for"`
 	Path           string          `json:"path"`
@@ -29,11 +30,11 @@ type Context struct {
 	AcceptLanguage string          `json:"accept_language"`
 }
 
-func NewContext(ctx context.Context, session *Session, requestId, ipAddress, xForwardedFor, path, userAgent, acceptLanguage string) *Context {
+func NewContext(ctx context.Context, session *Session, requestID, ipAddress, xForwardedFor, path, userAgent, acceptLanguage string) *Context {
 	return &Context{
 		Context:        ctx,
 		Session:        session,
-		RequestId:      requestId,
+		RequestID:      requestID,
 		IPAddress:      ipAddress,
 		XForwardedFor:  xForwardedFor,
 		Path:           path,
@@ -57,7 +58,7 @@ func (c *Context) GetSession() *Session {
 }
 
 func (c *Context) GetRequestId() string {
-	return c.RequestId
+	return c.RequestID
 }
 
 func (c *Context) GetIPAddress() string {
@@ -85,7 +86,7 @@ func ContextGet(ctx context.Context) (*Context, *AppError) {
 	if !ok {
 		return nil, &AppError{
 			Ctx:           c,
-			Id:            ErrMsgInternal,
+			ID:            ErrMsgInternal,
 			DetailedError: "failed to get the context from the incoming request",
 			Where:         "user.models.ContextGet",
 			StatusCode:    int(codes.Internal),
@@ -102,18 +103,18 @@ func ContextWith(ctx context.Context, appCtx *Context) context.Context {
 // ContextForTesting get a context with dummy filled data for testing
 func ContextForTesting() *Context {
 	ctx := &Context{
-		RequestId:      utils.NewID(),
+		RequestID:      utils.NewID(),
 		IPAddress:      gofakeit.IPv4Address(),
 		XForwardedFor:  gofakeit.IPv4Address(),
 		UserAgent:      gofakeit.UserAgent(),
 		AcceptLanguage: "en",
 		Session: &Session{
-			Id:        utils.NewID(),
+			ID:        utils.NewID(),
 			Token:     utils.NewID(),
 			CreatedAt: utils.TimeGetMillis(),
 			ExpiresAt: utils.TimeGetMillis() + time.Duration(time.Hour).Milliseconds(),
-			UserId:    utils.NewID(),
-			DeviceId:  utils.NewID(),
+			UserID:    utils.NewID(),
+			DeviceID:  utils.NewID(),
 			IsOAuth:   gofakeit.Bool(),
 		},
 	}
@@ -122,20 +123,20 @@ func ContextForTesting() *Context {
 }
 
 type Session struct {
-	Id             string    `json:"id"`
+	ID             string    `json:"id"`
 	Token          string    `json:"token"`
 	CreatedAt      int64     `json:"created_at"`
 	ExpiresAt      int64     `json:"expires_at"`
 	LastActivityAt int64     `json:"last_activity_at"`
-	UserId         string    `json:"user_id"`
-	DeviceId       string    `json:"device_id"`
+	UserID         string    `json:"user_id"`
+	DeviceID       string    `json:"device_id"`
 	Roles          string    `json:"roles"`
 	IsOAuth        bool      `json:"is_oauth"`
 	Props          StringMap `json:"props"`
 }
 
 func (s *Session) GetId() string {
-	return s.Id
+	return s.ID
 }
 
 func (s *Session) GetToken() string {
@@ -155,11 +156,11 @@ func (s *Session) GetLastActivityAt() float64 {
 }
 
 func (s *Session) GetUserID() string {
-	return s.UserId
+	return s.UserID
 }
 
 func (s *Session) GetDeviceID() string {
-	return s.DeviceId
+	return s.DeviceID
 }
 
 func (s *Session) GetRoles() string {

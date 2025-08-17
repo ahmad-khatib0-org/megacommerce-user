@@ -53,7 +53,7 @@ func (ie *InternalError) Message() string {
 
 type AppError struct {
 	Ctx *Context `json:"ctx"`
-	Id  string   `json:"id"`
+	ID  string   `json:"id"`
 	// Message to be display to the end user without debugging information
 	Message string `json:"message"`
 	// Internal error string to help the developer
@@ -70,33 +70,33 @@ type AppError struct {
 	Wrapped         error `json:"-"`
 }
 
-func (er *AppError) Error() string {
-	if er == nil {
+func (ae *AppError) Error() string {
+	if ae == nil {
 		return ""
 	}
 
 	var sb strings.Builder
 
 	// render the error information
-	if er.Where != "" {
-		sb.WriteString(er.Where)
+	if ae.Where != "" {
+		sb.WriteString(ae.Where)
 		sb.WriteString(": ")
 	}
 
-	if er.Message != NoTranslation {
-		sb.WriteString(er.Message)
+	if ae.Message != NoTranslation {
+		sb.WriteString(ae.Message)
 	}
 
 	// only render the detailed error when it's present
-	if er.DetailedError != "" {
-		if er.Message != NoTranslation {
+	if ae.DetailedError != "" {
+		if ae.Message != NoTranslation {
 			sb.WriteString(", ")
 		}
-		sb.WriteString(er.DetailedError)
+		sb.WriteString(ae.DetailedError)
 	}
 
 	// render the wrapped error
-	err := er.Wrapped
+	err := ae.Wrapped
 	if err != nil {
 		sb.WriteString(", ")
 		sb.WriteString(err.Error())
@@ -109,40 +109,40 @@ func (er *AppError) Error() string {
 	return res
 }
 
-func (er *AppError) Translate(tf TranslateFunc) {
-	if er.SkipTranslation {
+func (ae *AppError) Translate(tf TranslateFunc) {
+	if ae.SkipTranslation {
 		return
 	}
 
 	if tf == nil {
-		er.Message = er.Id
+		ae.Message = ae.ID
 		return
 	} else {
-		tr, err := tf(er.Ctx.AcceptLanguage, er.Id, er.TrParams)
+		tr, err := tf(ae.Ctx.AcceptLanguage, ae.ID, ae.TrParams)
 		if err != nil {
 			// Track error
 		}
-		er.Message = tr
+		ae.Message = tr
 	}
 }
 
-func (er *AppError) ToJSON() string {
-	b, _ := json.Marshal(er)
+func (ae *AppError) ToJSON() string {
+	b, _ := json.Marshal(ae)
 	return string(b)
 }
 
-func (er *AppError) Unwrap() error {
-	return er.Wrapped
+func (ae *AppError) Unwrap() error {
+	return ae.Wrapped
 }
 
-func (er *AppError) Wrap(err error) *AppError {
-	er.Wrapped = err
-	return er
+func (ae *AppError) Wrap(err error) *AppError {
+	ae.Wrapped = err
+	return ae
 }
 
-func (er *AppError) WipeDetailed() {
-	er.Wrapped = nil
-	er.DetailedError = ""
+func (ae *AppError) WipeDetailed() {
+	ae.Wrapped = nil
+	ae.DetailedError = ""
 }
 
 // AppErrorFromJSON will try to decode the input into an AppError.
@@ -161,11 +161,11 @@ func AppErrorFromJSON(r io.Reader) error {
 	return &er
 }
 
-// ToInternal() convert to server interval error, store path if not nil
+// ToInternal convert to server interval error, store path if not nil
 func (ae *AppError) ToInternal(err error, path *string) *AppError {
 	ae.Wrapped = err
 	ae.StatusCode = int(codes.Internal)
-	ae.Id = ErrMsgInternal
+	ae.ID = ErrMsgInternal
 	if path != nil {
 		ae.Where = *path
 	}
@@ -174,7 +174,7 @@ func (ae *AppError) ToInternal(err error, path *string) *AppError {
 
 func (ae *AppError) Default() *AppError {
 	return &AppError{
-		Id:              "",
+		ID:              "",
 		Message:         "",
 		DetailedError:   "",
 		StatusCode:      0,
@@ -198,7 +198,7 @@ func NewAppError(
 ) *AppError {
 	ap := &AppError{
 		Ctx:           ctx,
-		Id:            id,
+		ID:            id,
 		TrParams:      trParams,
 		Message:       id,
 		Where:         where,
@@ -214,7 +214,7 @@ func NewAppError(
 func AppErrorInternal(ctx *Context, err error, where string, msg string) *AppError {
 	return &AppError{
 		Ctx:        ctx,
-		Id:         ErrMsgInternal,
+		ID:         ErrMsgInternal,
 		Message:    msg,
 		StatusCode: int(codes.Internal),
 		Where:      where,
@@ -231,7 +231,7 @@ func AppErrorFromProto(ae *shared.AppError) *AppError {
 	params, nested := AppErrorConvertProtoParams(ae)
 
 	return &AppError{
-		Id:              ae.Id,
+		ID:              ae.Id,
 		Message:         ae.Message,
 		DetailedError:   ae.DetailedError,
 		StatusCode:      int(ae.StatusCode),
@@ -252,7 +252,7 @@ func AppErrorToProto(e *AppError) *shared.AppError {
 	}
 
 	return &shared.AppError{
-		Id:              e.Id,
+		Id:              e.ID,
 		Message:         e.Message,
 		DetailedError:   e.DetailedError,
 		StatusCode:      int32(e.StatusCode),

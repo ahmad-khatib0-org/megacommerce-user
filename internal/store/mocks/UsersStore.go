@@ -40,8 +40,8 @@ func (_m *MockUsersStore) EXPECT() *MockUsersStore_Expecter {
 }
 
 // MarkEmailAsConfirmed provides a mock function for the type MockUsersStore
-func (_mock *MockUsersStore) MarkEmailAsConfirmed(ctx *models.Context, tokenId string) *store.DBError {
-	ret := _mock.Called(ctx, tokenId)
+func (_mock *MockUsersStore) MarkEmailAsConfirmed(ctx *models.Context, tokenID string) *store.DBError {
+	ret := _mock.Called(ctx, tokenID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for MarkEmailAsConfirmed")
@@ -49,7 +49,7 @@ func (_mock *MockUsersStore) MarkEmailAsConfirmed(ctx *models.Context, tokenId s
 
 	var r0 *store.DBError
 	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) *store.DBError); ok {
-		r0 = returnFunc(ctx, tokenId)
+		r0 = returnFunc(ctx, tokenID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*store.DBError)
@@ -65,12 +65,12 @@ type MockUsersStore_MarkEmailAsConfirmed_Call struct {
 
 // MarkEmailAsConfirmed is a helper method to define mock.On call
 //   - ctx *models.Context
-//   - tokenId string
-func (_e *MockUsersStore_Expecter) MarkEmailAsConfirmed(ctx interface{}, tokenId interface{}) *MockUsersStore_MarkEmailAsConfirmed_Call {
-	return &MockUsersStore_MarkEmailAsConfirmed_Call{Call: _e.mock.On("MarkEmailAsConfirmed", ctx, tokenId)}
+//   - tokenID string
+func (_e *MockUsersStore_Expecter) MarkEmailAsConfirmed(ctx interface{}, tokenID interface{}) *MockUsersStore_MarkEmailAsConfirmed_Call {
+	return &MockUsersStore_MarkEmailAsConfirmed_Call{Call: _e.mock.On("MarkEmailAsConfirmed", ctx, tokenID)}
 }
 
-func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) Run(run func(ctx *models.Context, tokenId string)) *MockUsersStore_MarkEmailAsConfirmed_Call {
+func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) Run(run func(ctx *models.Context, tokenID string)) *MockUsersStore_MarkEmailAsConfirmed_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 *models.Context
 		if args[0] != nil {
@@ -93,7 +93,7 @@ func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) Return(dBError *store.DBErro
 	return _c
 }
 
-func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) RunAndReturn(run func(ctx *models.Context, tokenId string) *store.DBError) *MockUsersStore_MarkEmailAsConfirmed_Call {
+func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) RunAndReturn(run func(ctx *models.Context, tokenID string) *store.DBError) *MockUsersStore_MarkEmailAsConfirmed_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -164,8 +164,8 @@ func (_c *MockUsersStore_SignupSupplier_Call) RunAndReturn(run func(ctx *models.
 }
 
 // TokensGet provides a mock function for the type MockUsersStore
-func (_mock *MockUsersStore) TokensGet(ctx *models.Context, tokenId string) (*v1.Token, *store.DBError) {
-	ret := _mock.Called(ctx, tokenId)
+func (_mock *MockUsersStore) TokensGet(ctx *models.Context, tokenID string) (*v1.Token, *store.DBError) {
+	ret := _mock.Called(ctx, tokenID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TokensGet")
@@ -174,17 +174,17 @@ func (_mock *MockUsersStore) TokensGet(ctx *models.Context, tokenId string) (*v1
 	var r0 *v1.Token
 	var r1 *store.DBError
 	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) (*v1.Token, *store.DBError)); ok {
-		return returnFunc(ctx, tokenId)
+		return returnFunc(ctx, tokenID)
 	}
 	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) *v1.Token); ok {
-		r0 = returnFunc(ctx, tokenId)
+		r0 = returnFunc(ctx, tokenID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*v1.Token)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *store.DBError); ok {
-		r1 = returnFunc(ctx, tokenId)
+		r1 = returnFunc(ctx, tokenID)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*store.DBError)
@@ -200,12 +200,12 @@ type MockUsersStore_TokensGet_Call struct {
 
 // TokensGet is a helper method to define mock.On call
 //   - ctx *models.Context
-//   - tokenId string
-func (_e *MockUsersStore_Expecter) TokensGet(ctx interface{}, tokenId interface{}) *MockUsersStore_TokensGet_Call {
-	return &MockUsersStore_TokensGet_Call{Call: _e.mock.On("TokensGet", ctx, tokenId)}
+//   - tokenID string
+func (_e *MockUsersStore_Expecter) TokensGet(ctx interface{}, tokenID interface{}) *MockUsersStore_TokensGet_Call {
+	return &MockUsersStore_TokensGet_Call{Call: _e.mock.On("TokensGet", ctx, tokenID)}
 }
 
-func (_c *MockUsersStore_TokensGet_Call) Run(run func(ctx *models.Context, tokenId string)) *MockUsersStore_TokensGet_Call {
+func (_c *MockUsersStore_TokensGet_Call) Run(run func(ctx *models.Context, tokenID string)) *MockUsersStore_TokensGet_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 *models.Context
 		if args[0] != nil {
@@ -228,7 +228,7 @@ func (_c *MockUsersStore_TokensGet_Call) Return(token *v1.Token, dBError *store.
 	return _c
 }
 
-func (_c *MockUsersStore_TokensGet_Call) RunAndReturn(run func(ctx *models.Context, tokenId string) (*v1.Token, *store.DBError)) *MockUsersStore_TokensGet_Call {
+func (_c *MockUsersStore_TokensGet_Call) RunAndReturn(run func(ctx *models.Context, tokenID string) (*v1.Token, *store.DBError)) *MockUsersStore_TokensGet_Call {
 	_c.Call.Return(run)
 	return _c
 }

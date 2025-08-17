@@ -1,3 +1,4 @@
+// Package common connect to the common service for trans, config ...
 package common
 
 import (
@@ -30,10 +31,10 @@ func NewCommonClient(ca *CommonArgs) (*CommonClient, *models.InternalError) {
 	return c, nil
 }
 
-func (c *CommonClient) Close() error {
-	return c.conn.Close()
+func (cc *CommonClient) Close() error {
+	return cc.conn.Close()
 }
 
-func (c *CommonClient) Conn() *grpc.ClientConn {
-	return c.conn
+func (cc *CommonClient) Conn() *grpc.ClientConn {
+	return cc.conn
 }

@@ -6,6 +6,8 @@ github.com/PuerkitoBio/goquery v1.10.3 h1:pFYcNSqHxBD06Fpj/KsbStFRsgRATgnf3LeXiU
 github.com/PuerkitoBio/goquery v1.10.3/go.mod h1:tMUX0zDMHXYlAQk6p35XxQMqMweEKB7iK7iLNd4RH4Y=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250721183139-2642a4b79eb4 h1:y/5THN6NIQ31PrLTrOJ0V5L8F8Zt11sG8VusYFffc/M=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250721183139-2642a4b79eb4/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250816185614-4163be903f68 h1:lxco25we96i49fNej21Hr0/PWwRVkC4lu24nITDWwS8=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250816185614-4163be903f68/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/andybalholm/cascadia v1.3.3 h1:AG2YHrzJIm4BZ19iwJ/DAua6Btl3IwJX+VI4kktS1LM=
 github.com/andybalholm/cascadia v1.3.3/go.mod h1:xNd9bqTn98Ln4DwST8/nG+H0yuB8Hmgu1YHNnWw0GeA=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=

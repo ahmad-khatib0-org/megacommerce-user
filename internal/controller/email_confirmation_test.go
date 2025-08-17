@@ -53,7 +53,7 @@ func getValidEmailConfirmationRequest(t *testing.T, hours uint) *pb.EmailConfirm
 	return &pb.EmailConfirmationRequest{
 		Email:   "test@email.com",
 		Token:   tokenData.Token,
-		TokenId: tokenData.Id,
+		TokenId: tokenData.ID,
 	}
 }
 
@@ -162,4 +162,3 @@ func TestEmailConfirmation(t *testing.T) {
 		require.Equal(t, models.ErrMsgInternal, errRes.Error.Id)
 	})
 }
-

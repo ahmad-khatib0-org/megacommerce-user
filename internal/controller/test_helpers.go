@@ -88,23 +88,23 @@ func (th *TestHelper) TearDown() {
 func (th *TestHelper) initUsers() {
 	th.Customer1 = &TestingUser{
 		Ctx:  th.getContext(),
-		User: th.createUser(models.UserTypeCustomer, models.RoleIdCustomer),
+		User: th.createUser(models.UserTypeCustomer, models.RoleIDCustomer),
 	}
 	th.Customer2 = &TestingUser{
 		Ctx:  th.getContext(),
-		User: th.createUser(models.UserTypeCustomer, models.RoleIdCustomer),
+		User: th.createUser(models.UserTypeCustomer, models.RoleIDCustomer),
 	}
 	th.Supplier1 = &TestingUser{
 		Ctx:  th.getContext(),
-		User: th.createUser(models.UserTypeSupplier, models.RoleIdSupplierAdmin),
+		User: th.createUser(models.UserTypeSupplier, models.RoleIDSupplierAdmin),
 	}
 	th.Supplier2 = &TestingUser{
 		Ctx:  th.getContext(),
-		User: th.createUser(models.UserTypeSupplier, models.RoleIdSupplierAdmin),
+		User: th.createUser(models.UserTypeSupplier, models.RoleIDSupplierAdmin),
 	}
 }
 
-func (th *TestHelper) createUser(userType models.UserType, roleId models.RoleId) *user.User {
+func (th *TestHelper) createUser(userType models.UserType, roleID models.RoleID) *user.User {
 	return &user.User{
 		Id:                 utils.NewIDPointer(),
 		Username:           utils.NewPointer(utils.RandomUserName(6, 12)),
@@ -113,7 +113,7 @@ func (th *TestHelper) createUser(userType models.UserType, roleId models.RoleId)
 		LastName:           utils.NewPointer(gofakeit.LastName()),
 		UserType:           utils.NewPointer(string(userType)),
 		Password:           utils.NewPointer(gofakeit.Password(true, true, true, true, false, 8)),
-		Roles:              []string{string(roleId)},
+		Roles:              []string{string(roleID)},
 		IsEmailVerified:    utils.NewPointer(true),
 		AuthData:           utils.NewPointer(""),
 		AuthService:        utils.NewPointer(""),
@@ -134,18 +134,18 @@ func (th *TestHelper) createUser(userType models.UserType, roleId models.RoleId)
 
 func (th *TestHelper) getContext() *models.Context {
 	ctx := &models.Context{
-		RequestId:      utils.NewID(),
+		RequestID:      utils.NewID(),
 		IPAddress:      gofakeit.IPv4Address(),
 		XForwardedFor:  gofakeit.IPv4Address(),
 		UserAgent:      gofakeit.UserAgent(),
 		AcceptLanguage: th.config.Localization.GetDefaultClientLocale(),
 		Session: &models.Session{
-			Id:        utils.NewID(),
+			ID:        utils.NewID(),
 			Token:     utils.NewID(),
 			CreatedAt: utils.TimeGetMillis(),
 			ExpiresAt: utils.TimeGetMillis() + time.Duration(time.Hour).Milliseconds(),
-			UserId:    utils.NewID(),
-			DeviceId:  utils.NewID(),
+			UserID:    utils.NewID(),
+			DeviceID:  utils.NewID(),
 			IsOAuth:   gofakeit.Bool(),
 		},
 	}
@@ -157,7 +157,7 @@ func (th *TestHelper) withContext(ctx context.Context) context.Context {
 	return context.WithValue(ctx, models.ContextKeyMetadata, th.getContext())
 }
 
-func (t *TestHelper) initServiceConfig() *models.InternalError {
+func (th *TestHelper) initServiceConfig() *models.InternalError {
 	_, b, _, _ := runtime.Caller(0)
 	basePath := filepath.Join(filepath.Dir(b), "../..")
 	configFilePath := filepath.Join(basePath, "config.dev.yaml")
@@ -173,7 +173,7 @@ func (t *TestHelper) initServiceConfig() *models.InternalError {
 		return &models.InternalError{Err: err, Msg: "failed to initialize service config"}
 	}
 
-	t.srvCfg = &c
+	th.srvCfg = &c
 	return nil
 }
 

@@ -27,10 +27,10 @@ func NewEmailBatchingJob(s *Mailer, bufferSize int) *EmailBatchingJob {
 	}
 }
 
-func (s *Mailer) InitEmailBatching() {
-	if s.config().Email.GetEnableEmailBatching() {
-		if s.EmailBatching == nil {
-			s.EmailBatching = NewEmailBatchingJob(s, int(s.config().Email.GetEmailBatchingBufferSize()))
+func (m *Mailer) InitEmailBatching() {
+	if m.config().Email.GetEnableEmailBatching() {
+		if m.EmailBatching == nil {
+			m.EmailBatching = NewEmailBatchingJob(m, int(m.config().Email.GetEmailBatchingBufferSize()))
 		}
 		// s.EmailBatching.Start()
 	}

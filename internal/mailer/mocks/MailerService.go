@@ -162,16 +162,16 @@ func (_c *MockMailerService_InitEmailBatching_Call) RunAndReturn(run func()) *Mo
 }
 
 // SendVerifyEmail provides a mock function for the type MockMailerService
-func (_mock *MockMailerService) SendVerifyEmail(lang string, email string, token string, hours int) error {
-	ret := _mock.Called(lang, email, token, hours)
+func (_mock *MockMailerService) SendVerifyEmail(lang string, email string, token string, tokenID string, hours int) error {
+	ret := _mock.Called(lang, email, token, tokenID, hours)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SendVerifyEmail")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(string, string, string, int) error); ok {
-		r0 = returnFunc(lang, email, token, hours)
+	if returnFunc, ok := ret.Get(0).(func(string, string, string, string, int) error); ok {
+		r0 = returnFunc(lang, email, token, tokenID, hours)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -187,12 +187,13 @@ type MockMailerService_SendVerifyEmail_Call struct {
 //   - lang string
 //   - email string
 //   - token string
+//   - tokenID string
 //   - hours int
-func (_e *MockMailerService_Expecter) SendVerifyEmail(lang interface{}, email interface{}, token interface{}, hours interface{}) *MockMailerService_SendVerifyEmail_Call {
-	return &MockMailerService_SendVerifyEmail_Call{Call: _e.mock.On("SendVerifyEmail", lang, email, token, hours)}
+func (_e *MockMailerService_Expecter) SendVerifyEmail(lang interface{}, email interface{}, token interface{}, tokenID interface{}, hours interface{}) *MockMailerService_SendVerifyEmail_Call {
+	return &MockMailerService_SendVerifyEmail_Call{Call: _e.mock.On("SendVerifyEmail", lang, email, token, tokenID, hours)}
 }
 
-func (_c *MockMailerService_SendVerifyEmail_Call) Run(run func(lang string, email string, token string, hours int)) *MockMailerService_SendVerifyEmail_Call {
+func (_c *MockMailerService_SendVerifyEmail_Call) Run(run func(lang string, email string, token string, tokenID string, hours int)) *MockMailerService_SendVerifyEmail_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 string
 		if args[0] != nil {
@@ -206,15 +207,20 @@ func (_c *MockMailerService_SendVerifyEmail_Call) Run(run func(lang string, emai
 		if args[2] != nil {
 			arg2 = args[2].(string)
 		}
-		var arg3 int
+		var arg3 string
 		if args[3] != nil {
-			arg3 = args[3].(int)
+			arg3 = args[3].(string)
+		}
+		var arg4 int
+		if args[4] != nil {
+			arg4 = args[4].(int)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
 			arg3,
+			arg4,
 		)
 	})
 	return _c
@@ -225,7 +231,7 @@ func (_c *MockMailerService_SendVerifyEmail_Call) Return(err error) *MockMailerS
 	return _c
 }
 
-func (_c *MockMailerService_SendVerifyEmail_Call) RunAndReturn(run func(lang string, email string, token string, hours int) error) *MockMailerService_SendVerifyEmail_Call {
+func (_c *MockMailerService_SendVerifyEmail_Call) RunAndReturn(run func(lang string, email string, token string, tokenID string, hours int) error) *MockMailerService_SendVerifyEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -22,7 +22,7 @@ func RandomUserName(min, max int) string {
 	return string(username)
 }
 
-// IsValidUsernameChars( ) checks if the username characters are allowed
+// IsValidUsernameChars checks if the username characters are allowed
 func IsValidUsernameChars(un string) bool {
 	return ValidUserNameRegex.MatchString(un)
 }

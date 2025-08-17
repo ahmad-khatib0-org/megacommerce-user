@@ -1,3 +1,4 @@
+// Package dbstore store/retrieve data in the database
 package dbstore
 
 import (

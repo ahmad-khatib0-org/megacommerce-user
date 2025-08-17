@@ -1,3 +1,4 @@
+// Package mailer sends emails
 package mailer
 
 import (
@@ -6,21 +7,21 @@ import (
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 )
 
-func (s *Mailer) SendVerifyEmail(lang, email, token, tokenId string, hours int) error {
-	td, err := s.NewTemplateData(lang)
+func (m *Mailer) SendVerifyEmail(lang, email, token, tokenID string, hours int) error {
+	td, err := m.NewTemplateData(lang)
 	if err != nil {
 		return err
 	}
 
-	title, err := models.Tr(lang, "templates.verify.title", map[string]any{"SiteName": s.config().GetMain().GetSiteName()})
+	title, err := models.Tr(lang, "templates.verify.title", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
 	if err != nil {
 		return err
 	}
-	welcome, err := models.Tr(lang, "templates.verify.welcome", map[string]any{"SiteName": s.config().GetMain().GetSiteName()})
+	welcome, err := models.Tr(lang, "templates.verify.welcome", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
 	if err != nil {
 		return err
 	}
-	welcome2, err := models.Tr(lang, "templates.verify.part1", map[string]any{"SiteName": s.config().GetMain().GetSiteName()})
+	welcome2, err := models.Tr(lang, "templates.verify.part1", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
 	if err != nil {
 		return err
 	}
@@ -28,7 +29,7 @@ func (s *Mailer) SendVerifyEmail(lang, email, token, tokenId string, hours int) 
 	if err != nil {
 		return err
 	}
-	redirect, err := models.Tr(lang, "templates.verify.part3", map[string]any{"SiteName": s.config().GetMain().GetSiteName()})
+	redirect, err := models.Tr(lang, "templates.verify.part3", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
 	if err != nil {
 		return err
 	}
@@ -43,12 +44,12 @@ func (s *Mailer) SendVerifyEmail(lang, email, token, tokenId string, hours int) 
 	td.Props["Click"] = click
 	td.Props["Redirect"] = redirect
 	td.Props["Note"] = note
-	td.Props["Url"] = fmt.Sprintf("%s?token=%s&token_id=%s&email=%s", s.config().Security.GetEmailConfirmationUrl(), token, tokenId, email)
+	td.Props["Url"] = fmt.Sprintf("%s?token=%s&token_id=%s&email=%s", m.config().Security.GetEmailConfirmationUrl(), token, tokenID, email)
 
-	body, err := s.templateContainer.RenderToString("verify_email", *td)
+	body, err := m.templateContainer.RenderToString("verify_email", *td)
 	if err != nil {
 		return err
 	}
 
-	return s.send(&mailData{to: email, subject: title, body: body})
+	return m.send(&mailData{to: email, subject: title, body: body})
 }

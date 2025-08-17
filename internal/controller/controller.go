@@ -1,3 +1,4 @@
+// Package controller contains the grpc handlers for this service
 package controller
 
 import (
@@ -22,7 +23,7 @@ var protectedMethods = map[string]bool{
 	"/user.v1.UserService/CreateSupplier": true,
 }
 
-var traceIdForMethods = map[string]bool{
+var traceIDForMethods = map[string]bool{
 	"/user.v1.UserService/CreateSupplier": true,
 }
 

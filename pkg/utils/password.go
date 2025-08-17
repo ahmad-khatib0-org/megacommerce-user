@@ -9,7 +9,7 @@ import (
 )
 
 type InvalidPassword struct {
-	Id     string
+	ID     string
 	Err    string
 	Params map[string]any
 }
@@ -54,7 +54,7 @@ func IsValidPassword(pass string, settings *pb.ConfigPassword, idPrefix string) 
 
 	if isErr {
 		return &InvalidPassword{
-			Id:     id,
+			ID:     id,
 			Err:    fmt.Sprintf("invalid password: %s, err: %s ", pass, id),
 			Params: params,
 		}

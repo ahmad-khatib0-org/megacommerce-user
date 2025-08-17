@@ -6,16 +6,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-func (a *Server) initSharedConfig() {
-	config, err := a.commonClient.ConfigGet()
+func (s *Server) initSharedConfig() {
+	config, err := s.commonClient.ConfigGet()
 	if err != nil {
-		a.errors <- err
+		s.errors <- err
 	}
 
-	a.configFn = func() *com.Config { return config }
-	a.configMux.Lock()
-	a.config = config
-	a.configMux.Unlock()
+	s.configFn = func() *com.Config { return config }
+	s.configMux.Lock()
+	s.config = config
+	s.configMux.Unlock()
 }
 
 func LoadServiceConfig(fileName string) (*models.Config, error) {

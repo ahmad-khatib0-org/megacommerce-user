@@ -13,10 +13,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func (a *Server) initTrans() map[string]*com.TranslationElements {
-	trans, err := a.commonClient.TranslationsGet()
+func (s *Server) initTrans() map[string]*com.TranslationElements {
+	trans, err := s.commonClient.TranslationsGet()
 	if err != nil {
-		a.errors <- err
+		s.errors <- err
 	}
 
 	if err := models.TranslationsInit(trans); err != nil {
@@ -25,7 +25,7 @@ func (a *Server) initTrans() map[string]*com.TranslationElements {
 			Msg:  "failed to init translations",
 			Path: "user.server.initTrans",
 		}
-		a.errors <- err
+		s.errors <- err
 	}
 
 	return trans

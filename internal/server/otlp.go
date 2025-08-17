@@ -16,13 +16,13 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.32.0"
 )
 
-func (c *Server) initTracerProvider(ctx context.Context) {
+func (s *Server) initTracerProvider(ctx context.Context) {
 	exp, err := otlptracegrpc.New(ctx,
-		otlptracegrpc.WithEndpoint(c.config.Services.GetJaegerCollectorUrl()),
+		otlptracegrpc.WithEndpoint(s.config.Services.GetJaegerCollectorUrl()),
 		otlptracegrpc.WithInsecure(),
 	)
 	if err != nil {
-		c.errors <- &models.InternalError{Err: err, Msg: "failed to init jaeger tracer", Path: "user.controller.getTracerProvider"}
+		s.errors <- &models.InternalError{Err: err, Msg: "failed to init jaeger tracer", Path: "user.controller.getTracerProvider"}
 	}
 
 	tp := sdktrace.NewTracerProvider(
@@ -35,7 +35,7 @@ func (c *Server) initTracerProvider(ctx context.Context) {
 
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
-	c.tracerProvider = tp
+	s.tracerProvider = tp
 }
 
 func (s *Server) initMetrics() {

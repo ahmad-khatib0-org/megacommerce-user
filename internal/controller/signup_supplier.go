@@ -43,7 +43,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 			Email:      utils.NewPointer(sanitized.GetEmail()),
 			Membership: utils.NewPointer("free"),
 			Password:   utils.NewPointer(req.GetPassword()),
-			Roles:      []string{string(models.RoleIdSupplierAdmin)},
+			Roles:      []string{string(models.RoleIDSupplierAdmin)},
 		},
 	)
 	if err != nil {
@@ -70,7 +70,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 		Ctx:     ctx,
 		Email:   dbPay.GetEmail(),
 		Token:   tokenData.Token,
-		TokenId: tokenData.Id,
+		TokenID: tokenData.ID,
 		Hours:   int(c.cfg.Security.GetTokenConfirmationExpiryInHours()),
 	}
 

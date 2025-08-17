@@ -57,7 +57,7 @@ func (l *Logger) DebugStruct(msg string, v any) {
 	l.zap.Debug(msg, zap.Any("data", toJSON(v)))
 }
 
-// DebugStruct logs a struct as a JSON string at Debug level
+// FatalStruct logs a struct as a JSON string at Debug level
 func (l *Logger) FatalStruct(msg string, v any) {
 	l.zap.Fatal(msg, zap.Any("data", toJSON(v)))
 }

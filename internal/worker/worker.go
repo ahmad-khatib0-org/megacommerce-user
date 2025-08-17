@@ -1,3 +1,4 @@
+// Package worker defines background tasks like sending emails, handling events...
 package worker
 
 import (

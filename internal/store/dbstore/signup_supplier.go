@@ -48,14 +48,14 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 	if len(u.GetProps()) > 0 {
 		props, err = json.Marshal(u.GetProps())
 		if err != nil {
-			return store.JsonMarshalError(err, path, "an error occurred while trying to encode User.props")
+			return store.JSONMarshalError(err, path, "an error occurred while trying to encode User.props")
 		}
 	}
 
 	if len(u.GetNotifyProps()) > 0 {
 		nontifyProps, err = json.Marshal(u.GetNotifyProps())
 		if err != nil {
-			return store.JsonMarshalError(err, path, "an error occurred while trying to encode User.notify_props")
+			return store.JSONMarshalError(err, path, "an error occurred while trying to encode User.notify_props")
 		}
 	}
 
@@ -89,7 +89,7 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 	`
 
 	args = []any{
-		token.Id,
+		token.ID,
 		string(token.Hash),
 		string(models.TokenTypeEmailConfirmation),
 		utils.TimeGetMillis(),

@@ -23,7 +23,7 @@ func getValidEmailConfirmationRequet(t *testing.T, hours uint) *v1.EmailConfirma
 	// Compare with tolerance (1 second to account for execution time)
 	require.WithinDuration(t, expectedExpiry, tokenData.Expiry, time.Second)
 
-	return &v1.EmailConfirmationRequest{Email: "test@email.com", Token: tokenData.Token, TokenId: tokenData.Id}
+	return &v1.EmailConfirmationRequest{Email: "test@email.com", Token: tokenData.Token, TokenId: tokenData.ID}
 }
 
 func TestEmailConfirmationIsValid(t *testing.T) {
@@ -35,7 +35,7 @@ func TestEmailConfirmationIsValid(t *testing.T) {
 		req.Email = "invalid@@"
 		err := EmailConfirmationIsValid(ctx, req)
 		require.NotNil(t, err)
-		require.Equal(t, "email_confirm.email.error", err.Id)
+		require.Equal(t, "email_confirm.email.error", err.ID)
 	})
 
 	t.Run("missing token", func(t *testing.T) {
@@ -43,7 +43,7 @@ func TestEmailConfirmationIsValid(t *testing.T) {
 		req.Token = ""
 		err := EmailConfirmationIsValid(ctx, req)
 		require.NotNil(t, err)
-		require.Equal(t, "email_confirm.token.error", err.Id)
+		require.Equal(t, "email_confirm.token.error", err.ID)
 	})
 
 	t.Run("invalid token_id", func(t *testing.T) {
@@ -51,6 +51,6 @@ func TestEmailConfirmationIsValid(t *testing.T) {
 		req.TokenId = "invalid@@"
 		err := EmailConfirmationIsValid(ctx, req)
 		require.NotNil(t, err)
-		require.Equal(t, "email_confirm.token_id.error", err.Id)
+		require.Equal(t, "email_confirm.token_id.error", err.ID)
 	})
 }

@@ -1,3 +1,4 @@
+// Package utils provide common utils
 package utils
 
 import (
@@ -19,7 +20,7 @@ func NewPointer[T any](v T) *T {
 	return &v
 }
 
-// GetMetadataValue() convert the []string metadata value to a map[string]string
+// GetMetadataValue convert the []string metadata value to a map[string]string
 func GetMetadataValue(value []string) map[string]string {
 	if len(value) == 0 {
 		return map[string]string{}

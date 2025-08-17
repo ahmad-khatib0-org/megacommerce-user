@@ -1,3 +1,4 @@
+// Package store define interfaces and helpers for database
 package store
 
 import (
@@ -8,6 +9,6 @@ import (
 
 type UsersStore interface {
 	SignupSupplier(ctx *models.Context, s *pb.User, token *utils.Token) *DBError
-	TokensGet(ctx *models.Context, tokenId string) (*pb.Token, *DBError)
-	MarkEmailAsConfirmed(ctx *models.Context, tokenId string) *DBError
+	TokensGet(ctx *models.Context, tokenID string) (*pb.Token, *DBError)
+	MarkEmailAsConfirmed(ctx *models.Context, tokenID string) *DBError
 }

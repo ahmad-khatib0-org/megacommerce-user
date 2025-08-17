@@ -10,15 +10,15 @@ import (
 )
 
 type Token struct {
-	Id     string    `json:"id"`
+	ID     string    `json:"id"`
 	Token  string    `json:"token"`
 	Expiry time.Time `json:"expiry"`
 	Hash   []byte    `json:"-"`
 }
 
-// GenerateToken() generate a token for a specified ttl (time to life)
+// GenerateToken generate a token for a specified ttl (time to life)
 func (t *Token) GenerateToken(ttl time.Duration) (*Token, error) {
-	token := &Token{Expiry: time.Now().Add(ttl), Id: ulid.Make().String()}
+	token := &Token{Expiry: time.Now().Add(ttl), ID: ulid.Make().String()}
 
 	bytes := make([]byte, 32)
 	_, err := rand.Read(bytes)

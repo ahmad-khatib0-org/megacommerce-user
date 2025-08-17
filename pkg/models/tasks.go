@@ -18,7 +18,7 @@ type TaskSendVerifyEmailPayload struct {
 	Ctx     *Context `json:"ctx"`
 	Email   string   `json:"email"`
 	Token   string   `json:"token"`
-	TokenId string   `json:"token_id"`
+	TokenID string   `json:"token_id"`
 	Hours   int      `json:"hours"`
 }
 
@@ -98,16 +98,16 @@ func createTask(name string, function TaskFunc, interval time.Duration, recurrin
 	return task
 }
 
-func (t *ScheduledTask) Cancel() {
-	close(t.cancel)
-	<-t.cancelled
+func (st *ScheduledTask) Cancel() {
+	close(st.cancel)
+	<-st.cancelled
 }
 
-func (task *ScheduledTask) String() string {
+func (st *ScheduledTask) String() string {
 	return fmt.Sprintf(
 		"%s\nInterval: %s\nRecurring: %t\n",
-		task.Name,
-		task.Interval.String(),
-		task.Recurring,
+		st.Name,
+		st.Interval.String(),
+		st.Recurring,
 	)
 }

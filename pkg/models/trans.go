@@ -42,7 +42,7 @@ func TranslationsInit(translations map[string]*pb.TranslationElements) error {
 				return fmt.Errorf("encountered an empty translation value, value: %s key: %s", trVal, trID)
 			}
 
-			goTemp, hasVars := parseTranslateIdVars(trVal)
+			goTemp, hasVars := parseTranslateIDVars(trVal)
 			tmp, err := template.New("msg").Parse(goTemp)
 			if err != nil {
 				return fmt.Errorf("an error occurred while trying to parse a translation template %v", err)
@@ -83,8 +83,8 @@ func Tr(lang string, id string, params map[string]any) (string, error) {
 	return buf.String(), nil
 }
 
-// parseTranslateIdVars converts `{{Var}}` → `{{.Var}}` and returns if vars were present.
-func parseTranslateIdVars(id string) (string, bool) {
+// parseTranslateIDVars converts `{{Var}}` → `{{.Var}}` and returns if vars were present.
+func parseTranslateIDVars(id string) (string, bool) {
 	re := regexp.MustCompile(`{{\s*([a-zA-Z0-9_]+)\s*}}`)
 	has := re.MatchString(id)
 	result := re.ReplaceAllString(id, "{{.$1}}")

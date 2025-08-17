@@ -20,17 +20,17 @@ type TemplateContainer struct {
 	watch     bool
 }
 
-// Data contains the data used to populate the template variables, it has Props
+// TemplateData contains the data used to populate the template variables, it has Props
 // that can be of any type and HTML that only can be `template.HTML` types.
 type TemplateData struct {
 	Props map[string]any
-	Html  map[string]template.HTML
+	HTML  map[string]template.HTML
 }
 
-func (s *Mailer) NewTemplateData(lang string) (*TemplateData, error) {
+func (m *Mailer) NewTemplateData(lang string) (*TemplateData, error) {
 	footer, err := models.Tr(lang, "templates.footer.part1", map[string]any{
-		"SupportEmail": s.config().GetSupport().GetSupportEmail(),
-		"SiteName":     s.config().Main.GetSiteName(),
+		"SupportEmail": m.config().GetSupport().GetSupportEmail(),
+		"SiteName":     m.config().Main.GetSiteName(),
 	})
 	if err != nil {
 		return nil, err

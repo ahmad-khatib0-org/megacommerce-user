@@ -41,19 +41,19 @@ func NewMailer(ma *MailerArgs) MailerService {
 	return &Mailer{config: ma.ConfigFn, store: ma.Store, templateContainer: ma.TemplateContainer}
 }
 
-func (s *Mailer) send(md *mailData) error {
+func (m *Mailer) send(md *mailData) error {
 	server := mail.NewSMTPClient()
 
-	port, _ := strconv.Atoi(s.config().Email.GetSmtpPort())
+	port, _ := strconv.Atoi(m.config().Email.GetSmtpPort())
 
-	server.Host = s.config().Email.GetSmtpServer()
+	server.Host = m.config().Email.GetSmtpServer()
 	server.Port = port
-	server.ConnectTimeout = time.Duration(s.config().Email.GetSmtpServerTimeout()) * time.Second
-	server.SendTimeout = time.Duration(s.config().Email.GetSmtpServerTimeout()) * time.Second
+	server.ConnectTimeout = time.Duration(m.config().Email.GetSmtpServerTimeout()) * time.Second
+	server.SendTimeout = time.Duration(m.config().Email.GetSmtpServerTimeout()) * time.Second
 	server.KeepAlive = false
-	server.Password = s.config().Email.GetSmtpPassword()
-	server.Username = s.config().Email.GetSmtpUsername()
-	server.Encryption = getEncryptionType(s.config().GetEmail().GetConnectionSecurity())
+	server.Password = m.config().Email.GetSmtpPassword()
+	server.Username = m.config().Email.GetSmtpUsername()
+	server.Encryption = getEncryptionType(m.config().GetEmail().GetConnectionSecurity())
 
 	client, err := server.Connect()
 	if err != nil {
@@ -69,14 +69,14 @@ func (s *Mailer) send(md *mailData) error {
 		email.Attach(file)
 	}
 
-	html, err := s.inlineCSS(md.body)
+	html, err := m.inlineCSS(md.body)
 	if err != nil {
 		return err
 	}
 
 	plain := html2text.HTML2Text(html)
 	if md.from == "" {
-		md.from = s.config().Email.GetFeedbackEmail()
+		md.from = m.config().Email.GetFeedbackEmail()
 	}
 
 	email.SetFrom(md.from)
@@ -91,7 +91,7 @@ func (s *Mailer) send(md *mailData) error {
 
 // inlineCSS takes an email string (html) and returns the same string but with
 // injecting the email styles inline to be compatible with most email sender providers
-func (s *Mailer) inlineCSS(tmp string) (string, error) {
+func (m *Mailer) inlineCSS(tmp string) (string, error) {
 	opt := premailer.Options{
 		RemoveClasses:     false,
 		CssToAttributes:   false,
@@ -124,25 +124,25 @@ func getEncryptionType(t string) mail.Encryption {
 	}
 }
 
-func (es *Mailer) Store() store.UsersStore {
-	return es.store
+func (m *Mailer) Store() store.UsersStore {
+	return m.store
 }
 
-func (es *Mailer) SetStore(st store.UsersStore) {
-	es.store = st
+func (m *Mailer) SetStore(st store.UsersStore) {
+	m.store = st
 }
 
-func (es *Mailer) GetPerDayEmailRateLimiter() *throttled.GCRARateLimiterCtx {
-	return es.perDayEmailRateLimiter
+func (m *Mailer) GetPerDayEmailRateLimiter() *throttled.GCRARateLimiterCtx {
+	return m.perDayEmailRateLimiter
 }
 
-func (es *Mailer) GetPerHourEmailRateLimiter() *throttled.GCRARateLimiterCtx {
-	return es.perHourEmailRateLimiter
+func (m *Mailer) GetPerHourEmailRateLimiter() *throttled.GCRARateLimiterCtx {
+	return m.perHourEmailRateLimiter
 }
 
 type MailerService interface {
 	GetPerDayEmailRateLimiter() *throttled.GCRARateLimiterCtx
 	GetPerHourEmailRateLimiter() *throttled.GCRARateLimiterCtx
-	SendVerifyEmail(lang, email, token, tokenId string, hours int) error
+	SendVerifyEmail(lang, email, token, tokenID string, hours int) error
 	InitEmailBatching()
 }

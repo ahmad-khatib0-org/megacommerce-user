@@ -6,18 +6,18 @@ import (
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 )
 
-func (ds *DBStore) MarkEmailAsConfirmed(ctx *models.Context, tokenId string) *store.DBError {
+func (ds *DBStore) MarkEmailAsConfirmed(ctx *models.Context, tokenID string) *store.DBError {
 	stmt := `UPDATE tokens SET used = TRUE WHERE id = $1`
-	_, err := ds.db.Exec(ctx.Context, stmt, tokenId)
+	_, err := ds.db.Exec(ctx.Context, stmt, tokenID)
 
 	return store.HandleDBError(ctx, err, "users.store.MarkEmailAsConfirmed", nil)
 }
 
-func (ds *DBStore) TokensGet(ctx *models.Context, tokenId string) (*pb.Token, *store.DBError) {
+func (ds *DBStore) TokensGet(ctx *models.Context, tokenID string) (*pb.Token, *store.DBError) {
 	stmt := `SELECT id, token, type, used, created_at, expires_at FROM tokens WHERE id = $1`
 
 	var t pb.Token
-	err := ds.db.QueryRow(ctx.Context, stmt, tokenId).Scan(
+	err := ds.db.QueryRow(ctx.Context, stmt, tokenID).Scan(
 		&t.Id,
 		&t.Token,
 		&t.Type,
