@@ -27,7 +27,7 @@ func (cc *CommonClient) ConfigGet() (*com.Config, *models.InternalError) {
 	case *com.ConfigGetResponse_Data:
 		return res.Data, nil
 	case *com.ConfigGetResponse_Error:
-		err := models.AppErrorFromProto(res.Error)
+		err := models.AppErrorFromProto(nil, res.Error) // no need for ctx here
 		return nil, &models.InternalError{
 			Temp: false,
 			Err:  err,

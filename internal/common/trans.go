@@ -25,7 +25,7 @@ func (cc *CommonClient) TranslationsGet() (map[string]*com.TranslationElements, 
 	if res.Error != nil {
 		return nil, &models.InternalError{
 			Temp: false,
-			Err:  models.AppErrorFromProto(res.Error),
+			Err:  models.AppErrorFromProto(nil, res.Error), // no need for ctx here
 			Msg:  "failed to get translations from the common service",
 			Path: "user.common.TranslationsGet",
 		}

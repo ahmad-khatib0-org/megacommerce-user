@@ -36,14 +36,14 @@ func (c *Controller) EmailConfirmation(context context.Context, req *pb.EmailCon
 	token, errDB := c.store.TokensGet(ctx, req.TokenId)
 	if errDB != nil {
 		if errDB.ErrType == store.DBErrorTypeNoRows {
-			return errBuilder(models.NewAppError(ctx, errDB.Path, "email_confirm.token.not_found", nil, "", int(codes.NotFound), err))
+			return errBuilder(models.NewAppError(ctx, errDB.Path, "email_confirm.token.not_found", nil, "", int(codes.NotFound), &models.AppErrorErrorsArgs{Err: err}))
 		} else {
-			return errBuilder(models.AppErrorInternal(ctx, errDB, errDB.Path, ""))
+			return errBuilder(models.NewAppError(ctx, errDB.Path, models.ErrMsgInternal, nil, errDB.Details, int(codes.Internal), &models.AppErrorErrorsArgs{Err: err}))
 		}
 	}
 
 	if token.Used {
-		msg, _ := models.Tr(ctx.AcceptLanguage, "email_confirm.already_confirmed", nil)
+		msg := models.Tr(ctx.AcceptLanguage, "email_confirm.already_confirmed", nil)
 		return sucBuilder(&pbSh.SuccessResponseData{Message: &msg})
 	}
 
@@ -52,15 +52,15 @@ func (c *Controller) EmailConfirmation(context context.Context, req *pb.EmailCon
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(token.Token), []byte(req.Token)); err != nil {
-		msg, _ := models.Tr(ctx.AcceptLanguage, "email_confirm.token.error", nil)
+		msg := models.Tr(ctx.AcceptLanguage, "email_confirm.token.error", nil)
 		return sucBuilder(&pbSh.SuccessResponseData{Message: &msg})
 	}
 
 	if err := c.store.MarkEmailAsConfirmed(ctx, req.TokenId); err != nil {
-		return errBuilder(models.AppErrorInternal(ctx, err, err.Path, err.Details))
+		return errBuilder(models.NewAppError(ctx, err.Path, models.ErrMsgInternal, nil, err.Details, int(codes.Internal), &models.AppErrorErrorsArgs{Err: err}))
 	}
 
 	ar.Success()
-	msg, _ := models.Tr(ctx.AcceptLanguage, "email_confirm.confirmed_successfully", nil)
+	msg := models.Tr(ctx.AcceptLanguage, "email_confirm.confirmed_successfully", nil)
 	return sucBuilder(&pbSh.SuccessResponseData{Message: &msg})
 }

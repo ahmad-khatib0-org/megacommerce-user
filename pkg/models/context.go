@@ -28,6 +28,7 @@ type Context struct {
 	Path           string          `json:"path"`
 	UserAgent      string          `json:"user_agent"`
 	AcceptLanguage string          `json:"accept_language"`
+	ServerName     string          `json:"from_server"` // request from grpc server
 }
 
 func NewContext(ctx context.Context, session *Session, requestID, ipAddress, xForwardedFor, path, userAgent, acceptLanguage string) *Context {
@@ -43,12 +44,6 @@ func NewContext(ctx context.Context, session *Session, requestID, ipAddress, xFo
 	}
 }
 
-// clone creates a shallow copy of Context, allowing clones to apply per-request changes.
-func (c *Context) clone() *Context {
-	cp := *c
-	return &cp
-}
-
 func (c *Context) Ctx() context.Context {
 	return c.Context
 }
@@ -57,7 +52,7 @@ func (c *Context) GetSession() *Session {
 	return c.Session
 }
 
-func (c *Context) GetRequestId() string {
+func (c *Context) GetRequestID() string {
 	return c.RequestID
 }
 
@@ -135,7 +130,7 @@ type Session struct {
 	Props          StringMap `json:"props"`
 }
 
-func (s *Session) GetId() string {
+func (s *Session) GetID() string {
 	return s.ID
 }
 

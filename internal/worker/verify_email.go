@@ -20,13 +20,13 @@ func (atp *AsynqTaksDistributor) SendVerifyEmail(context context.Context, payloa
 
 	pay, err := json.Marshal(payload)
 	if err != nil {
-		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to marshal json payload, err: %v", err), int(codes.Internal), err)
+		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to marshal json payload, err: %v", err), int(codes.Internal), &models.AppErrorErrorsArgs{Err: err})
 	}
 
 	task := asynq.NewTask(string(models.TaskNameSendVerifyEmail), pay, opts...)
 	info, err := atp.cli.EnqueueContext(context, task)
 	if err != nil {
-		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to enqueue a task , err: %v", err), int(codes.Internal), err)
+		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to enqueue a task , err: %v", err), int(codes.Internal), &models.AppErrorErrorsArgs{Err: err})
 	}
 
 	if atp.config().Main.GetEnv() == "dev" {
@@ -41,11 +41,11 @@ func (atp *AsynqTaksProcessor) ProcessSendVerifyEmail(context context.Context, t
 	path := "user.worker.ProcessSendVerifyEmail"
 	var pay models.TaskSendVerifyEmailPayload
 	if err := json.Unmarshal(task.Payload(), &pay); err != nil {
-		return models.NewAppError(pay.Ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to unmarshal json payload, err: %v", err), int(codes.Internal), err)
+		return models.NewAppError(pay.Ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to unmarshal json payload, err: %v", err), int(codes.Internal), &models.AppErrorErrorsArgs{Err: err})
 	}
 
 	if err := atp.mailer.SendVerifyEmail(pay.Ctx.GetAcceptLanguage(), pay.Email, pay.Token, pay.TokenID, pay.Hours); err != nil {
-		return models.NewAppError(pay.Ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to send an email, err: %v", err), int(codes.Internal), err)
+		return models.NewAppError(pay.Ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to send an email, err: %v", err), int(codes.Internal), &models.AppErrorErrorsArgs{Err: err})
 	}
 
 	if atp.config().Main.GetEnv() == "dev" {

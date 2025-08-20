@@ -1,6 +1,7 @@
 package models
 
 const (
+	HeaderServerName     = "server-name"
 	HeaderAuthorization  = "authorization"
 	HeaderXRequestID     = "x-request-id"
 	HeaderXIPAddress     = "x-ip-address"

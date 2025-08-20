@@ -28,13 +28,10 @@ type TemplateData struct {
 }
 
 func (m *Mailer) NewTemplateData(lang string) (*TemplateData, error) {
-	footer, err := models.Tr(lang, "templates.footer.part1", map[string]any{
+	footer := models.Tr(lang, "templates.footer.part1", map[string]any{
 		"SupportEmail": m.config().GetSupport().GetSupportEmail(),
 		"SiteName":     m.config().Main.GetSiteName(),
 	})
-	if err != nil {
-		return nil, err
-	}
 
 	return &TemplateData{Props: map[string]any{"Footer": footer}}, nil
 }

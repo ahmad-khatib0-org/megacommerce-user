@@ -13,30 +13,13 @@ func (m *Mailer) SendVerifyEmail(lang, email, token, tokenID string, hours int) 
 		return err
 	}
 
-	title, err := models.Tr(lang, "templates.verify.title", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
-	if err != nil {
-		return err
-	}
-	welcome, err := models.Tr(lang, "templates.verify.welcome", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
-	if err != nil {
-		return err
-	}
-	welcome2, err := models.Tr(lang, "templates.verify.part1", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
-	if err != nil {
-		return err
-	}
-	click, err := models.Tr(lang, "templates.verify.part2", nil)
-	if err != nil {
-		return err
-	}
-	redirect, err := models.Tr(lang, "templates.verify.part3", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
-	if err != nil {
-		return err
-	}
-	note, err := models.Tr(lang, "templates.verify.part4", map[string]any{"Hours": hours})
-	if err != nil {
-		return err
-	}
+	title := models.Tr(lang, "templates.verify.title", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
+
+	welcome := models.Tr(lang, "templates.verify.welcome", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
+	welcome2 := models.Tr(lang, "templates.verify.part1", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
+	click := models.Tr(lang, "templates.verify.part2", nil)
+	redirect := models.Tr(lang, "templates.verify.part3", map[string]any{"SiteName": m.config().GetMain().GetSiteName()})
+	note := models.Tr(lang, "templates.verify.part4", map[string]any{"Hours": hours})
 
 	td.Props["Title"] = title
 	td.Props["Welcome"] = welcome

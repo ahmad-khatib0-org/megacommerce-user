@@ -24,5 +24,5 @@ func EmailConfirmationIsValid(ctx *Context, req *pb.EmailConfirmationRequest) *A
 }
 
 func errorBuilder(ctx *Context, id string, err error) *AppError {
-	return NewAppError(ctx, "users.models.", id, nil, "", int(codes.InvalidArgument), err)
+	return NewAppError(ctx, "users.models.", id, nil, "", int(codes.InvalidArgument), &AppErrorErrorsArgs{Err: err})
 }

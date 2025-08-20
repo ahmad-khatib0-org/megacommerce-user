@@ -1,15 +1,11 @@
 package models
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
 	"maps"
 	"strings"
 
 	shared "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
-	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -51,23 +47,31 @@ func (ie *InternalError) Message() string {
 	return ie.Msg
 }
 
+type AppErrorError struct {
+	ID     string
+	Params map[string]any
+}
+
+type AppErrorErrorsArgs struct {
+	Err                  error
+	ErrorsInternal       map[string]*AppErrorError            // a map of: field_name: error
+	ErrorsNestedInternal map[string]map[string]*AppErrorError // same as Errors, but nested
+}
+
 type AppError struct {
-	Ctx *Context `json:"ctx"`
-	ID  string   `json:"id"`
-	// Message to be display to the end user without debugging information
-	Message string `json:"message"`
-	// Internal error string to help the developer
-	DetailedError string `json:"detailed_error"`
-	// The grpc status code
-	StatusCode   int                          `json:"status_code,omitempty"`
-	TrParams     map[string]any               `json:"tr_params"`
-	Params       map[string]string            `json:"params,omitempty"`
-	NestedParams map[string]map[string]string `json:"nested_params,omitempty"`
-	// The function where it happened in the form of Struct.Func
-	Where string `json:"-"`
-	// Whether translation for the error should be skipped.
-	SkipTranslation bool  `json:"-"`
-	Wrapped         error `json:"-"`
+	Ctx                  *Context
+	ID                   string
+	Message              string         // displayed to end user, without debugging information
+	DetailedError        string         // Internal error string to help the developer
+	StatusCode           int            // The grpc status code
+	IDParams             map[string]any // params passed to templates trans
+	Where                string         // err location in the form of Struct.Func
+	SkipTranslation      bool
+	Err                  error
+	Errors               map[string]string
+	ErrorsNested         map[string]map[string]string
+	ErrorsInternal       map[string]*AppErrorError            // a map of: field_name: error
+	ErrorsNestedInternal map[string]map[string]*AppErrorError // same as Errors, but nested
 }
 
 func (ae *AppError) Error() string {
@@ -79,33 +83,28 @@ func (ae *AppError) Error() string {
 
 	// render the error information
 	if ae.Where != "" {
-		sb.WriteString(ae.Where)
-		sb.WriteString(": ")
+		sb.WriteString(fmt.Sprintf("%s :", ae.Where))
 	}
 
-	if ae.Message != NoTranslation {
-		sb.WriteString(ae.Message)
+	if ae.Message != "" {
+		sb.WriteString(fmt.Sprintf("%s ,", ae.Message))
 	}
 
 	// only render the detailed error when it's present
 	if ae.DetailedError != "" {
-		if ae.Message != NoTranslation {
-			sb.WriteString(", ")
-		}
-		sb.WriteString(ae.DetailedError)
+		sb.WriteString(fmt.Sprintf("%s ,", ae.DetailedError))
 	}
 
 	// render the wrapped error
-	err := ae.Wrapped
-	if err != nil {
-		sb.WriteString(", ")
-		sb.WriteString(err.Error())
+	if ae.Err != nil {
+		sb.WriteString(fmt.Sprintf("%s ", ae.Err.Error()))
 	}
 
 	res := sb.String()
 	if len(res) > maxErrorLength {
 		res = res[:maxErrorLength] + "..."
 	}
+
 	return res
 }
 
@@ -118,72 +117,48 @@ func (ae *AppError) Translate(tf TranslateFunc) {
 		ae.Message = ae.ID
 		return
 	} else {
-		tr, err := tf(ae.Ctx.AcceptLanguage, ae.ID, ae.TrParams)
-		if err != nil {
-			// Track error
-		}
+		tr := tf(ae.Ctx.AcceptLanguage, ae.ID, ae.IDParams)
 		ae.Message = tr
+	}
+
+	if len(ae.ErrorsInternal) > 0 {
+		errors := make(map[string]string, len(ae.ErrorsInternal))
+		for k, v := range ae.ErrorsInternal {
+			errors[k] = tf(ae.Ctx.AcceptLanguage, v.ID, v.Params)
+		}
+		ae.Errors = errors
 	}
 }
 
-func (ae *AppError) ToJSON() string {
-	b, _ := json.Marshal(ae)
-	return string(b)
-}
-
 func (ae *AppError) Unwrap() error {
-	return ae.Wrapped
+	return ae.Err
 }
 
 func (ae *AppError) Wrap(err error) *AppError {
-	ae.Wrapped = err
+	ae.Err = err
 	return ae
 }
 
 func (ae *AppError) WipeDetailed() {
-	ae.Wrapped = nil
+	ae.Err = nil
 	ae.DetailedError = ""
 }
 
-// AppErrorFromJSON will try to decode the input into an AppError.
-func AppErrorFromJSON(r io.Reader) error {
-	data, err := io.ReadAll(r)
-	if err != nil {
-		return err
-	}
-
-	var er AppError
-	err = json.NewDecoder(bytes.NewReader(data)).Decode(&er)
-	if err != nil {
-		return fmt.Errorf("failed to decode JSON payload into AppError. Body: %s, err: %v", string(data), err)
-	}
-
-	return &er
-}
-
-// ToInternal convert to server interval error, store path if not nil
-func (ae *AppError) ToInternal(err error, path *string) *AppError {
-	ae.Wrapped = err
-	ae.StatusCode = int(codes.Internal)
-	ae.ID = ErrMsgInternal
-	if path != nil {
-		ae.Where = *path
-	}
-	return ae
-}
-
-func (ae *AppError) Default() *AppError {
+func AppErrorDefault() *AppError {
 	return &AppError{
-		ID:              "",
-		Message:         "",
-		DetailedError:   "",
-		StatusCode:      0,
-		Where:           "",
-		SkipTranslation: false,
-		TrParams:        make(map[string]any),
-		Params:          make(map[string]string),
-		NestedParams:    make(map[string]map[string]string),
-		Wrapped:         nil,
+		ID:                   "",
+		Message:              "",
+		DetailedError:        "",
+		StatusCode:           0,
+		Where:                "",
+		SkipTranslation:      false,
+		IDParams:             make(map[string]any),
+		Ctx:                  &Context{},
+		Errors:               make(map[string]string),
+		ErrorsInternal:       make(map[string]*AppErrorError),
+		ErrorsNested:         make(map[string]map[string]string),
+		ErrorsNestedInternal: make(map[string]map[string]*AppErrorError),
+		Err:                  nil,
 	}
 }
 
@@ -191,74 +166,65 @@ func NewAppError(
 	ctx *Context,
 	where string,
 	id string,
-	trParams map[string]any,
+	idParams map[string]any,
 	details string,
 	status int,
-	err error,
+	errors *AppErrorErrorsArgs,
 ) *AppError {
 	ap := &AppError{
-		Ctx:           ctx,
-		ID:            id,
-		TrParams:      trParams,
-		Message:       id,
-		Where:         where,
-		DetailedError: details,
-		StatusCode:    status,
-		Wrapped:       err,
+		Ctx:                  ctx,
+		ID:                   id,
+		IDParams:             idParams,
+		Message:              id,
+		Where:                where,
+		DetailedError:        details,
+		StatusCode:           status,
+		Err:                  errors.Err,
+		ErrorsInternal:       errors.ErrorsInternal,
+		ErrorsNestedInternal: errors.ErrorsNestedInternal,
 	}
 
 	ap.Translate(Tr)
 	return ap
 }
 
-func AppErrorInternal(ctx *Context, err error, where string, msg string) *AppError {
-	return &AppError{
-		Ctx:        ctx,
-		ID:         ErrMsgInternal,
-		Message:    msg,
-		StatusCode: int(codes.Internal),
-		Where:      where,
-		Wrapped:    err,
-	}
-}
-
-func AppErrorFromProto(ae *shared.AppError) *AppError {
+func AppErrorFromProto(ctx *Context, ae *shared.AppError) *AppError {
 	if ae == nil {
-		ae := &AppError{}
-		return ae.Default()
+		return AppErrorDefault()
 	}
 
-	params, nested := AppErrorConvertProtoParams(ae)
-
+	errors, errorsNested := AppErrorConvertProtoParams(ae)
 	return &AppError{
-		ID:              ae.Id,
-		Message:         ae.Message,
-		DetailedError:   ae.DetailedError,
-		StatusCode:      int(ae.StatusCode),
-		Where:           ae.Where,
-		SkipTranslation: ae.SkipTranslation,
-		Params:          params,
-		NestedParams:    nested,
+		ID:              ae.GetId(),
+		Ctx:             ctx,
+		Message:         ae.GetMessage(),
+		DetailedError:   ae.GetDetailedError(),
+		StatusCode:      int(ae.GetStatusCode()),
+		Where:           ae.GetWhere(),
+		SkipTranslation: ae.GetSkipTranslation(),
+		Errors:          errors,
+		ErrorsNested:    errorsNested,
 	}
 }
 
 func AppErrorToProto(e *AppError) *shared.AppError {
-	nested := make(map[string]*shared.StringMap, len(e.NestedParams))
+	nested := make(map[string]*shared.StringMap, len(e.ErrorsNested))
 
-	if len(e.NestedParams) > 0 {
-		for k, v := range e.NestedParams {
+	if len(e.ErrorsNested) > 0 {
+		for k, v := range e.ErrorsNested {
 			nested[k] = &shared.StringMap{Data: v}
 		}
 	}
 
 	return &shared.AppError{
 		Id:              e.ID,
+		RequestId:       e.Ctx.RequestID,
 		Message:         e.Message,
 		DetailedError:   e.DetailedError,
 		StatusCode:      int32(e.StatusCode),
 		Where:           e.Where,
 		SkipTranslation: e.SkipTranslation,
-		Params:          &shared.StringMap{Data: e.Params},
+		Params:          &shared.StringMap{Data: e.Errors},
 		NestedParams:    &shared.NestedStringMap{Data: nested},
 	}
 }

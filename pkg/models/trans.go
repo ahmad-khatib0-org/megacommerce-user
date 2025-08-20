@@ -24,7 +24,7 @@ var (
 	ErrTrMissingParams = errors.New("translation requires params to be passed, but none received")
 )
 
-type TranslateFunc = func(lang, transId string, params map[string]any) (string, error)
+type TranslateFunc = func(lang, transId string, params map[string]any) string
 
 func TranslationsInit(translations map[string]*pb.TranslationElements) error {
 	trans := make(map[string]map[string]*transStoreElement, len(translations))
@@ -57,30 +57,34 @@ func TranslationsInit(translations map[string]*pb.TranslationElements) error {
 }
 
 // Tr translate a given message id with the passed params (if passed)
-func Tr(lang string, id string, params map[string]any) (string, error) {
-	returnErr := func(msg string) (string, error) {
-		return "", InternalError{Err: errors.New(msg), Path: "users.models.Tr", Msg: msg}
-	}
-
+//
+// This function panics if :
+//
+// . the trans are not initialize,
+//
+// . key is not exists,
+//
+// . missing params
+func Tr(lang string, id string, params map[string]any) string {
 	if transStore == nil {
-		return returnErr("trans keys are not initialized, call models.TranslationsInit on server init")
+		panic("trans keys are not initialized, call models.TranslationsInit on server init")
 	}
 
 	value, ok := transStore[lang][id]
 	if !ok {
-		return returnErr(fmt.Sprintf("the specified key: %s is not existed", id))
+		panic(fmt.Sprintf("the specified key: %s is not existed", id))
 	}
 
 	var buf bytes.Buffer
 	if value.HasVars && len(params) == 0 {
-		return returnErr(fmt.Sprintf("this translation id: %s, must has params associated with it", id))
+		panic(fmt.Sprintf("this translation id: %s, must has params associated with it", id))
 	}
 
 	if err := value.Temp.Execute(&buf, params); err != nil {
-		return "", err
+		panic(fmt.Sprintf("failed to translate the id: %s, err: %v", id, err))
 	}
 
-	return buf.String(), nil
+	return buf.String()
 }
 
 // parseTranslateIDVars converts `{{Var}}` → `{{.Var}}` and returns if vars were present.

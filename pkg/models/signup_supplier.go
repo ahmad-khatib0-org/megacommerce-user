@@ -18,6 +18,7 @@ func SignupSupplierRequestSanitize(s *user.SupplierCreateRequest) *user.Supplier
 		FirstName: utils.SanitizeUnicode(s.GetFirstName()),
 		LastName:  utils.SanitizeUnicode(s.GetLastName()),
 		Password:  s.GetPassword(),
+		Image:     s.Image,
 	}
 }
 
@@ -49,7 +50,9 @@ func SignupSupplierRequestIsValid(ctx *Context, s *user.SupplierCreateRequest, p
 	}
 
 	if err := utils.IsValidPassword(pass, passCfg, ""); err != nil {
-		return NewAppError(ctx, "user.models.SupplierCreateRequest.password", err.ID, err.Params, fmt.Sprintf("invalid password %s ", pass), int(codes.InvalidArgument), err)
+		errors := &AppErrorErrorsArgs{Err: err, ErrorsInternal: map[string]*AppErrorError{"password": {ID: err.ID, Params: err.Params}}}
+		e := NewAppError(ctx, "user.models.SupplierCreateRequest.SignupSupplierRequestIsValid", err.ID, err.Params, fmt.Sprintf("invalid password %s ", pass), int(codes.InvalidArgument), errors)
+		return e
 	}
 
 	return nil
@@ -59,7 +62,9 @@ func signupSupplierRequestErrorBuilder(ctx *Context, fieldName string, fieldValu
 	where := "user.models.SupplierCreateRequest.SignupSupplierRequestIsValid"
 	id := fmt.Sprintf("user.create.%s.error", fieldName)
 	details := fmt.Sprintf(" %s=%v ", fieldName, fieldValue)
-	return NewAppError(ctx, where, id, params, details, int(codes.InvalidArgument), nil)
+	errors := &AppErrorErrorsArgs{ErrorsInternal: map[string]*AppErrorError{fieldName: {ID: id, Params: params}}}
+	err := NewAppError(ctx, where, id, params, details, int(codes.InvalidArgument), errors)
+	return err
 }
 
 func SignupSupplierRequestAuditable(s *user.SupplierCreateRequest) map[string]string {
@@ -77,7 +82,11 @@ func SignupSupplierRequestAuditable(s *user.SupplierCreateRequest) map[string]st
 func SignupSupplierRequestPreSave(ctx *Context, s *user.User) (*user.User, *AppError) {
 	pass, err := utils.PasswordHash(s.GetPassword())
 	if err != nil {
-		return nil, NewAppError(ctx, "user.models.SignupSupplierRequestPreSave", ErrMsgInternal, nil, "failed to generate password %v", int(codes.Internal), err)
+		return nil, NewAppError(ctx,
+			"user.models.SignupSupplierRequestPreSave", ErrMsgInternal, nil,
+			fmt.Sprintf("failed to generate password %v", err), int(codes.Internal),
+			&AppErrorErrorsArgs{Err: err},
+		)
 	}
 
 	u := &user.User{
