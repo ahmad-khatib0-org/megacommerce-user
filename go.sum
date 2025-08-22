@@ -3,8 +3,12 @@ cloud.google.com/go/compute/metadata v0.7.0 h1:PBWF+iiAerVNe8UCHxdOt6eHLVc3ydFeO
 cloud.google.com/go/compute/metadata v0.7.0/go.mod h1:j5MvL9PprKL39t166CoB1uVHfQMs4tFQZZcKwksXUjo=
 github.com/PuerkitoBio/goquery v1.10.3 h1:pFYcNSqHxBD06Fpj/KsbStFRsgRATgnf3LeXiUkhzPo=
 github.com/PuerkitoBio/goquery v1.10.3/go.mod h1:tMUX0zDMHXYlAQk6p35XxQMqMweEKB7iK7iLNd4RH4Y=
-github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250817204530-3af7b87e77cf h1:0pPtP4LiKW9uuOTz7ZA51uFynIoQw2E1nYRQmsGM6P4=
-github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250817204530-3af7b87e77cf/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250821104207-03b251aaf9a0 h1:6pJKJo0wOB5A8re6L92B2T/UGXapOCinaBCKz7AezJU=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250821104207-03b251aaf9a0/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250821201131-cac576fec4f8 h1:Cl1PMU2b/NkWly7esXBDJ45zHc3HiLLUg6EjUTsvgNU=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250821201131-cac576fec4f8/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250822121716-b55586837804 h1:PGaKVdcbS12y2ktHg2yBCWAP+VIZeDwSAKLW+TX+lS4=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250822121716-b55586837804/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/andybalholm/cascadia v1.3.3 h1:AG2YHrzJIm4BZ19iwJ/DAua6Btl3IwJX+VI4kktS1LM=
 github.com/andybalholm/cascadia v1.3.3/go.mod h1:xNd9bqTn98Ln4DwST8/nG+H0yuB8Hmgu1YHNnWw0GeA=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=

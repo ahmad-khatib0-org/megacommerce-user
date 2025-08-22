@@ -13,7 +13,7 @@ import (
 )
 
 func (cc *CommonClient) initCommonClient() *models.InternalError {
-	target := fmt.Sprintf("%s:%d", cc.cfg.Service.CommonServiceGrpcHost, cc.cfg.Service.CommonServiceGrpcPort)
+	target := cc.cfg.Service.CommonServiceGrpcURL
 
 	if _, err := net.ResolveTCPAddr("tcp", target); err != nil {
 		return &models.InternalError{
@@ -37,7 +37,7 @@ func (cc *CommonClient) initCommonClient() *models.InternalError {
 		}
 	}
 
-	fmt.Println("user service is listening on common grpc service on: " + target)
+	fmt.Println("user service connected to common service at: " + target)
 	cc.client = com.NewCommonServiceClient(conn)
 	cc.conn = conn
 

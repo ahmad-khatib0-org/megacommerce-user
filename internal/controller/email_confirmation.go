@@ -36,9 +36,9 @@ func (c *Controller) EmailConfirmation(context context.Context, req *pb.EmailCon
 	token, errDB := c.store.TokensGet(ctx, req.TokenId)
 	if errDB != nil {
 		if errDB.ErrType == store.DBErrorTypeNoRows {
-			return errBuilder(models.NewAppError(ctx, errDB.Path, "email_confirm.token.not_found", nil, "", int(codes.NotFound), &models.AppErrorErrorsArgs{Err: err}))
+			return errBuilder(models.NewAppError(ctx, path, "email_confirm.token.not_found", nil, "", int(codes.NotFound), &models.AppErrorErrorsArgs{Err: err}))
 		} else {
-			return errBuilder(models.NewAppError(ctx, errDB.Path, models.ErrMsgInternal, nil, errDB.Details, int(codes.Internal), &models.AppErrorErrorsArgs{Err: err}))
+			return errBuilder(models.NewAppError(ctx, path, models.ErrMsgInternal, nil, errDB.Details, int(codes.Internal), &models.AppErrorErrorsArgs{Err: err}))
 		}
 	}
 
@@ -57,7 +57,7 @@ func (c *Controller) EmailConfirmation(context context.Context, req *pb.EmailCon
 	}
 
 	if err := c.store.MarkEmailAsConfirmed(ctx, req.TokenId); err != nil {
-		return errBuilder(models.NewAppError(ctx, err.Path, models.ErrMsgInternal, nil, err.Details, int(codes.Internal), &models.AppErrorErrorsArgs{Err: err}))
+		return errBuilder(models.NewAppError(ctx, path, models.ErrMsgInternal, nil, err.Details, int(codes.Internal), &models.AppErrorErrorsArgs{Err: err}))
 	}
 
 	ar.Success()

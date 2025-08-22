@@ -44,24 +44,24 @@ func traceID(ctx context.Context) prometheus.Labels {
 	return prometheus.Labels{"trace_id": spanCtx.SpanID().String()}
 }
 
-func unaryMetadataInterceptor(defaultAcceptLang string) grpc.UnaryServerInterceptor {
+func (c *Controller) unaryMetadataInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		ctx = context.WithValue(ctx, models.ContextKeyMethodName, info.FullMethod)
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			ctx = extractMetadataToContext(ctx, md, defaultAcceptLang)
+			ctx = c.extractMetadataToContext(ctx, md)
 		}
 
 		return handler(ctx, req)
 	}
 }
 
-func streamMetadataInterceptor(defaultAcceptLang string) grpc.StreamServerInterceptor {
+func (c *Controller) streamMetadataInterceptor() grpc.StreamServerInterceptor {
 	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		ctx := context.WithValue(ss.Context(), models.ContextKeyMethodName, info.FullMethod)
 
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
-			ctx = extractMetadataToContext(ctx, md, defaultAcceptLang)
+			ctx = c.extractMetadataToContext(ctx, md)
 		}
 
 		wrapped := middleware.WrapServerStream(ss)
@@ -71,59 +71,64 @@ func streamMetadataInterceptor(defaultAcceptLang string) grpc.StreamServerInterc
 	}
 }
 
-func extractMetadataToContext(ctx context.Context, md metadata.MD, defAcceptLang string) context.Context {
-	c := &models.Context{}
-	c.Session = &models.Session{}
+func (c *Controller) extractMetadataToContext(ctx context.Context, md metadata.MD) context.Context {
+	mc := &models.Context{}
+	mc.Session = &models.Session{}
+	defaultAcceptLang := c.cfg.Localization.GetDefaultClientLocale()
+	availableLocales := c.cfg.Localization.GetAvailableLocales()
 
 	if vals := md.Get(string(models.HeaderUserAgent)); len(vals) > 0 {
-		c.UserAgent = vals[0]
+		mc.UserAgent = vals[0]
 	}
 	if vals := md.Get(string(models.HeaderXRequestID)); len(vals) > 0 {
-		c.RequestID = vals[0]
+		mc.RequestID = vals[0]
 	}
 	if vals := md.Get(models.HeaderAuthorization); len(vals) > 0 {
-		c.Session.Token = vals[0]
+		mc.Session.Token = vals[0]
 	}
 	if vals := md.Get(string(models.HeaderXIPAddress)); len(vals) > 0 {
-		c.IPAddress = vals[0]
+		mc.IPAddress = vals[0]
 	}
 	if vals := md.Get(string(models.HeaderXForwardedFor)); len(vals) > 0 {
-		c.XForwardedFor = vals[0]
+		mc.XForwardedFor = vals[0]
 	}
 	if vals := md.Get(models.HeaderAcceptLanguage); len(vals) > 0 {
-		c.AcceptLanguage = vals[0]
+		mc.AcceptLanguage = utils.ProcessAcceptedLanguage(vals[0], availableLocales, defaultAcceptLang)
 	} else {
-		c.AcceptLanguage = defAcceptLang
+		mc.AcceptLanguage = defaultAcceptLang
 	}
 	if vals := md.Get(models.HeaderSessionID); len(vals) > 0 {
-		c.Session.ID = vals[0]
+		mc.Session.ID = vals[0]
 	}
 	if vals := md.Get(models.HeaderToken); len(vals) > 0 {
-		c.Session.Token = vals[0]
+		mc.Session.Token = vals[0]
 	}
 	if vals := md.Get(models.HeaderCreatedAt); len(vals) > 0 {
 		if val, err := strconv.Atoi(vals[0]); err == nil {
-			c.Session.CreatedAt = int64(val)
+			mc.Session.CreatedAt = int64(val)
 		}
 	}
 	if vals := md.Get(models.HeaderLastActivityAt); len(vals) > 0 {
 		if val, err := strconv.Atoi(vals[0]); err == nil {
-			c.Session.LastActivityAt = int64(val)
+			mc.Session.LastActivityAt = int64(val)
 		}
 	}
 	if vals := md.Get(models.HeaderUserID); len(vals) > 0 {
-		c.Session.UserID = vals[0]
+		mc.Session.UserID = vals[0]
 	}
 	if vals := md.Get(models.HeaderDeviceID); len(vals) > 0 {
-		c.Session.DeviceID = vals[0]
+		mc.Session.DeviceID = vals[0]
 	}
 	if vals := md.Get(models.HeaderRoles); len(vals) > 0 {
-		c.Session.Roles = vals[0]
+		mc.Session.Roles = vals[0]
 	}
 	if vals := md.Get(models.HeaderProps); len(vals) > 0 {
-		c.Session.Props = utils.GetMetadataValue(vals)
+		mc.Session.Props = utils.GetMetadataValue(vals)
+	}
+	if vals := md.Get(models.HeaderServerName); len(vals) > 0 {
+		mc.ServerName = vals[0]
 	}
 
-	c.Context = ctx
-	return context.WithValue(ctx, models.ContextKeyMetadata, c)
+	mc.Context = ctx
+	return context.WithValue(ctx, models.ContextKeyMetadata, mc)
 }

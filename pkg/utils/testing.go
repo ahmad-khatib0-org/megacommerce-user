@@ -1,12 +1,33 @@
 package utils
 
 import (
+	"encoding/base64"
 	"fmt"
+	"os"
+	"path/filepath"
 	"reflect"
 
 	"github.com/fatih/color"
 	"github.com/stretchr/testify/mock"
 )
+
+func ReadTestFile(name string) ([]byte, error) {
+	testsDir, err := FindDir("test_files")
+	if err != nil {
+		return nil, err
+	}
+
+	return os.ReadFile(filepath.Join(testsDir, name))
+}
+
+func ReadTestImage(name string) (string, error) {
+	data, err := ReadTestFile(name)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(data), nil
+}
 
 // WithMockDebug wraps a matcher with logging. It logs every argument
 // received and whether it matched.

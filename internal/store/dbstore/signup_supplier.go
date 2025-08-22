@@ -26,6 +26,8 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 			email,
 			user_type,
 			membership,
+	    image,
+	    image_metadata,
 			is_email_verified,
 	    password,
 			auth_data,
@@ -38,12 +40,13 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 			created_at
 	  ) VALUES (
 	     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-	     $11, $12, $13, $14, $15, $16, $17
+	     $11, $12, $13, $14, $15, $16, $17, $18, $19
 	  )
 	`
 
 	var props any
 	var nontifyProps any
+	var imageMetadata any
 
 	if len(u.GetProps()) > 0 {
 		props, err = json.Marshal(u.GetProps())
@@ -59,6 +62,13 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 		}
 	}
 
+	if u.ImageMetadata != nil {
+		imageMetadata, err = json.Marshal(u.GetImageMetadata())
+		if err != nil {
+			return store.JSONMarshalError(err, path, "an error occurred while trying to encode User.image_metadata")
+		}
+	}
+
 	args := []any{
 		u.GetId(),
 		u.GetUsername(),
@@ -67,6 +77,8 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 		u.GetEmail(),
 		u.GetUserType(),
 		u.GetMembership(),
+		u.GetImage(),
+		imageMetadata,
 		u.GetIsEmailVerified(),
 		u.GetPassword(),
 		u.GetAuthData(),

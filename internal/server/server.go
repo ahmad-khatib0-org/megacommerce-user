@@ -16,6 +16,7 @@ import (
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/minio/minio-go/v7"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 )
 
@@ -25,6 +26,7 @@ type Server struct {
 	configFn       func() *com.Config
 	config         *com.Config
 	errors         chan *models.InternalError
+	objectStorage  *minio.Client
 	tracerProvider *sdktrace.TracerProvider
 	metrics        *grpcprom.ServerMetrics
 	log            *logger.Logger
@@ -56,6 +58,7 @@ func RunServer(s *ServerArgs) error {
 	app.initSharedConfig()
 	app.initTrans()
 	app.initTracerProvider(ctx)
+	app.initObjectStorage()
 	app.initMetrics()
 
 	app.initDB()
@@ -66,10 +69,11 @@ func RunServer(s *ServerArgs) error {
 
 	_, err = controller.NewController(&controller.ControllerArgs{
 		Cfg:            app.config,
+		Store:          app.dbStore,
+		ObjStorage:     app.objectStorage,
 		TracerProvider: app.tracerProvider,
 		Metrics:        app.metrics,
 		Log:            app.log,
-		Store:          app.dbStore,
 		Tasker:         app.tasker,
 	})
 	if err != nil {
@@ -78,6 +82,7 @@ func RunServer(s *ServerArgs) error {
 
 	err = <-app.errors
 	if err != nil {
+		s.Log.Infof("an error occurred %v ", err)
 		if err := app.tracerProvider.Shutdown(ctx); err != nil {
 			s.Log.Errorf("failed to shutdown tracer provider %v", err)
 		}
