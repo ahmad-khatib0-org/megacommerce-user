@@ -4,7 +4,10 @@ import (
 	"context"
 
 	shPb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -21,14 +24,21 @@ func processAppError(err *shPb.AppError) *shPb.AppError {
 		RequestId:       err.RequestId,
 		StatusCode:      err.StatusCode,
 		SkipTranslation: err.SkipTranslation,
-		Params:          err.Params,
-		NestedParams:    err.NestedParams,
+		Errors:          err.Errors,
+		ErrorsNested:    err.ErrorsNested,
 	}
 }
 
 func (c *Controller) responseInterceptor(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
 	res, err := handler(ctx, req)
 	if err != nil {
+		if st, ok := status.FromError(err); ok {
+			if md, ok := metadata.FromIncomingContext(ctx); ok {
+				lang := utils.GetAcceptedLanguageFromGrpcCtx(ctx, md, c.cfg.Localization.GetAvailableLocales(), c.cfg.Localization.GetDefaultClientLocale())
+				return resp, status.Errorf(st.Code(), getGrpcErrMsg(lang, st.Code()))
+			}
+		}
+
 		return res, err
 	}
 

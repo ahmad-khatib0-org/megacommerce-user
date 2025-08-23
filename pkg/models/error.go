@@ -224,34 +224,34 @@ func AppErrorToProto(e *AppError) *shared.AppError {
 		StatusCode:      int32(e.StatusCode),
 		Where:           e.Where,
 		SkipTranslation: e.SkipTranslation,
-		Params:          &shared.StringMap{Data: e.Errors},
-		NestedParams:    &shared.NestedStringMap{Data: nested},
+		Errors:          &shared.StringMap{Data: e.Errors},
+		ErrorsNested:    &shared.NestedStringMap{Data: nested},
 	}
 }
 
 func AppErrorConvertProtoParams(ae *shared.AppError) (map[string]string, map[string]map[string]string) {
-	if ae.Params == nil && ae.NestedParams == nil {
+	if ae.Errors == nil && ae.ErrorsNested == nil {
 		return nil, nil
 	}
 
 	shallowCount := 0
 	nestedCount := 0
-	if ae.Params != nil && len(ae.Params.Data) > 0 {
-		shallowCount = len(ae.Params.Data)
+	if ae.Errors != nil && len(ae.Errors.Data) > 0 {
+		shallowCount = len(ae.Errors.Data)
 	}
-	if ae.NestedParams != nil && len(ae.NestedParams.Data) > 0 {
-		nestedCount = len(ae.NestedParams.Data)
+	if ae.ErrorsNested != nil && len(ae.ErrorsNested.Data) > 0 {
+		nestedCount = len(ae.ErrorsNested.Data)
 	}
 
 	shallow := make(map[string]string, shallowCount)
 	nested := make(map[string]map[string]string, nestedCount)
 
-	if ae.Params != nil && len(ae.Params.Data) > 0 {
-		maps.Copy(shallow, ae.Params.Data)
+	if ae.Errors != nil && len(ae.Errors.Data) > 0 {
+		maps.Copy(shallow, ae.Errors.Data)
 	}
 
-	if ae.NestedParams != nil && len(ae.NestedParams.Data) > 0 {
-		for k, v := range ae.NestedParams.Data {
+	if ae.ErrorsNested != nil && len(ae.ErrorsNested.Data) > 0 {
+		for k, v := range ae.ErrorsNested.Data {
 			nested[k] = v.Data
 		}
 	}

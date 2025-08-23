@@ -125,5 +125,6 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 	ar.AuditEventDataResultState(models.SignupSupplierRequestResultState(dbPay))
 	ar.Success()
 
-	return &pb.SupplierCreateResponse{Response: &pb.SupplierCreateResponse_Data{}}, nil
+	msg := models.Tr(ctx.AcceptLanguage, "account.create.success", nil)
+	return &pb.SupplierCreateResponse{Response: &pb.SupplierCreateResponse_Data{Data: &shPb.SuccessResponseData{Message: &msg}}}, nil
 }
