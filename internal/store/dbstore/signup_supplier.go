@@ -97,11 +97,12 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 	}
 
 	stmt = `
-	  INSERT INTO tokens(id, token, type, created_at, expires_at) VALUES($1, $2, $3, $4, $5)
+	  INSERT INTO tokens(id, user_id, token, type, created_at, expires_at) VALUES($1, $2, $3, $4, $5, $6)
 	`
 
 	args = []any{
 		token.ID,
+		u.GetId(),
 		string(token.Hash),
 		string(models.TokenTypeEmailConfirmation),
 		utils.TimeGetMillis(),

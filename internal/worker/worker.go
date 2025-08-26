@@ -12,6 +12,7 @@ import (
 
 type TaskDistributor interface {
 	SendVerifyEmail(ctx context.Context, pay *models.TaskSendVerifyEmailPayload, opts ...asynq.Option) *models.AppError
+	SendPasswordResetEmail(ctx context.Context, pay *models.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models.AppError
 }
 
 type TaskDistributorArgs struct {

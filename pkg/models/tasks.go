@@ -10,11 +10,20 @@ type TaskName string
 type TaskFunc func()
 
 const (
-	TaskNameEmailBatching   TaskName = "email_batching"
-	TaskNameSendVerifyEmail TaskName = "send_verify_email"
+	TaskNameEmailBatching          TaskName = "email_batching"
+	TaskNameSendVerifyEmail        TaskName = "send_verify_email"
+	TaskNameSendPasswordResetEmail TaskName = "send_password_reset_email"
 )
 
 type TaskSendVerifyEmailPayload struct {
+	Ctx     *Context `json:"ctx"`
+	Email   string   `json:"email"`
+	Token   string   `json:"token"`
+	TokenID string   `json:"token_id"`
+	Hours   int      `json:"hours"`
+}
+
+type TaskSendPasswordResetEmailPayload struct {
 	Ctx     *Context `json:"ctx"`
 	Email   string   `json:"email"`
 	Token   string   `json:"token"`

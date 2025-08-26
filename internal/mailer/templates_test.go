@@ -38,13 +38,13 @@ func TestHtmlTemplateWatcher(t *testing.T) {
 	require.NoError(t, err)
 	defer watcher.Close()
 
-	text, err := watcher.RenderToString("foo", TemplateData{})
+	text, err := watcher.RenderToString("foo", &TemplateData{})
 	require.NoError(t, err)
 	assert.Equal(t, "foo", text)
 	require.NoError(t, os.WriteFile(filepath.Join(dir, "templates", "foo.html"), []byte(`{{ define "foo" }}bar{{ end }}`), 0o600))
 
 	require.Eventually(t, func() bool {
-		text, err := watcher.RenderToString("foo", TemplateData{})
+		text, err := watcher.RenderToString("foo", &TemplateData{})
 		return text == "bar" && err == nil
 	}, time.Millisecond*100, time.Millisecond*50)
 }
@@ -62,7 +62,7 @@ func TestRender(t *testing.T) {
 	require.NoError(t, err)
 
 	mt := NewTemplateContainerFromTemplate(tpl)
-	data := TemplateData{
+	data := &TemplateData{
 		Props: map[string]any{"Bar": "bar"},
 	}
 
@@ -81,12 +81,12 @@ func TestRenderError(t *testing.T) {
 	require.NoError(t, err)
 
 	mt := NewTemplateContainerFromTemplate(tpl)
-	text, err := mt.RenderToString("foo", TemplateData{})
+	text, err := mt.RenderToString("foo", &TemplateData{})
 	require.Error(t, err)
 	assert.Equal(t, "", text)
 
 	buf := bytes.Buffer{}
-	assert.Error(t, mt.Render(&buf, "foo", TemplateData{}))
+	assert.Error(t, mt.Render(&buf, "foo", &TemplateData{}))
 	assert.Equal(t, "foo", buf.String())
 }
 
@@ -94,11 +94,11 @@ func TestRenderUnknownTemplate(t *testing.T) {
 	tpl := template.New("")
 	mt := NewTemplateContainerFromTemplate(tpl)
 
-	text, err := mt.RenderToString("foo", TemplateData{})
+	text, err := mt.RenderToString("foo", &TemplateData{})
 	require.Error(t, err)
 	assert.Equal(t, "", text)
 
 	buf := &bytes.Buffer{}
-	assert.Error(t, mt.Render(buf, "foo", TemplateData{}))
+	assert.Error(t, mt.Render(buf, "foo", &TemplateData{}))
 	assert.Equal(t, "", buf.String())
 }

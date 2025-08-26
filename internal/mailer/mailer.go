@@ -144,5 +144,6 @@ type MailerService interface {
 	GetPerDayEmailRateLimiter() *throttled.GCRARateLimiterCtx
 	GetPerHourEmailRateLimiter() *throttled.GCRARateLimiterCtx
 	SendVerifyEmail(lang, email, token, tokenID string, hours int) error
+	SendPasswordResetEmail(lang, email, token, tokenID string, hours int) error
 	InitEmailBatching()
 }

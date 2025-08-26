@@ -163,6 +163,151 @@ func (_c *MockUsersStore_SignupSupplier_Call) RunAndReturn(run func(ctx *models.
 	return _c
 }
 
+// TokensAdd provides a mock function for the type MockUsersStore
+func (_mock *MockUsersStore) TokensAdd(ctx *models.Context, userID string, token *utils.Token, tokenType models.TokenType, path string) *store.DBError {
+	ret := _mock.Called(ctx, userID, token, tokenType, path)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TokensAdd")
+	}
+
+	var r0 *store.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string, *utils.Token, models.TokenType, string) *store.DBError); ok {
+		r0 = returnFunc(ctx, userID, token, tokenType, path)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*store.DBError)
+		}
+	}
+	return r0
+}
+
+// MockUsersStore_TokensAdd_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TokensAdd'
+type MockUsersStore_TokensAdd_Call struct {
+	*mock.Call
+}
+
+// TokensAdd is a helper method to define mock.On call
+//   - ctx *models.Context
+//   - userID string
+//   - token *utils.Token
+//   - tokenType models.TokenType
+//   - path string
+func (_e *MockUsersStore_Expecter) TokensAdd(ctx interface{}, userID interface{}, token interface{}, tokenType interface{}, path interface{}) *MockUsersStore_TokensAdd_Call {
+	return &MockUsersStore_TokensAdd_Call{Call: _e.mock.On("TokensAdd", ctx, userID, token, tokenType, path)}
+}
+
+func (_c *MockUsersStore_TokensAdd_Call) Run(run func(ctx *models.Context, userID string, token *utils.Token, tokenType models.TokenType, path string)) *MockUsersStore_TokensAdd_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *models.Context
+		if args[0] != nil {
+			arg0 = args[0].(*models.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 *utils.Token
+		if args[2] != nil {
+			arg2 = args[2].(*utils.Token)
+		}
+		var arg3 models.TokenType
+		if args[3] != nil {
+			arg3 = args[3].(models.TokenType)
+		}
+		var arg4 string
+		if args[4] != nil {
+			arg4 = args[4].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUsersStore_TokensAdd_Call) Return(dBError *store.DBError) *MockUsersStore_TokensAdd_Call {
+	_c.Call.Return(dBError)
+	return _c
+}
+
+func (_c *MockUsersStore_TokensAdd_Call) RunAndReturn(run func(ctx *models.Context, userID string, token *utils.Token, tokenType models.TokenType, path string) *store.DBError) *MockUsersStore_TokensAdd_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TokensDeleteAllPasswordResetByUserID provides a mock function for the type MockUsersStore
+func (_mock *MockUsersStore) TokensDeleteAllPasswordResetByUserID(ctx *models.Context, userID string) (int64, *store.DBError) {
+	ret := _mock.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TokensDeleteAllPasswordResetByUserID")
+	}
+
+	var r0 int64
+	var r1 *store.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) (int64, *store.DBError)); ok {
+		return returnFunc(ctx, userID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) int64); ok {
+		r0 = returnFunc(ctx, userID)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *store.DBError); ok {
+		r1 = returnFunc(ctx, userID)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*store.DBError)
+		}
+	}
+	return r0, r1
+}
+
+// MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TokensDeleteAllPasswordResetByUserID'
+type MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call struct {
+	*mock.Call
+}
+
+// TokensDeleteAllPasswordResetByUserID is a helper method to define mock.On call
+//   - ctx *models.Context
+//   - userID string
+func (_e *MockUsersStore_Expecter) TokensDeleteAllPasswordResetByUserID(ctx interface{}, userID interface{}) *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call {
+	return &MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call{Call: _e.mock.On("TokensDeleteAllPasswordResetByUserID", ctx, userID)}
+}
+
+func (_c *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call) Run(run func(ctx *models.Context, userID string)) *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *models.Context
+		if args[0] != nil {
+			arg0 = args[0].(*models.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call) Return(n int64, dBError *store.DBError) *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call {
+	_c.Call.Return(n, dBError)
+	return _c
+}
+
+func (_c *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call) RunAndReturn(run func(ctx *models.Context, userID string) (int64, *store.DBError)) *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // TokensGet provides a mock function for the type MockUsersStore
 func (_mock *MockUsersStore) TokensGet(ctx *models.Context, tokenID string) (*v1.Token, *store.DBError) {
 	ret := _mock.Called(ctx, tokenID)
@@ -229,6 +374,146 @@ func (_c *MockUsersStore_TokensGet_Call) Return(token *v1.Token, dBError *store.
 }
 
 func (_c *MockUsersStore_TokensGet_Call) RunAndReturn(run func(ctx *models.Context, tokenID string) (*v1.Token, *store.DBError)) *MockUsersStore_TokensGet_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TokensGetAllByUserID provides a mock function for the type MockUsersStore
+func (_mock *MockUsersStore) TokensGetAllByUserID(ctx *models.Context, userID string) ([]*v1.Token, *store.DBError) {
+	ret := _mock.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TokensGetAllByUserID")
+	}
+
+	var r0 []*v1.Token
+	var r1 *store.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) ([]*v1.Token, *store.DBError)); ok {
+		return returnFunc(ctx, userID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) []*v1.Token); ok {
+		r0 = returnFunc(ctx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*v1.Token)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *store.DBError); ok {
+		r1 = returnFunc(ctx, userID)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*store.DBError)
+		}
+	}
+	return r0, r1
+}
+
+// MockUsersStore_TokensGetAllByUserID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TokensGetAllByUserID'
+type MockUsersStore_TokensGetAllByUserID_Call struct {
+	*mock.Call
+}
+
+// TokensGetAllByUserID is a helper method to define mock.On call
+//   - ctx *models.Context
+//   - userID string
+func (_e *MockUsersStore_Expecter) TokensGetAllByUserID(ctx interface{}, userID interface{}) *MockUsersStore_TokensGetAllByUserID_Call {
+	return &MockUsersStore_TokensGetAllByUserID_Call{Call: _e.mock.On("TokensGetAllByUserID", ctx, userID)}
+}
+
+func (_c *MockUsersStore_TokensGetAllByUserID_Call) Run(run func(ctx *models.Context, userID string)) *MockUsersStore_TokensGetAllByUserID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *models.Context
+		if args[0] != nil {
+			arg0 = args[0].(*models.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUsersStore_TokensGetAllByUserID_Call) Return(tokens []*v1.Token, dBError *store.DBError) *MockUsersStore_TokensGetAllByUserID_Call {
+	_c.Call.Return(tokens, dBError)
+	return _c
+}
+
+func (_c *MockUsersStore_TokensGetAllByUserID_Call) RunAndReturn(run func(ctx *models.Context, userID string) ([]*v1.Token, *store.DBError)) *MockUsersStore_TokensGetAllByUserID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// UsersGetByEmail provides a mock function for the type MockUsersStore
+func (_mock *MockUsersStore) UsersGetByEmail(ctx *models.Context, email string) (*v1.User, *store.DBError) {
+	ret := _mock.Called(ctx, email)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UsersGetByEmail")
+	}
+
+	var r0 *v1.User
+	var r1 *store.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) (*v1.User, *store.DBError)); ok {
+		return returnFunc(ctx, email)
+	}
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) *v1.User); ok {
+		r0 = returnFunc(ctx, email)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1.User)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *store.DBError); ok {
+		r1 = returnFunc(ctx, email)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*store.DBError)
+		}
+	}
+	return r0, r1
+}
+
+// MockUsersStore_UsersGetByEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UsersGetByEmail'
+type MockUsersStore_UsersGetByEmail_Call struct {
+	*mock.Call
+}
+
+// UsersGetByEmail is a helper method to define mock.On call
+//   - ctx *models.Context
+//   - email string
+func (_e *MockUsersStore_Expecter) UsersGetByEmail(ctx interface{}, email interface{}) *MockUsersStore_UsersGetByEmail_Call {
+	return &MockUsersStore_UsersGetByEmail_Call{Call: _e.mock.On("UsersGetByEmail", ctx, email)}
+}
+
+func (_c *MockUsersStore_UsersGetByEmail_Call) Run(run func(ctx *models.Context, email string)) *MockUsersStore_UsersGetByEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *models.Context
+		if args[0] != nil {
+			arg0 = args[0].(*models.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUsersStore_UsersGetByEmail_Call) Return(user *v1.User, dBError *store.DBError) *MockUsersStore_UsersGetByEmail_Call {
+	_c.Call.Return(user, dBError)
+	return _c
+}
+
+func (_c *MockUsersStore_UsersGetByEmail_Call) RunAndReturn(run func(ctx *models.Context, email string) (*v1.User, *store.DBError)) *MockUsersStore_UsersGetByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }

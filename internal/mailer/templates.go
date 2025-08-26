@@ -114,20 +114,20 @@ func NewTemplateContainerWatcher(dir string) (*TemplateContainer, <-chan error, 
 
 // Close stops the templates watcher of the container in case you have created
 // it with watch parameter set to true
-func (c *TemplateContainer) Close() {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	if c.watch {
-		close(c.stop)
-		<-c.stopped
+func (tc *TemplateContainer) Close() {
+	tc.mutex.Lock()
+	defer tc.mutex.Unlock()
+	if tc.watch {
+		close(tc.stop)
+		<-tc.stopped
 	}
 }
 
 // RenderToString renders the template referenced with the template name using
 // the data provided and return a string with the result
-func (c *TemplateContainer) RenderToString(templateName string, data TemplateData) (string, error) {
+func (tc *TemplateContainer) RenderToString(templateName string, data *TemplateData) (string, error) {
 	var text bytes.Buffer
-	if err := c.Render(&text, templateName, data); err != nil {
+	if err := tc.Render(&text, templateName, data); err != nil {
 		return "", err
 	}
 
@@ -136,10 +136,10 @@ func (c *TemplateContainer) RenderToString(templateName string, data TemplateDat
 
 // Render renders the template referenced with the template name using
 // the data provided and write it to the writer provided
-func (c *TemplateContainer) Render(w io.Writer, templateName string, data TemplateData) error {
-	c.mutex.Lock()
-	ht := c.templates
-	c.mutex.Unlock()
+func (tc *TemplateContainer) Render(w io.Writer, templateName string, data *TemplateData) error {
+	tc.mutex.Lock()
+	ht := tc.templates
+	tc.mutex.Unlock()
 
 	if err := ht.ExecuteTemplate(w, templateName, data); err != nil {
 		return err

@@ -171,6 +171,10 @@ func NewAppError(
 	status int,
 	errors *AppErrorErrorsArgs,
 ) *AppError {
+	if errors == nil {
+		errors = &AppErrorErrorsArgs{}
+	}
+
 	ap := &AppError{
 		Ctx:                  ctx,
 		ID:                   id,

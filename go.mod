@@ -3,7 +3,7 @@ module github.com/ahmad-khatib0-org/megacommerce-user
 go 1.23.6
 
 require (
-	github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250822221823-50ea09916250
+	github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250826152014-20c6c6377b8a
 	github.com/brianvoe/gofakeit/v7 v7.3.0
 	github.com/fatih/color v1.18.0
 	github.com/fsnotify/fsnotify v1.9.0

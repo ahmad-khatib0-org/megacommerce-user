@@ -161,6 +161,81 @@ func (_c *MockMailerService_InitEmailBatching_Call) RunAndReturn(run func()) *Mo
 	return _c
 }
 
+// SendPasswordResetEmail provides a mock function for the type MockMailerService
+func (_mock *MockMailerService) SendPasswordResetEmail(lang string, email string, token string, tokenID string, hours int) error {
+	ret := _mock.Called(lang, email, token, tokenID, hours)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendPasswordResetEmail")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(string, string, string, string, int) error); ok {
+		r0 = returnFunc(lang, email, token, tokenID, hours)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockMailerService_SendPasswordResetEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendPasswordResetEmail'
+type MockMailerService_SendPasswordResetEmail_Call struct {
+	*mock.Call
+}
+
+// SendPasswordResetEmail is a helper method to define mock.On call
+//   - lang string
+//   - email string
+//   - token string
+//   - tokenID string
+//   - hours int
+func (_e *MockMailerService_Expecter) SendPasswordResetEmail(lang interface{}, email interface{}, token interface{}, tokenID interface{}, hours interface{}) *MockMailerService_SendPasswordResetEmail_Call {
+	return &MockMailerService_SendPasswordResetEmail_Call{Call: _e.mock.On("SendPasswordResetEmail", lang, email, token, tokenID, hours)}
+}
+
+func (_c *MockMailerService_SendPasswordResetEmail_Call) Run(run func(lang string, email string, token string, tokenID string, hours int)) *MockMailerService_SendPasswordResetEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 string
+		if args[3] != nil {
+			arg3 = args[3].(string)
+		}
+		var arg4 int
+		if args[4] != nil {
+			arg4 = args[4].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+		)
+	})
+	return _c
+}
+
+func (_c *MockMailerService_SendPasswordResetEmail_Call) Return(err error) *MockMailerService_SendPasswordResetEmail_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockMailerService_SendPasswordResetEmail_Call) RunAndReturn(run func(lang string, email string, token string, tokenID string, hours int) error) *MockMailerService_SendPasswordResetEmail_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendVerifyEmail provides a mock function for the type MockMailerService
 func (_mock *MockMailerService) SendVerifyEmail(lang string, email string, token string, tokenID string, hours int) error {
 	ret := _mock.Called(lang, email, token, tokenID, hours)

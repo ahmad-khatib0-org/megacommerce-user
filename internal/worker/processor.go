@@ -15,6 +15,7 @@ import (
 type TaskProcessor interface {
 	Start() error
 	ProcessSendVerifyEmail(ctx context.Context, task *asynq.Task) error
+	ProcessSendPasswordResetEmail(ctx context.Context, task *asynq.Task) error
 }
 
 const (
@@ -64,5 +65,6 @@ func (atp *AsynqTaksProcessor) Start() error {
 	mux := asynq.NewServeMux()
 
 	mux.HandleFunc(string(models.TaskNameSendVerifyEmail), atp.ProcessSendVerifyEmail)
+	mux.HandleFunc(string(models.TaskNameSendPasswordResetEmail), atp.ProcessSendPasswordResetEmail)
 	return atp.server.Start(mux)
 }

@@ -62,6 +62,7 @@ func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
 	}
 
 	s := grpc.NewServer(
+		grpc.MaxRecvMsgSize(int(c.cfg.Services.GetUsersServiceMaxReceiveMessageSizeBytes())),
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
 			c.responseInterceptor,

@@ -39,6 +39,80 @@ func (_m *MockTaskDistributor) EXPECT() *MockTaskDistributor_Expecter {
 	return &MockTaskDistributor_Expecter{mock: &_m.Mock}
 }
 
+// SendPasswordResetEmail provides a mock function for the type MockTaskDistributor
+func (_mock *MockTaskDistributor) SendPasswordResetEmail(ctx context.Context, pay *models.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models.AppError {
+	var tmpRet mock.Arguments
+	if len(opts) > 0 {
+		tmpRet = _mock.Called(ctx, pay, opts)
+	} else {
+		tmpRet = _mock.Called(ctx, pay)
+	}
+	ret := tmpRet
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendPasswordResetEmail")
+	}
+
+	var r0 *models.AppError
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *models.TaskSendPasswordResetEmailPayload, ...asynq.Option) *models.AppError); ok {
+		r0 = returnFunc(ctx, pay, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.AppError)
+		}
+	}
+	return r0
+}
+
+// MockTaskDistributor_SendPasswordResetEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendPasswordResetEmail'
+type MockTaskDistributor_SendPasswordResetEmail_Call struct {
+	*mock.Call
+}
+
+// SendPasswordResetEmail is a helper method to define mock.On call
+//   - ctx context.Context
+//   - pay *models.TaskSendPasswordResetEmailPayload
+//   - opts ...asynq.Option
+func (_e *MockTaskDistributor_Expecter) SendPasswordResetEmail(ctx interface{}, pay interface{}, opts ...interface{}) *MockTaskDistributor_SendPasswordResetEmail_Call {
+	return &MockTaskDistributor_SendPasswordResetEmail_Call{Call: _e.mock.On("SendPasswordResetEmail",
+		append([]interface{}{ctx, pay}, opts...)...)}
+}
+
+func (_c *MockTaskDistributor_SendPasswordResetEmail_Call) Run(run func(ctx context.Context, pay *models.TaskSendPasswordResetEmailPayload, opts ...asynq.Option)) *MockTaskDistributor_SendPasswordResetEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *models.TaskSendPasswordResetEmailPayload
+		if args[1] != nil {
+			arg1 = args[1].(*models.TaskSendPasswordResetEmailPayload)
+		}
+		var arg2 []asynq.Option
+		var variadicArgs []asynq.Option
+		if len(args) > 2 {
+			variadicArgs = args[2].([]asynq.Option)
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *MockTaskDistributor_SendPasswordResetEmail_Call) Return(appError *models.AppError) *MockTaskDistributor_SendPasswordResetEmail_Call {
+	_c.Call.Return(appError)
+	return _c
+}
+
+func (_c *MockTaskDistributor_SendPasswordResetEmail_Call) RunAndReturn(run func(ctx context.Context, pay *models.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models.AppError) *MockTaskDistributor_SendPasswordResetEmail_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendVerifyEmail provides a mock function for the type MockTaskDistributor
 func (_mock *MockTaskDistributor) SendVerifyEmail(ctx context.Context, pay *models.TaskSendVerifyEmailPayload, opts ...asynq.Option) *models.AppError {
 	var tmpRet mock.Arguments

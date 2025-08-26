@@ -95,6 +95,15 @@ func JSONMarshalError(err error, path, msg string) *DBError {
 	}
 }
 
+func JSONUnmarshalError(err error, path, msg string) *DBError {
+	return &DBError{
+		ErrType: DBErrorTypeJSONUnmarshal,
+		Err:     err,
+		Msg:     msg,
+		Path:    path,
+	}
+}
+
 // HandleDBError builds a DBError, rollback the transaction if
 func HandleDBError(ctx *models.Context, err error, path string, tr pgx.Tx) *DBError {
 	if err == nil {
@@ -104,7 +113,9 @@ func HandleDBError(ctx *models.Context, err error, path string, tr pgx.Tx) *DBEr
 	// TODO: track rolling back error
 	if tr != nil {
 		errRb := tr.Rollback(ctx.Context)
-		fmt.Printf("error rolling back the transaction %v", errRb)
+		if errRb != nil {
+			fmt.Printf("error rolling back the transaction %v", errRb)
+		}
 	}
 
 	intErr := func() *DBError {

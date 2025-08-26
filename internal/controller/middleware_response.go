@@ -29,9 +29,11 @@ func processAppError(err *shPb.AppError) *shPb.AppError {
 	}
 }
 
-func (c *Controller) responseInterceptor(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
+func (c *Controller) responseInterceptor(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp any, err error) {
 	res, err := handler(ctx, req)
 	if err != nil {
+		c.logError(ctx, info.FullMethod, err)
+
 		if st, ok := status.FromError(err); ok {
 			if md, ok := metadata.FromIncomingContext(ctx); ok {
 				lang := utils.GetAcceptedLanguageFromGrpcCtx(ctx, md, c.cfg.Localization.GetAvailableLocales(), c.cfg.Localization.GetDefaultClientLocale())
@@ -62,4 +64,15 @@ func (c *Controller) responseInterceptor(ctx context.Context, req any, _ *grpc.U
 	}
 
 	return res, nil
+}
+
+// TODO complete it
+func (c *Controller) logError(ctx context.Context, method string, err error) {
+	// st := status.Convert(err)
+	// c.log.ErrorStruct("gRPC request failed %v",
+	// 	"method", method,
+	// 	"code", st.Code().String(),
+	// 	"message", st.Message(),
+	// 	"trace_id", getTraceIDFromContext(ctx),
+	// )
 }
