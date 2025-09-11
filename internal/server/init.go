@@ -6,9 +6,11 @@ import (
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/mailer"
+	"github.com/ahmad-khatib0-org/megacommerce-user/internal/oauth"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store/dbstore"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -102,6 +104,29 @@ func (s *Server) initWorker() {
 				Err:  err,
 				Msg:  "failed to start worker",
 				Path: "user.server.initWorker",
+			}
+		}
+	}()
+}
+
+func (s *Server) initOauthServer() {
+	path := "user.server.initOauthServer"
+
+	oauth := oauth.NewOauth(oauth.OAuthArgs{
+		Config: s.configFn,
+		Log:    s.log,
+		ErrCh:  make(chan *models.InternalError),
+	})
+
+	if err := oauth.Run(); err != nil {
+		s.errors <- &models.InternalError{Err: err, Msg: "failed to start oauth server", Path: path}
+	}
+
+	go func() {
+		for err := range oauth.ErrorChannel() {
+			isUnRecoverable := utils.IsUnrecoverableHTTPServerError(err)
+			if isUnRecoverable {
+				s.errors <- err
 			}
 		}
 	}()

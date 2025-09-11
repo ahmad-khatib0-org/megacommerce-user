@@ -1,5 +1,5 @@
 // Package server binds everything required together for this service,
-// E,g grpc, init metrics, listen to errors, init clients....
+// E,g grpc, init metrics, oauth server, listen to errors, init clients....
 package server
 
 import (
@@ -66,6 +66,7 @@ func RunServer(s *ServerArgs) error {
 	app.initStore()
 	app.initMailer()
 	app.initWorker()
+	app.initOauthServer()
 
 	_, err = controller.NewController(&controller.ControllerArgs{
 		Cfg:            app.config,
@@ -81,12 +82,12 @@ func RunServer(s *ServerArgs) error {
 	}
 
 	err = <-app.errors
+	// TODO: cleanup things
 	if err != nil {
 		s.Log.Infof("an error occurred %v ", err)
 		if err := app.tracerProvider.Shutdown(ctx); err != nil {
 			s.Log.Errorf("failed to shutdown tracer provider %v", err)
 		}
-		// TODO: cleanup things
 	}
 
 	return err
