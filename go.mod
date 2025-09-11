@@ -3,11 +3,12 @@ module github.com/ahmad-khatib0-org/megacommerce-user
 go 1.23.6
 
 require (
-	github.com/ahmad-khatib0-org/megacommerce-proto v0.0.0-20250826152014-20c6c6377b8a
+	github.com/ahmad-khatib0-org/megacommerce-proto v0.1.73
 	github.com/brianvoe/gofakeit/v7 v7.3.0
 	github.com/fatih/color v1.18.0
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gabriel-vasile/mimetype v1.4.9
+	github.com/go-chi/chi/v5 v5.2.3
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.1.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.2
 	github.com/hibiken/asynq v0.25.1

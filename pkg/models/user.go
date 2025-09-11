@@ -17,6 +17,7 @@ const (
 	UserLastNameMinRunes  = 2
 	UserAuthDataMaxLength = 128
 	UserPasswordMaxLength = 72
+	UserPasswordMinLength = 8
 	UserLocaleMaxLength   = 5
 	UserTimezoneMaxRunes  = 256
 	UserRolesMaxLength    = 256

@@ -62,7 +62,7 @@ type AppError struct {
 	Ctx                  *Context
 	ID                   string
 	Message              string         // displayed to end user, without debugging information
-	DetailedError        string         // Internal error string to help the developer
+	Detailes             string         // Internal error string to help the developer
 	StatusCode           int            // The grpc status code
 	IDParams             map[string]any // params passed to templates trans
 	Where                string         // err location in the form of Struct.Func
@@ -91,8 +91,8 @@ func (ae *AppError) Error() string {
 	}
 
 	// only render the detailed error when it's present
-	if ae.DetailedError != "" {
-		sb.WriteString(fmt.Sprintf("%s ,", ae.DetailedError))
+	if ae.Detailes != "" {
+		sb.WriteString(fmt.Sprintf("%s ,", ae.Detailes))
 	}
 
 	// render the wrapped error
@@ -141,14 +141,14 @@ func (ae *AppError) Wrap(err error) *AppError {
 
 func (ae *AppError) WipeDetailed() {
 	ae.Err = nil
-	ae.DetailedError = ""
+	ae.Detailes = ""
 }
 
 func AppErrorDefault() *AppError {
 	return &AppError{
 		ID:                   "",
 		Message:              "",
-		DetailedError:        "",
+		Detailes:             "",
 		StatusCode:           0,
 		Where:                "",
 		SkipTranslation:      false,
@@ -181,7 +181,7 @@ func NewAppError(
 		IDParams:             idParams,
 		Message:              id,
 		Where:                where,
-		DetailedError:        details,
+		Detailes:             details,
 		StatusCode:           status,
 		Err:                  errors.Err,
 		ErrorsInternal:       errors.ErrorsInternal,
@@ -202,7 +202,7 @@ func AppErrorFromProto(ctx *Context, ae *shared.AppError) *AppError {
 		ID:              ae.GetId(),
 		Ctx:             ctx,
 		Message:         ae.GetMessage(),
-		DetailedError:   ae.GetDetailedError(),
+		Detailes:        ae.GetDetailedError(),
 		StatusCode:      int(ae.GetStatusCode()),
 		Where:           ae.GetWhere(),
 		SkipTranslation: ae.GetSkipTranslation(),
@@ -224,7 +224,7 @@ func AppErrorToProto(e *AppError) *shared.AppError {
 		Id:              e.ID,
 		RequestId:       e.Ctx.RequestID,
 		Message:         e.Message,
-		DetailedError:   e.DetailedError,
+		DetailedError:   e.Detailes,
 		StatusCode:      int32(e.StatusCode),
 		Where:           e.Where,
 		SkipTranslation: e.SkipTranslation,
