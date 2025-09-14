@@ -3,6 +3,7 @@ package controller
 
 import (
 	"net"
+	"net/http"
 
 	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
@@ -21,29 +22,29 @@ import (
 )
 
 var protectedMethods = map[string]bool{
-	"/user.v1.UserService/CreateSupplier": true,
+	"/user.v1.UsersService/CreateSupplier": true,
 }
 
 var traceIDForMethods = map[string]bool{
-	"/user.v1.UserService/CreateSupplier": true,
+	"/user.v1.UsersService/CreateSupplier": true,
 }
 
 type Controller struct {
 	pb.UnimplementedUsersServiceServer
 	store          store.UsersStore
 	objStorage     *minio.Client
-	cfg            *common.Config
+	config         func() *common.Config
 	tracerProvider *sdktrace.TracerProvider
 	metrics        *grpcprom.ServerMetrics
 	log            *logger.Logger
 	tasker         worker.TaskDistributor
+	httpClient     *http.Client
 }
 
 type ControllerArgs struct {
-	Cfg            *common.Config
+	Config         func() *common.Config
 	Store          store.UsersStore
 	ObjStorage     *minio.Client
-	cfg            *common.Config
 	TracerProvider *sdktrace.TracerProvider
 	Metrics        *grpcprom.ServerMetrics
 	Log            *logger.Logger
@@ -52,7 +53,7 @@ type ControllerArgs struct {
 
 func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
 	c := &Controller{
-		cfg:            ca.Cfg,
+		config:         ca.Config,
 		store:          ca.Store,
 		objStorage:     ca.ObjStorage,
 		tracerProvider: ca.TracerProvider,
@@ -62,7 +63,7 @@ func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
 	}
 
 	s := grpc.NewServer(
-		grpc.MaxRecvMsgSize(int(c.cfg.Services.GetUsersServiceMaxReceiveMessageSizeBytes())),
+		grpc.MaxRecvMsgSize(int(c.config().Services.GetUsersServiceMaxReceiveMessageSizeBytes())),
 		grpc.StatsHandler(otelgrpc.NewServerHandler()),
 		grpc.ChainUnaryInterceptor(
 			c.responseInterceptor,
@@ -77,7 +78,7 @@ func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
 		),
 	)
 
-	addr := c.cfg.GetServices().GetUserServiceGrpcUrl()
+	addr := c.config().GetServices().GetUserServiceGrpcUrl()
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return nil, &models.InternalError{Path: "user.controller.NewController", Err: err, Msg: "failed to initiate an http listener"}

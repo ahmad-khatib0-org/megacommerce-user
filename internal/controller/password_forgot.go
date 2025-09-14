@@ -57,7 +57,7 @@ func (c *Controller) PasswordForgot(context context.Context, req *usersPb.Passwo
 	}
 
 	token := &utils.Token{}
-	tokenData, errTok := token.GenerateToken(time.Duration(time.Hour * time.Duration(c.cfg.Security.GetTokenPasswordResetExpiryInHours())))
+	tokenData, errTok := token.GenerateToken(time.Duration(time.Hour * time.Duration(c.config().Security.GetTokenPasswordResetExpiryInHours())))
 	if errTok != nil {
 		return errBuilder(internalErr(ctx, errTok))
 	}
@@ -78,7 +78,7 @@ func (c *Controller) PasswordForgot(context context.Context, req *usersPb.Passwo
 		Email:   email,
 		Token:   tokenData.Token,
 		TokenID: tokenData.ID,
-		Hours:   int(c.cfg.Security.GetTokenPasswordResetExpiryInHours()),
+		Hours:   int(c.config().Security.GetTokenPasswordResetExpiryInHours()),
 	}
 	if err := c.tasker.SendPasswordResetEmail(context, taskPayload, optoins...); err != nil {
 		return errBuilder(internalErr(ctx, err))

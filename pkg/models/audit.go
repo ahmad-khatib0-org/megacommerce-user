@@ -6,6 +6,7 @@ const (
 	EventNameSupplierCreate    = "supplier_create"
 	EventNameEmailConfirmation = "email_confirmation"
 	EventNamePasswordForgot    = "password_forgot"
+	EventNameLogin             = "login"
 )
 
 type EventStatus string

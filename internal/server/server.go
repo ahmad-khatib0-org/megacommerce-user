@@ -69,7 +69,7 @@ func RunServer(s *ServerArgs) error {
 	app.initOauthServer()
 
 	_, err = controller.NewController(&controller.ControllerArgs{
-		Cfg:            app.config,
+		Config:         app.configFn,
 		Store:          app.dbStore,
 		ObjStorage:     app.objectStorage,
 		TracerProvider: app.tracerProvider,

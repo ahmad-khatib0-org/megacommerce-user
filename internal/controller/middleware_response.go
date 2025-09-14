@@ -36,7 +36,7 @@ func (c *Controller) responseInterceptor(ctx context.Context, req any, info *grp
 
 		if st, ok := status.FromError(err); ok {
 			if md, ok := metadata.FromIncomingContext(ctx); ok {
-				lang := utils.GetAcceptedLanguageFromGrpcCtx(ctx, md, c.cfg.Localization.GetAvailableLocales(), c.cfg.Localization.GetDefaultClientLocale())
+				lang := utils.GetAcceptedLanguageFromGrpcCtx(ctx, md, c.config().Localization.GetAvailableLocales(), c.config().Localization.GetDefaultClientLocale())
 				return resp, status.Errorf(st.Code(), getGrpcErrMsg(lang, st.Code()))
 			}
 		}

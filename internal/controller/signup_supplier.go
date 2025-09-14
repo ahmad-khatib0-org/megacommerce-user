@@ -38,7 +38,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 	defer c.ProcessAudit(ar)
 
 	sanitized := models.SignupSupplierRequestSanitize(req)
-	if err = models.SignupSupplierRequestIsValid(ctx, sanitized, c.cfg.Password); err != nil {
+	if err = models.SignupSupplierRequestIsValid(ctx, sanitized, c.config().Password); err != nil {
 		return errBuilder(err)
 	}
 
@@ -72,7 +72,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 	}
 
 	token := &utils.Token{}
-	tokenData, errTok := token.GenerateToken(time.Duration(time.Hour * time.Duration(c.cfg.Security.GetTokenConfirmationExpiryInHours())))
+	tokenData, errTok := token.GenerateToken(time.Duration(time.Hour * time.Duration(c.config().Security.GetTokenConfirmationExpiryInHours())))
 	if errTok != nil {
 		return errBuilder(internalErr(errTok))
 	}
@@ -80,14 +80,14 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 	if sanitized.GetImage() != nil {
 		imgContent := sanitized.GetImage().GetData()
 		imgName := ulid.Make().String()
-		_, imgErr := c.objStorage.PutObject(ctx.Context, c.cfg.File.GetAmazonS3Bucket(), imgName, bytes.NewReader(imgContent), int64(len(imgContent)), minio.PutObjectOptions{
+		_, imgErr := c.objStorage.PutObject(ctx.Context, c.config().File.GetAmazonS3Bucket(), imgName, bytes.NewReader(imgContent), int64(len(imgContent)), minio.PutObjectOptions{
 			ContentType: sanitized.GetImage().GetMime(),
 		})
 		if imgErr != nil {
 			return errBuilder(internalErr(err))
 		}
 
-		dbPay.Image = utils.NewPointer(fmt.Sprintf("%s/%s", c.cfg.File.GetAmazonS3Bucket(), imgName))
+		dbPay.Image = utils.NewPointer(fmt.Sprintf("%s/%s", c.config().File.GetAmazonS3Bucket(), imgName))
 		im := &pb.UserImageMetadata{
 			Mime:      sanitized.Image.Mime,
 			Height:    int32(sanitized.Image.Crop.Height),
@@ -114,7 +114,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 		Email:   dbPay.GetEmail(),
 		Token:   tokenData.Token,
 		TokenID: tokenData.ID,
-		Hours:   int(c.cfg.Security.GetTokenConfirmationExpiryInHours()),
+		Hours:   int(c.config().Security.GetTokenConfirmationExpiryInHours()),
 	}
 
 	// TODO: handle error

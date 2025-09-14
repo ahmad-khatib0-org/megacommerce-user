@@ -74,8 +74,8 @@ func (c *Controller) streamMetadataInterceptor() grpc.StreamServerInterceptor {
 func (c *Controller) extractMetadataToContext(ctx context.Context, md metadata.MD) context.Context {
 	mc := &models.Context{}
 	mc.Session = &models.Session{}
-	defaultAcceptLang := c.cfg.Localization.GetDefaultClientLocale()
-	availableLocales := c.cfg.Localization.GetAvailableLocales()
+	defaultAcceptLang := c.config().Localization.GetDefaultClientLocale()
+	availableLocales := c.config().Localization.GetAvailableLocales()
 
 	if vals := md.Get(string(models.HeaderUserAgent)); len(vals) > 0 {
 		mc.UserAgent = vals[0]

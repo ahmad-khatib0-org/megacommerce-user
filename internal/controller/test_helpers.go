@@ -26,7 +26,7 @@ type TestingUser struct {
 }
 
 type TestHelper struct {
-	config     *com.Config
+	config     func() *com.Config
 	srvCfg     *models.Config
 	log        *logger.Logger
 	common     *common.CommonClient
@@ -69,7 +69,7 @@ func NewTestHelper(tb testing.TB) (*TestHelper, *models.InternalError) {
 	th.store = store
 	th.tasker = tasker
 	th.controller = &Controller{
-		cfg:    th.config,
+		config: th.config,
 		log:    th.log,
 		store:  store,
 		tasker: tasker,
@@ -122,7 +122,7 @@ func (th *TestHelper) createUser(userType models.UserType, roleID models.RoleID)
 		MfaSecret:          utils.NewPointer(""),
 		LastPasswordUpdate: nil,
 		LastPictureUpdate:  nil,
-		Locale:             th.config.GetLocalization().DefaultClientLocale,
+		Locale:             th.config().GetLocalization().DefaultClientLocale,
 		LastActivityAt:     utils.NewPointer(utils.TimeGetMillis()),
 		LastLogin:          utils.NewPointer(utils.TimeGetMillis()),
 		Membership:         utils.NewPointer("free"),
@@ -138,7 +138,7 @@ func (th *TestHelper) getContext() *models.Context {
 		IPAddress:      gofakeit.IPv4Address(),
 		XForwardedFor:  gofakeit.IPv4Address(),
 		UserAgent:      gofakeit.UserAgent(),
-		AcceptLanguage: th.config.Localization.GetDefaultClientLocale(),
+		AcceptLanguage: th.config().Localization.GetDefaultClientLocale(),
 		Session: &models.Session{
 			ID:        utils.NewID(),
 			Token:     utils.NewID(),
@@ -180,16 +180,16 @@ func (th *TestHelper) initServiceConfig() *models.InternalError {
 func (th *TestHelper) initSharedConfig() *models.InternalError {
 	config, err := th.common.ConfigGet()
 	if err != nil {
-		return &models.InternalError{Err: err, Msg: "failed to initialize shared config"}
+		return &models.InternalError{Err: err, Msg: "failed to initialize shared config", Path: "users.controller.initSharedConfig"}
 	}
-	th.config = config
+	th.config = func() *com.Config { return config }
 	return nil
 }
 
 func (th *TestHelper) initCommonService() *models.InternalError {
 	srv, err := common.NewCommonClient(&common.CommonArgs{Config: th.srvCfg})
 	if err != nil {
-		return &models.InternalError{Err: err, Msg: "failed to initialize common service client"}
+		return &models.InternalError{Err: err, Msg: "failed to initialize common service client", Path: "users.controller.initCommonService"}
 	}
 
 	th.common = srv
@@ -203,12 +203,7 @@ func (th *TestHelper) initTrans() *models.InternalError {
 	}
 
 	if err := models.TranslationsInit(trans); err != nil {
-		return &models.InternalError{
-			Err:  err,
-			Msg:  "failed to init translations",
-			Path: "user.controller.initTrans",
-		}
+		return &models.InternalError{Err: err, Msg: "failed to init translations", Path: "user.controller.initTrans"}
 	}
-
 	return nil
 }

@@ -33,13 +33,15 @@ func NewOauth(oa OAuthArgs) *OAuth {
 }
 
 func (oa *OAuth) Run() error {
+	path := "users.oauth.Run"
 	urlStr := oa.config().Oauth.GetOauthBackendUrl()
+
 	u, err := url.Parse(urlStr)
 	if err != nil {
-		return models.InternalError{Err: err, Msg: "failed to parse oauth backend url", Path: "users.oauth.Run"}
+		return models.InternalError{Err: err, Msg: "failed to parse oauth backend url", Path: path}
 	}
 	if u.Port() == "" {
-		return models.InternalError{Msg: "no valid port to listen on", Path: "users.oauth.Run"}
+		return models.InternalError{Msg: "no valid port to listen on", Path: path}
 	}
 
 	oa.server = &http.Server{
@@ -51,13 +53,14 @@ func (oa *OAuth) Run() error {
 	}
 
 	go func() {
+		oa.log.Infof("oauth server is listening on: %s", u.String())
 		err := oa.server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			select {
-			case oa.errCh <- &models.InternalError{Err: err, Msg: "server listen error", Path: "users.oauth.Run"}:
+			case oa.errCh <- &models.InternalError{Err: err, Msg: "server listen error", Path: path}:
 			default:
 				msg := "error channel blocked, could not send error"
-				ie := models.InternalError{Msg: msg, Path: "users.oauth.Run", Err: err}
+				ie := models.InternalError{Err: err, Msg: msg, Path: path}
 				oa.log.ErrorStruct(msg, ie)
 			}
 		}

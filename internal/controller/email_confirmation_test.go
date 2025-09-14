@@ -63,7 +63,7 @@ func TestEmailConfirmation(t *testing.T) {
 	require.Nil(t, err)
 	defer th.TearDown()
 
-	hours := uint(th.config.Security.GetTokenConfirmationExpiryInHours())
+	hours := uint(th.config().Security.GetTokenConfirmationExpiryInHours())
 	// req := getValidEmailConfirmationRequest(t, hours)
 
 	t.Run("invalid email", func(t *testing.T) {

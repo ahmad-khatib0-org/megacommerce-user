@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -71,4 +72,12 @@ func PasswordHash(pass string) (string, error) {
 	}
 
 	return string(hashed), nil
+}
+
+// PasswordCheck returns error if the hash does not match a given password
+func PasswordCheck(hash string, password string) error {
+	if hash == "" || password == "" {
+		return errors.New("empty password or hash")
+	}
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }

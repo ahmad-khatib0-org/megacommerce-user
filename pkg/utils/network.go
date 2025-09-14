@@ -10,6 +10,7 @@ import (
 	"slices"
 	"strings"
 	"syscall"
+	"time"
 
 	"google.golang.org/grpc/metadata"
 )
@@ -28,6 +29,28 @@ func GetAcceptedLanguageFromGrpcCtx(ctx context.Context, md metadata.MD, availab
 	}
 
 	return lang
+}
+
+func HTTPRequestWithRetry(client *http.Client, req *http.Request, maxRetries int) (*http.Response, error) {
+	var resp *http.Response
+	var err error
+	backoff := time.Second
+
+	for range maxRetries {
+		resp, err = client.Do(req)
+		if err == nil && resp.StatusCode < 500 {
+			return resp, nil // success or client error, no retry
+		}
+
+		if resp != nil {
+			resp.Body.Close()
+		}
+
+		time.Sleep(backoff)
+		backoff *= 2
+	}
+
+	return resp, err
 }
 
 type ErrorSeverity int
