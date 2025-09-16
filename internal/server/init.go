@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"net/url"
 	"time"
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
@@ -21,12 +22,10 @@ func (s *Server) initTrans() map[string]*com.TranslationElements {
 		s.errors <- err
 	}
 
-	if err := models.TranslationsInit(trans); err != nil {
-		err := &models.InternalError{
-			Err:  err,
-			Msg:  "failed to init translations",
-			Path: "user.server.initTrans",
-		}
+	lang := s.config.Localization.GetDefaultClientLocale()
+	if err := models.TranslationsInit(trans, lang); err != nil {
+		path := "user.server.initTrans"
+		err := &models.InternalError{Err: err, Msg: "failed to init translations", Path: path}
 		s.errors <- err
 	}
 
@@ -36,11 +35,8 @@ func (s *Server) initTrans() map[string]*com.TranslationElements {
 func (s *Server) initDB() {
 	pool, err := pgxpool.New(context.Background(), s.config.Sql.GetDataSource())
 	if err != nil {
-		err := &models.InternalError{
-			Err:  err,
-			Msg:  "failed to init db pool",
-			Path: "user.server.initDB",
-		}
+		path := "user.server.initDB"
+		err := &models.InternalError{Err: err, Msg: "failed to init db pool", Path: path}
 		s.errors <- err
 	}
 	s.dbConn = pool
@@ -73,8 +69,14 @@ func (s *Server) initMailer() {
 }
 
 func (s *Server) initWorker() {
+	path := "user.server.initWorker"
+	u, err := url.Parse(s.config.GetCache().GetRedisAddress())
+	if err != nil {
+		s.errors <- &models.InternalError{Err: err, Msg: "failed to parse redis connection URL", Path: path}
+	}
+
 	options := &asynq.RedisClientOpt{
-		Addr:         s.config.GetCache().GetRedisAddress(),
+		Addr:         u.Host,
 		Password:     s.config.Cache.GetRedisPassword(),
 		DB:           int(s.config.Cache.GetRedisDb()),
 		DialTimeout:  time.Second * 10, // default 5
@@ -100,11 +102,7 @@ func (s *Server) initWorker() {
 	go func() {
 		err := w.Start()
 		if err != nil {
-			s.errors <- &models.InternalError{
-				Err:  err,
-				Msg:  "failed to start worker",
-				Path: "user.server.initWorker",
-			}
+			s.errors <- &models.InternalError{Err: err, Msg: "failed to start worker", Path: path}
 		}
 	}()
 }

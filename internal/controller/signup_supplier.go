@@ -30,6 +30,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 	}
 
 	internalErr := func(err error) *models.AppError {
+		c.log.ErrorStruct("an error occurred", err)
 		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, "", int(codes.Internal), &models.AppErrorErrorsArgs{Err: err})
 	}
 

@@ -20,7 +20,7 @@ func LoginRequestIsValid(ctx *Context, req *pb.LoginRequest) *AppError {
 	password := req.GetPassword()
 
 	path := "users.models.LoginRequestIsValid"
-	if utils.IsValidEmail(email) {
+	if !utils.IsValidEmail(email) {
 		return NewAppError(ctx, path, "email.invalid", nil, fmt.Sprintf("invalid email=%s", email), int(codes.InvalidArgument), &AppErrorErrorsArgs{ErrorsInternal: map[string]*AppErrorError{"email": {ID: "email.invalid"}}})
 	}
 

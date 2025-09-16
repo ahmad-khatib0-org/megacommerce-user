@@ -202,7 +202,7 @@ func (th *TestHelper) initTrans() *models.InternalError {
 		return err
 	}
 
-	if err := models.TranslationsInit(trans); err != nil {
+	if err := models.TranslationsInit(trans, th.config().GetLocalization().GetDefaultClientLocale()); err != nil {
 		return &models.InternalError{Err: err, Msg: "failed to init translations", Path: "user.controller.initTrans"}
 	}
 	return nil

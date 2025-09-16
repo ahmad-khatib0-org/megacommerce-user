@@ -22,11 +22,13 @@ type transStoreElement struct {
 var (
 	transStore         map[string]map[string]*transStoreElement
 	ErrTrMissingParams = errors.New("translation requires params to be passed, but none received")
+	DefaultLanguage    = ""
 )
 
 type TranslateFunc = func(lang, transId string, params map[string]any) string
 
-func TranslationsInit(translations map[string]*pb.TranslationElements) error {
+func TranslationsInit(translations map[string]*pb.TranslationElements, defaultLang string) error {
+	DefaultLanguage = defaultLang
 	trans := make(map[string]map[string]*transStoreElement, len(translations))
 
 	for lang, langTrans := range translations {
@@ -66,6 +68,10 @@ func TranslationsInit(translations map[string]*pb.TranslationElements) error {
 //
 // . missing params
 func Tr(lang string, id string, params map[string]any) string {
+	if lang == "" {
+		lang = DefaultLanguage
+	}
+
 	if transStore == nil {
 		panic("trans keys are not initialized, call models.TranslationsInit on server init")
 	}

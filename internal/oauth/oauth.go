@@ -10,13 +10,15 @@ import (
 	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 )
 
 type OAuth struct {
-	config func() *common.Config
-	log    *logger.Logger
-	errCh  chan *models.InternalError
-	server *http.Server
+	config     func() *common.Config
+	log        *logger.Logger
+	errCh      chan *models.InternalError
+	server     *http.Server
+	httpClient *http.Client
 }
 
 type OAuthArgs struct {
@@ -29,7 +31,7 @@ func NewOauth(oa OAuthArgs) *OAuth {
 	if oa.ErrCh == nil {
 		oa.ErrCh = make(chan *models.InternalError, 10)
 	}
-	return &OAuth{config: oa.Config, log: oa.Log, errCh: oa.ErrCh}
+	return &OAuth{config: oa.Config, log: oa.Log, errCh: oa.ErrCh, httpClient: utils.GetHTTPClient()}
 }
 
 func (oa *OAuth) Run() error {

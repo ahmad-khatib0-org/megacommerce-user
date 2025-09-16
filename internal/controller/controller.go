@@ -11,6 +11,7 @@ import (
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/selector"
@@ -22,11 +23,11 @@ import (
 )
 
 var protectedMethods = map[string]bool{
-	"/user.v1.UsersService/CreateSupplier": true,
+	"/users.v1.UsersService/CreateSupplier": true,
 }
 
 var traceIDForMethods = map[string]bool{
-	"/user.v1.UsersService/CreateSupplier": true,
+	"/users.v1.UsersService/CreateSupplier": true,
 }
 
 type Controller struct {
@@ -61,6 +62,8 @@ func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
 		log:            ca.Log,
 		tasker:         ca.Tasker,
 	}
+
+	c.httpClient = utils.GetHTTPClient()
 
 	s := grpc.NewServer(
 		grpc.MaxRecvMsgSize(int(c.config().Services.GetUsersServiceMaxReceiveMessageSizeBytes())),

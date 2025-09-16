@@ -50,6 +50,8 @@ func (oa *OAuth) routes() *chi.Mux {
 	})
 
 	mux.Get("/login", oa.Login)
+	mux.Get("/error", oa.Error)
+	mux.Get("/consent", oa.Consent)
 
 	return mux
 }

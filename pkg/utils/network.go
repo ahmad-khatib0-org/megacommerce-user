@@ -53,6 +53,20 @@ func HTTPRequestWithRetry(client *http.Client, req *http.Request, maxRetries int
 	return resp, err
 }
 
+func GetHTTPClient() *http.Client {
+	return &http.Client{
+		Timeout: 15 * time.Second, // Global timeout per request
+		Transport: &http.Transport{
+			MaxIdleConns:          100, // Maximum idle connections across all hosts
+			MaxIdleConnsPerHost:   10,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+			// You can also tweak DialContext here for faster DNS lookups or timeouts
+		},
+	}
+}
+
 type ErrorSeverity int
 
 const (
