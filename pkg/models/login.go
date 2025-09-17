@@ -18,6 +18,7 @@ type OAuthErrorResponse struct {
 func LoginRequestIsValid(ctx *Context, req *pb.LoginRequest) *AppError {
 	email := req.GetEmail()
 	password := req.GetPassword()
+	challenge := req.GetLoginChallenge()
 
 	path := "users.models.LoginRequestIsValid"
 	if !utils.IsValidEmail(email) {
@@ -32,6 +33,10 @@ func LoginRequestIsValid(ctx *Context, req *pb.LoginRequest) *AppError {
 	if len(password) > UserPasswordMaxLength {
 		params := map[string]any{"Max": UserPasswordMaxLength}
 		return NewAppError(ctx, path, "password.max_length", params, "", int(codes.InvalidArgument), &AppErrorErrorsArgs{ErrorsInternal: map[string]*AppErrorError{"password": {ID: "password.min_length", Params: params}}})
+	}
+
+	if len(challenge) == 0 {
+		return NewAppError(ctx, path, "oauth.login_challenge.missing", nil, "", int(codes.InvalidArgument), nil)
 	}
 
 	return nil

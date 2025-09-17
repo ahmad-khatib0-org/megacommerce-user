@@ -74,9 +74,10 @@ func (oa *OAuth) Consent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	expiry := oa.config().Security.GetAccessTokenExpiryWebInHours()
+	audience := config.GetOauthGrantAccessTokenAudience()
 	acceptBody := map[string]any{
 		"grant_scope":                 consentRequest.RequestedScope,
-		"grant_access_token_audience": consentRequest.RequestedAccessTokenAudience,
+		"grant_access_token_audience": audience,
 		"remember":                    true,
 		"remember_for":                expiry * 60 * 60,
 		"session": map[string]any{

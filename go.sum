@@ -7,6 +7,8 @@ github.com/ahmad-khatib0-org/megacommerce-proto v0.1.81 h1:WryleHue6AijRPwHIcgsc
 github.com/ahmad-khatib0-org/megacommerce-proto v0.1.81/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.1.83 h1:sfqY3CStQncMX43yPhc4EJmUtX+sjeMBpTExbgaoeKQ=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.1.83/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.1.87 h1:3i+oVi2lfX69uAC++IEdhrLEHMKB5UWHSgeswtAEYtE=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.1.87/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/andybalholm/cascadia v1.3.3 h1:AG2YHrzJIm4BZ19iwJ/DAua6Btl3IwJX+VI4kktS1LM=
 github.com/andybalholm/cascadia v1.3.3/go.mod h1:xNd9bqTn98Ln4DwST8/nG+H0yuB8Hmgu1YHNnWw0GeA=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=

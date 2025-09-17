@@ -9,7 +9,7 @@ import (
 )
 
 func (oa *OAuth) Error(w http.ResponseWriter, r *http.Request) {
-	lang := r.Header.Get(models.HeaderAcceptLanguage)
+	lang := "en"
 	errorCode := r.URL.Query().Get("error")
 	errorDesc := r.URL.Query().Get("error_description")
 	errorHint := r.URL.Query().Get("error_hint")
