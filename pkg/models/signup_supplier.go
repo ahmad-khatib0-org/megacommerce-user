@@ -7,7 +7,8 @@ import (
 
 	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	user "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
 	"google.golang.org/grpc/codes"
 )
 
@@ -22,7 +23,7 @@ func SignupSupplierRequestSanitize(s *user.SupplierCreateRequest) *user.Supplier
 	}
 }
 
-func SignupSupplierRequestIsValid(ctx *Context, s *user.SupplierCreateRequest, passCfg *common.ConfigPassword) *AppError {
+func SignupSupplierRequestIsValid(ctx *models.Context, s *user.SupplierCreateRequest, passCfg *common.ConfigPassword) *models.AppError {
 	un := s.GetUsername()
 	email := s.GetEmail()
 	fn := s.GetFirstName()
@@ -50,20 +51,20 @@ func SignupSupplierRequestIsValid(ctx *Context, s *user.SupplierCreateRequest, p
 	}
 
 	if err := utils.IsValidPassword(pass, passCfg, ""); err != nil {
-		errors := &AppErrorErrorsArgs{Err: err, ErrorsInternal: map[string]*AppErrorError{"password": {ID: err.ID, Params: err.Params}}}
-		e := NewAppError(ctx, "user.models.SupplierCreateRequest.SignupSupplierRequestIsValid", err.ID, err.Params, fmt.Sprintf("invalid password %s ", pass), int(codes.InvalidArgument), errors)
+		errors := &models.AppErrorErrorsArgs{Err: err, ErrorsInternal: map[string]*models.AppErrorError{"password": {ID: err.ID, Params: err.Params}}}
+		e := models.NewAppError(ctx, "user.models.SupplierCreateRequest.SignupSupplierRequestIsValid", err.ID, err.Params, fmt.Sprintf("invalid password %s ", pass), int(codes.InvalidArgument), errors)
 		return e
 	}
 
 	return nil
 }
 
-func signupSupplierRequestErrorBuilder(ctx *Context, fieldName string, fieldValue any, params map[string]any) *AppError {
+func signupSupplierRequestErrorBuilder(ctx *models.Context, fieldName string, fieldValue any, params map[string]any) *models.AppError {
 	where := "user.models.SupplierCreateRequest.SignupSupplierRequestIsValid"
 	id := fmt.Sprintf("user.create.%s.error", fieldName)
 	details := fmt.Sprintf(" %s=%v ", fieldName, fieldValue)
-	errors := &AppErrorErrorsArgs{ErrorsInternal: map[string]*AppErrorError{fieldName: {ID: id, Params: params}}}
-	err := NewAppError(ctx, where, id, params, details, int(codes.InvalidArgument), errors)
+	errors := &models.AppErrorErrorsArgs{ErrorsInternal: map[string]*models.AppErrorError{fieldName: {ID: id, Params: params}}}
+	err := models.NewAppError(ctx, where, id, params, details, int(codes.InvalidArgument), errors)
 	return err
 }
 
@@ -79,13 +80,13 @@ func SignupSupplierRequestAuditable(s *user.SupplierCreateRequest) map[string]st
 
 // SignupSupplierRequestPreSave convert SupplierCreateRequest to User
 // and populate the necessary fields with values to be stored in db
-func SignupSupplierRequestPreSave(ctx *Context, s *user.User) (*user.User, *AppError) {
+func SignupSupplierRequestPreSave(ctx *models.Context, s *user.User) (*user.User, *models.AppError) {
 	pass, err := utils.PasswordHash(s.GetPassword())
 	if err != nil {
-		return nil, NewAppError(ctx,
-			"user.models.SignupSupplierRequestPreSave", ErrMsgInternal, nil,
+		return nil, models.NewAppError(ctx,
+			"user.models.SignupSupplierRequestPreSave", models.ErrMsgInternal, nil,
 			fmt.Sprintf("failed to generate password %v", err), int(codes.Internal),
-			&AppErrorErrorsArgs{Err: err},
+			&models.AppErrorErrorsArgs{Err: err},
 		)
 	}
 

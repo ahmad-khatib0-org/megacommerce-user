@@ -7,7 +7,8 @@ import (
 	"time"
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	shared "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -44,7 +45,7 @@ func (cc *CommonClient) initCommonClient() *models.InternalError {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err = cc.client.Ping(ctx, &com.PingRequest{})
+	_, err = cc.client.Ping(ctx, &shared.PingRequest{})
 	if err != nil {
 		return &models.InternalError{
 			Temp: false,

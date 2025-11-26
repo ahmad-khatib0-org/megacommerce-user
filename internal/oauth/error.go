@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 )
 
 func (oa *OAuth) Error(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +24,7 @@ func (oa *OAuth) Error(w http.ResponseWriter, r *http.Request) {
 	redirectURL := fmt.Sprintf("%s?error=%s&error_description=%s",
 		oa.config().GetOauth().GetFrontendLoginErrorUrl(),
 		url.QueryEscape(errorMsg),
-		url.QueryEscape(models.GetOAuthRequestErrMsg(lang, errorCode, errorDesc)),
+		url.QueryEscape(intModels.GetOAuthRequestErrMsg(lang, errorCode, errorDesc)),
 	)
 
 	http.Redirect(w, r, redirectURL, http.StatusFound)

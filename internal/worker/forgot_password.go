@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/hibiken/asynq"
 	"google.golang.org/grpc/codes"
 )
 
 // SendPasswordResetEmail implements SendPasswordResetEmail.
-func (atp *AsynqTaksDistributor) SendPasswordResetEmail(context context.Context, payload *models.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models.AppError {
+func (atp *AsynqTaksDistributor) SendPasswordResetEmail(context context.Context, payload *intModels.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models.AppError {
 	path := "user.worker.SendPasswordResetEmail"
 	ctx, Err := models.ContextGet(context)
 	if Err != nil {
@@ -23,7 +24,7 @@ func (atp *AsynqTaksDistributor) SendPasswordResetEmail(context context.Context,
 		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to marshal json payload, err: %v", err), int(codes.Internal), &models.AppErrorErrorsArgs{Err: err})
 	}
 
-	task := asynq.NewTask(string(models.TaskNameSendPasswordResetEmail), pay, opts...)
+	task := asynq.NewTask(string(intModels.TaskNameSendPasswordResetEmail), pay, opts...)
 	info, err := atp.cli.EnqueueContext(context, task)
 	if err != nil {
 		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to enqueue a task , err: %v", err), int(codes.Internal), &models.AppErrorErrorsArgs{Err: err})
@@ -39,7 +40,7 @@ func (atp *AsynqTaksDistributor) SendPasswordResetEmail(context context.Context,
 // ProcessSendPasswordResetEmail implements ProcessSendPasswordResetEmail.
 func (atp *AsynqTaksProcessor) ProcessSendPasswordResetEmail(context context.Context, task *asynq.Task) error {
 	path := "user.worker.ProcessSendPasswordResetEmail"
-	var pay models.TaskSendPasswordResetEmailPayload
+	var pay intModels.TaskSendPasswordResetEmailPayload
 	if err := json.Unmarshal(task.Payload(), &pay); err != nil {
 		return models.NewAppError(pay.Ctx, path, models.ErrMsgInternal, nil, fmt.Sprintf("failed to unmarshal json payload, err: %v", err), int(codes.Internal), &models.AppErrorErrorsArgs{Err: err})
 	}
@@ -49,7 +50,7 @@ func (atp *AsynqTaksProcessor) ProcessSendPasswordResetEmail(context context.Con
 	}
 
 	if atp.config().Main.GetEnv() == "dev" {
-		atp.log.Infof("processed: %s task successfully", models.TaskNameSendVerifyEmail)
+		atp.log.Infof("processed: %s task successfully", intModels.TaskNameSendVerifyEmail)
 	}
 
 	return nil

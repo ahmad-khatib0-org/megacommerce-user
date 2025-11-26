@@ -7,6 +7,7 @@ package mocks
 import (
 	"context"
 
+	models0 "github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/hibiken/asynq"
 	mock "github.com/stretchr/testify/mock"
@@ -40,7 +41,7 @@ func (_m *MockTaskDistributor) EXPECT() *MockTaskDistributor_Expecter {
 }
 
 // SendPasswordResetEmail provides a mock function for the type MockTaskDistributor
-func (_mock *MockTaskDistributor) SendPasswordResetEmail(ctx context.Context, pay *models.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models.AppError {
+func (_mock *MockTaskDistributor) SendPasswordResetEmail(ctx context.Context, pay *models.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models0.AppError {
 	var tmpRet mock.Arguments
 	if len(opts) > 0 {
 		tmpRet = _mock.Called(ctx, pay, opts)
@@ -53,12 +54,12 @@ func (_mock *MockTaskDistributor) SendPasswordResetEmail(ctx context.Context, pa
 		panic("no return value specified for SendPasswordResetEmail")
 	}
 
-	var r0 *models.AppError
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *models.TaskSendPasswordResetEmailPayload, ...asynq.Option) *models.AppError); ok {
+	var r0 *models0.AppError
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *models.TaskSendPasswordResetEmailPayload, ...asynq.Option) *models0.AppError); ok {
 		r0 = returnFunc(ctx, pay, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.AppError)
+			r0 = ret.Get(0).(*models0.AppError)
 		}
 	}
 	return r0
@@ -103,18 +104,18 @@ func (_c *MockTaskDistributor_SendPasswordResetEmail_Call) Run(run func(ctx cont
 	return _c
 }
 
-func (_c *MockTaskDistributor_SendPasswordResetEmail_Call) Return(appError *models.AppError) *MockTaskDistributor_SendPasswordResetEmail_Call {
+func (_c *MockTaskDistributor_SendPasswordResetEmail_Call) Return(appError *models0.AppError) *MockTaskDistributor_SendPasswordResetEmail_Call {
 	_c.Call.Return(appError)
 	return _c
 }
 
-func (_c *MockTaskDistributor_SendPasswordResetEmail_Call) RunAndReturn(run func(ctx context.Context, pay *models.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models.AppError) *MockTaskDistributor_SendPasswordResetEmail_Call {
+func (_c *MockTaskDistributor_SendPasswordResetEmail_Call) RunAndReturn(run func(ctx context.Context, pay *models.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models0.AppError) *MockTaskDistributor_SendPasswordResetEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SendVerifyEmail provides a mock function for the type MockTaskDistributor
-func (_mock *MockTaskDistributor) SendVerifyEmail(ctx context.Context, pay *models.TaskSendVerifyEmailPayload, opts ...asynq.Option) *models.AppError {
+func (_mock *MockTaskDistributor) SendVerifyEmail(ctx context.Context, pay *models.TaskSendVerifyEmailPayload, opts ...asynq.Option) *models0.AppError {
 	var tmpRet mock.Arguments
 	if len(opts) > 0 {
 		tmpRet = _mock.Called(ctx, pay, opts)
@@ -127,12 +128,12 @@ func (_mock *MockTaskDistributor) SendVerifyEmail(ctx context.Context, pay *mode
 		panic("no return value specified for SendVerifyEmail")
 	}
 
-	var r0 *models.AppError
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *models.TaskSendVerifyEmailPayload, ...asynq.Option) *models.AppError); ok {
+	var r0 *models0.AppError
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *models.TaskSendVerifyEmailPayload, ...asynq.Option) *models0.AppError); ok {
 		r0 = returnFunc(ctx, pay, opts...)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.AppError)
+			r0 = ret.Get(0).(*models0.AppError)
 		}
 	}
 	return r0
@@ -177,12 +178,12 @@ func (_c *MockTaskDistributor_SendVerifyEmail_Call) Run(run func(ctx context.Con
 	return _c
 }
 
-func (_c *MockTaskDistributor_SendVerifyEmail_Call) Return(appError *models.AppError) *MockTaskDistributor_SendVerifyEmail_Call {
+func (_c *MockTaskDistributor_SendVerifyEmail_Call) Return(appError *models0.AppError) *MockTaskDistributor_SendVerifyEmail_Call {
 	_c.Call.Return(appError)
 	return _c
 }
 
-func (_c *MockTaskDistributor_SendVerifyEmail_Call) RunAndReturn(run func(ctx context.Context, pay *models.TaskSendVerifyEmailPayload, opts ...asynq.Option) *models.AppError) *MockTaskDistributor_SendVerifyEmail_Call {
+func (_c *MockTaskDistributor_SendVerifyEmail_Call) RunAndReturn(run func(ctx context.Context, pay *models.TaskSendVerifyEmailPayload, opts ...asynq.Option) *models0.AppError) *MockTaskDistributor_SendVerifyEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -10,9 +10,9 @@ import (
 
 	pbSh "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"google.golang.org/grpc/codes"
 )
 
@@ -37,16 +37,16 @@ func (c *Controller) Login(context ctxPkg.Context, req *pb.LoginRequest) (*pb.Lo
 	defer cancel()
 	ctx.Context = rctx
 
-	ar := models.AuditRecordNew(ctx, models.EventNameLogin, models.EventStatusFail)
+	ar := models.AuditRecordNew(ctx, intModels.EventNameLogin, models.EventStatusFail)
 	defer c.ProcessAudit(ar)
 
-	if err := models.LoginRequestIsValid(ctx, req); err != nil {
+	if err := intModels.LoginRequestIsValid(ctx, req); err != nil {
 		return errBuilder(err)
 	}
 
 	user, err := c.store.UsersGetByEmail(ctx, req.GetEmail())
 	if err != nil {
-		if err.ErrType == store.DBErrorTypeNoRows {
+		if err.ErrType == models.DBErrorTypeNoRows {
 			errors := &models.AppErrorErrorsArgs{Err: err, ErrorsInternal: map[string]*models.AppErrorError{"email": {ID: "email.not_found"}}}
 			return errBuilder(models.NewAppError(ctx, path, "email.not_found", nil, err.Details, int(codes.NotFound), errors))
 		} else {
@@ -64,8 +64,9 @@ func (c *Controller) Login(context ctxPkg.Context, req *pb.LoginRequest) (*pb.Lo
 
 	// TODO: handle if this user is using mobile or not
 	expiry := c.config().Security.GetAccessTokenExpiryWebInHours()
+	fmt.Println(expiry)
 	body := map[string]any{
-		"subject":      user.GetEmail(),
+		"subject":      user.GetId(),
 		"remember":     true,
 		"remember_for": expiry * 60 * 60,
 		"context":      map[string]any{"lang": ctx.AcceptLanguage},
@@ -98,7 +99,7 @@ func (c *Controller) Login(context ctxPkg.Context, req *pb.LoginRequest) (*pb.Lo
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		var resErr models.OAuthErrorResponse
+		var resErr intModels.OAuthErrorResponse
 		if err := json.NewDecoder(resp.Body).Decode(&resErr); err != nil {
 			return internalErr(err, "failed to unmarshal login/accept response from Oauth service error")
 		}
@@ -106,7 +107,7 @@ func (c *Controller) Login(context ctxPkg.Context, req *pb.LoginRequest) (*pb.Lo
 			Err: respErr,
 			ErrorsInternal: map[string]*models.AppErrorError{
 				"error":             {ID: "login.error"},
-				"error_description": {ID: models.GetOAuthRequestErrMsgID(ctx.AcceptLanguage, resErr.Error, resErr.ErrorDescription)},
+				"error_description": {ID: intModels.GetOAuthRequestErrMsgID(ctx.AcceptLanguage, resErr.Error, resErr.ErrorDescription)},
 			},
 		}
 		return errBuilder(models.NewAppError(ctx, path, "login.error", nil, "", int(codes.InvalidArgument), errors))

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
 	"github.com/fsnotify/fsnotify"
 )
 

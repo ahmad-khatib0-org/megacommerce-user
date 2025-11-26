@@ -8,9 +8,9 @@ import (
 	"time"
 
 	common "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/logger"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
 )
 
 type OAuth struct {

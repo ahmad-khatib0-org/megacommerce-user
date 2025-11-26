@@ -5,14 +5,15 @@ import (
 	"context"
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/logger"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/hibiken/asynq"
 )
 
 type TaskDistributor interface {
-	SendVerifyEmail(ctx context.Context, pay *models.TaskSendVerifyEmailPayload, opts ...asynq.Option) *models.AppError
-	SendPasswordResetEmail(ctx context.Context, pay *models.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models.AppError
+	SendVerifyEmail(ctx context.Context, pay *intModels.TaskSendVerifyEmailPayload, opts ...asynq.Option) *models.AppError
+	SendPasswordResetEmail(ctx context.Context, pay *intModels.TaskSendPasswordResetEmailPayload, opts ...asynq.Option) *models.AppError
 }
 
 type TaskDistributorArgs struct {

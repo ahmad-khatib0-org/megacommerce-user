@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/jackc/pgx/v5"
 )
 
-func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.Token) *store.DBError {
+func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.Token) *models.DBError {
 	path := "user.store.SignupSupplier"
 	tr, err := ds.db.BeginTx(ctx.Context, pgx.TxOptions{})
 	if err != nil {
-		return store.StartTransactionError(err, path)
+		return models.StartTransactionError(err, path)
 	}
 
 	stmt := `
@@ -51,21 +51,21 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 	if len(u.GetProps()) > 0 {
 		props, err = json.Marshal(u.GetProps())
 		if err != nil {
-			return store.JSONMarshalError(err, path, "an error occurred while trying to encode User.props")
+			return models.JSONMarshalError(err, path, "an error occurred while trying to encode User.props")
 		}
 	}
 
 	if len(u.GetNotifyProps()) > 0 {
 		nontifyProps, err = json.Marshal(u.GetNotifyProps())
 		if err != nil {
-			return store.JSONMarshalError(err, path, "an error occurred while trying to encode User.notify_props")
+			return models.JSONMarshalError(err, path, "an error occurred while trying to encode User.notify_props")
 		}
 	}
 
 	if u.ImageMetadata != nil {
 		imageMetadata, err = json.Marshal(u.GetImageMetadata())
 		if err != nil {
-			return store.JSONMarshalError(err, path, "an error occurred while trying to encode User.image_metadata")
+			return models.JSONMarshalError(err, path, "an error occurred while trying to encode User.image_metadata")
 		}
 	}
 
@@ -93,7 +93,7 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 
 	_, err = tr.Exec(ctx.Context, stmt, args...)
 	if err != nil {
-		return store.HandleDBError(ctx, err, path, tr)
+		return models.HandleDBError(ctx, err, path, tr)
 	}
 
 	stmt = `
@@ -104,18 +104,18 @@ func (ds *DBStore) SignupSupplier(ctx *models.Context, u *pb.User, token *utils.
 		token.ID,
 		u.GetId(),
 		string(token.Hash),
-		string(models.TokenTypeEmailConfirmation),
+		string(intModels.TokenTypeEmailConfirmation),
 		utils.TimeGetMillis(),
 		utils.TimeGetMillisFromTime(token.Expiry),
 	}
 
 	_, err = tr.Exec(ctx.Context, stmt, args...)
 	if err != nil {
-		return store.HandleDBError(ctx, err, path, tr)
+		return models.HandleDBError(ctx, err, path, tr)
 	}
 
 	if err := tr.Commit(ctx.Context); err != nil {
-		return store.CommitTransactionError(err, path)
+		return models.CommitTransactionError(err, path)
 	}
 	return nil
 }

@@ -8,11 +8,11 @@ import (
 
 	shPb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/files"
-	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/hibiken/asynq"
 	"github.com/minio/minio-go/v7"
 	"github.com/oklog/ulid/v2"
@@ -34,20 +34,20 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, "", int(codes.Internal), &models.AppErrorErrorsArgs{Err: err})
 	}
 
-	ar := models.AuditRecordNew(ctx, models.EventNameSupplierCreate, models.EventStatusFail)
-	models.AuditEventDataParameter(ar, "supplier", models.SignupSupplierRequestAuditable(req))
+	ar := models.AuditRecordNew(ctx, intModels.EventNameSupplierCreate, models.EventStatusFail)
+	models.AuditEventDataParameter(ar, "supplier", intModels.SignupSupplierRequestAuditable(req))
 	defer c.ProcessAudit(ar)
 
-	sanitized := models.SignupSupplierRequestSanitize(req)
-	if err = models.SignupSupplierRequestIsValid(ctx, sanitized, c.config().Password); err != nil {
+	sanitized := intModels.SignupSupplierRequestSanitize(req)
+	if err = intModels.SignupSupplierRequestIsValid(ctx, sanitized, c.config().Password); err != nil {
 		return errBuilder(err)
 	}
 
 	if sanitized.Image != nil {
 		if imgErr := files.AttachmentsValidateSizeAndTypes(&files.AttachmentValidationConfig{
 			Files:        []*shPb.Attachment{sanitized.Image},
-			MaxSize:      models.UserImageMaxSizeBytes,
-			AllowedTypes: models.UserImageAllowedTypes,
+			MaxSize:      intModels.UserImageMaxSizeBytes,
+			AllowedTypes: intModels.UserImageAllowedTypes,
 			Unit:         files.FileSizeUnitMB,
 		}); imgErr != nil {
 			errors := &models.AppErrorErrorsArgs{ErrorsInternal: map[string]*models.AppErrorError{"image": imgErr.Err}}
@@ -56,7 +56,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 		}
 	}
 
-	dbPay, err := models.SignupSupplierRequestPreSave(
+	dbPay, err := intModels.SignupSupplierRequestPreSave(
 		ctx,
 		&pb.User{
 			Username:   utils.NewPointer(sanitized.GetUsername()),
@@ -99,7 +99,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 	}
 
 	if err := c.store.SignupSupplier(ctx, dbPay, tokenData); err != nil {
-		if err.ErrType == store.DBErrorTypeUniqueViolation {
+		if err.ErrType == models.DBErrorTypeUniqueViolation {
 			id := "user.create.email.not_unique"
 			details := fmt.Sprintf("the email %s is already in use", dbPay.GetEmail())
 			errors := &models.AppErrorErrorsArgs{Err: err, ErrorsInternal: map[string]*models.AppErrorError{"email": {ID: id}}}
@@ -110,7 +110,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 	}
 
 	optoins := []asynq.Option{asynq.MaxRetry(10), asynq.ProcessIn(time.Second * 10), asynq.Queue(worker.QueuePriorityCritical)}
-	taskPayload := &models.TaskSendVerifyEmailPayload{
+	taskPayload := &intModels.TaskSendVerifyEmailPayload{
 		Ctx:     ctx,
 		Email:   dbPay.GetEmail(),
 		Token:   tokenData.Token,
@@ -123,7 +123,7 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 		return errBuilder(internalErr(err))
 	}
 
-	ar.AuditEventDataResultState(models.SignupSupplierRequestResultState(dbPay))
+	ar.AuditEventDataResultState(intModels.SignupSupplierRequestResultState(dbPay))
 	ar.Success()
 
 	msg := models.Tr(ctx.AcceptLanguage, "account.create.success", nil)

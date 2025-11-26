@@ -5,8 +5,7 @@ import (
 	"fmt"
 
 	usersPb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -42,7 +41,7 @@ const SelectUserStatment = `
 	FROM users
 `
 
-func (ds *DBStore) UsersGetByEmail(ctx *models.Context, email string) (*usersPb.User, *store.DBError) {
+func (ds *DBStore) UsersGetByEmail(ctx *models.Context, email string) (*usersPb.User, *models.DBError) {
 	path := "users.store.UserGetByEmail"
 	row := ds.db.QueryRow(ctx.Context, fmt.Sprintf("%s %s", SelectUserStatment, "WHERE email = $1"), email)
 
@@ -50,7 +49,7 @@ func (ds *DBStore) UsersGetByEmail(ctx *models.Context, email string) (*usersPb.
 }
 
 // scanUser scans the whole user row given by a pgx.Row result
-func (ds *DBStore) scanUser(ctx *models.Context, row pgx.Row, path string) (*usersPb.User, *store.DBError) {
+func (ds *DBStore) scanUser(ctx *models.Context, row pgx.Row, path string) (*usersPb.User, *models.DBError) {
 	user := &usersPb.User{}
 
 	var (
@@ -90,7 +89,7 @@ func (ds *DBStore) scanUser(ctx *models.Context, row pgx.Row, path string) (*use
 		&user.DeletedAt,
 	)
 	if err != nil {
-		return nil, store.HandleDBError(ctx, err, path, nil)
+		return nil, models.HandleDBError(ctx, err, path, nil)
 	}
 
 	user.Roles = roles
@@ -98,21 +97,21 @@ func (ds *DBStore) scanUser(ctx *models.Context, row pgx.Row, path string) (*use
 	if len(imageMetadataBytes) > 0 {
 		var meta usersPb.UserImageMetadata
 		if err := json.Unmarshal(imageMetadataBytes, &meta); err != nil {
-			return nil, store.JSONUnmarshalError(err, path, "an error occurred while trying to unmarshal User.image_metadat")
+			return nil, models.JSONUnmarshalError(err, path, "an error occurred while trying to unmarshal User.image_metadat")
 		}
 		user.ImageMetadata = &meta
 	}
 
 	if len(propsBytes) > 0 {
 		if err := json.Unmarshal(propsBytes, &user.Props); err != nil {
-			return nil, store.JSONUnmarshalError(err, path, "an error occurred while trying to unmarshal User.props")
+			return nil, models.JSONUnmarshalError(err, path, "an error occurred while trying to unmarshal User.props")
 		}
 	}
 
 	// unmarshal notify_props
 	if len(notifyPropsBytes) > 0 {
 		if err := json.Unmarshal(notifyPropsBytes, &user.NotifyProps); err != nil {
-			return nil, store.JSONUnmarshalError(err, path, "an error occurred while trying to unmarshal User.notify_props")
+			return nil, models.JSONUnmarshalError(err, path, "an error occurred while trying to unmarshal User.notify_props")
 		}
 	}
 

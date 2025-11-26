@@ -4,7 +4,7 @@ package mailer
 import (
 	"fmt"
 
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
 )
 
 func (m *Mailer) SendVerifyEmail(lang, email, token, tokenID string, hours int) error {

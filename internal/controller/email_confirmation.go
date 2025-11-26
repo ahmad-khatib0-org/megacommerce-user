@@ -5,9 +5,9 @@ import (
 
 	pbSh "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 )
@@ -26,16 +26,16 @@ func (c *Controller) EmailConfirmation(context context.Context, req *pb.EmailCon
 		return errBuilder(err)
 	}
 
-	if err = models.EmailConfirmationIsValid(ctx, req); err != nil {
+	if err = intModels.EmailConfirmationIsValid(ctx, req); err != nil {
 		return errBuilder(err)
 	}
 
-	ar := models.AuditRecordNew(ctx, models.EventNameEmailConfirmation, models.EventStatusFail)
+	ar := models.AuditRecordNew(ctx, intModels.EventNameEmailConfirmation, models.EventStatusFail)
 	defer c.ProcessAudit(ar)
 
 	token, errDB := c.store.TokensGet(ctx, req.TokenId)
 	if errDB != nil {
-		if errDB.ErrType == store.DBErrorTypeNoRows {
+		if errDB.ErrType == models.DBErrorTypeNoRows {
 			return errBuilder(models.NewAppError(ctx, path, "email_confirm.token.not_found", nil, "", int(codes.NotFound), &models.AppErrorErrorsArgs{Err: err}))
 		} else {
 			return errBuilder(models.NewAppError(ctx, path, models.ErrMsgInternal, nil, errDB.Details, int(codes.Internal), &models.AppErrorErrorsArgs{Err: err}))

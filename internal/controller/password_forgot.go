@@ -7,10 +7,10 @@ import (
 
 	sharedPb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
 	usersPb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/hibiken/asynq"
 	"google.golang.org/grpc/codes"
 )
@@ -38,13 +38,13 @@ func (c *Controller) PasswordForgot(context context.Context, req *usersPb.Passwo
 		return errBuilder(models.NewAppError(ctx, path, "email.invalid", nil, details, int(codes.InvalidArgument), nil))
 	}
 
-	ar := models.AuditRecordNew(ctx, models.EventNamePasswordForgot, models.EventStatusFail)
+	ar := models.AuditRecordNew(ctx, intModels.EventNamePasswordForgot, models.EventStatusFail)
 	defer c.ProcessAudit(ar)
 	models.AuditEventDataParameter(ar, "email", email)
 
 	user, dbErr := c.store.UsersGetByEmail(ctx, email)
 	if dbErr != nil {
-		if dbErr.ErrType == store.DBErrorTypeNoRows {
+		if dbErr.ErrType == models.DBErrorTypeNoRows {
 			return errBuilder(models.NewAppError(ctx, path, "email.not_found", nil, dbErr.Details, int(codes.NotFound), &models.AppErrorErrorsArgs{Err: dbErr}))
 		} else {
 			return errBuilder(internalErr(ctx, err))
@@ -67,13 +67,13 @@ func (c *Controller) PasswordForgot(context context.Context, req *usersPb.Passwo
 		return errBuilder(internalErr(ctx, dbErr))
 	}
 
-	dbErr = c.store.TokensAdd(ctx, user.GetId(), tokenData, models.TokenTypePasswordReset, path)
+	dbErr = c.store.TokensAdd(ctx, user.GetId(), tokenData, intModels.TokenTypePasswordReset, path)
 	if dbErr != nil {
 		return errBuilder(internalErr(ctx, dbErr))
 	}
 
 	optoins := []asynq.Option{asynq.MaxRetry(10), asynq.ProcessIn(time.Second * 10), asynq.Queue(worker.QueuePriorityCritical)}
-	taskPayload := &models.TaskSendPasswordResetEmailPayload{
+	taskPayload := &intModels.TaskSendPasswordResetEmailPayload{
 		Ctx:     ctx,
 		Email:   email,
 		Token:   tokenData.Token,

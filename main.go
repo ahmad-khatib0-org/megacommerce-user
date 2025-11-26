@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/logger"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/server"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
 )
 
 func main() {

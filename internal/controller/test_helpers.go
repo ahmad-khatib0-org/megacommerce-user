@@ -9,13 +9,14 @@ import (
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
 	user "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/logger"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/common"
 	mailerMocks "github.com/ahmad-khatib0-org/megacommerce-user/internal/mailer/mocks"
 	storeMocks "github.com/ahmad-khatib0-org/megacommerce-user/internal/store/mocks"
 	workerMocks "github.com/ahmad-khatib0-org/megacommerce-user/internal/worker/mocks"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/spf13/viper"
 )
@@ -27,7 +28,7 @@ type TestingUser struct {
 
 type TestHelper struct {
 	config     func() *com.Config
-	srvCfg     *models.Config
+	srvCfg     *intModels.Config
 	log        *logger.Logger
 	common     *common.CommonClient
 	controller *Controller
@@ -88,23 +89,23 @@ func (th *TestHelper) TearDown() {
 func (th *TestHelper) initUsers() {
 	th.Customer1 = &TestingUser{
 		Ctx:  th.getContext(),
-		User: th.createUser(models.UserTypeCustomer, models.RoleIDCustomer),
+		User: th.createUser(intModels.UserTypeCustomer, models.RoleIDCustomer),
 	}
 	th.Customer2 = &TestingUser{
 		Ctx:  th.getContext(),
-		User: th.createUser(models.UserTypeCustomer, models.RoleIDCustomer),
+		User: th.createUser(intModels.UserTypeCustomer, models.RoleIDCustomer),
 	}
 	th.Supplier1 = &TestingUser{
 		Ctx:  th.getContext(),
-		User: th.createUser(models.UserTypeSupplier, models.RoleIDSupplierAdmin),
+		User: th.createUser(intModels.UserTypeSupplier, models.RoleIDSupplierAdmin),
 	}
 	th.Supplier2 = &TestingUser{
 		Ctx:  th.getContext(),
-		User: th.createUser(models.UserTypeSupplier, models.RoleIDSupplierAdmin),
+		User: th.createUser(intModels.UserTypeSupplier, models.RoleIDSupplierAdmin),
 	}
 }
 
-func (th *TestHelper) createUser(userType models.UserType, roleID models.RoleID) *user.User {
+func (th *TestHelper) createUser(userType intModels.UserType, roleID models.RoleID) *user.User {
 	return &user.User{
 		Id:                 utils.NewIDPointer(),
 		Username:           utils.NewPointer(utils.RandomUserName(6, 12)),
@@ -168,7 +169,7 @@ func (th *TestHelper) initServiceConfig() *models.InternalError {
 		return &models.InternalError{Err: err, Msg: "failed to initialize service config"}
 	}
 
-	var c models.Config
+	var c intModels.Config
 	if err := viper.Unmarshal(&c); err != nil {
 		return &models.InternalError{Err: err, Msg: "failed to initialize service config"}
 	}

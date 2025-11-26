@@ -6,12 +6,12 @@ import (
 	"time"
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/mailer"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/oauth"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store/dbstore"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	"github.com/hibiken/asynq"
 	"github.com/jackc/pgx/v5/pgxpool"
 )

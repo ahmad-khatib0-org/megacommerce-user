@@ -1,3 +1,4 @@
+// Package models contains models for user, config, validation....
 package models
 
 type UserType string

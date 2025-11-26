@@ -4,7 +4,8 @@ import (
 	"fmt"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
 	"google.golang.org/grpc/codes"
 )
 
@@ -15,28 +16,28 @@ type OAuthErrorResponse struct {
 	ErrorDebug       string `json:"error_debug,omitempty"`
 }
 
-func LoginRequestIsValid(ctx *Context, req *pb.LoginRequest) *AppError {
+func LoginRequestIsValid(ctx *models.Context, req *pb.LoginRequest) *models.AppError {
 	email := req.GetEmail()
 	password := req.GetPassword()
 	challenge := req.GetLoginChallenge()
 
 	path := "users.models.LoginRequestIsValid"
 	if !utils.IsValidEmail(email) {
-		return NewAppError(ctx, path, "email.invalid", nil, fmt.Sprintf("invalid email=%s", email), int(codes.InvalidArgument), &AppErrorErrorsArgs{ErrorsInternal: map[string]*AppErrorError{"email": {ID: "email.invalid"}}})
+		return models.NewAppError(ctx, path, "email.invalid", nil, fmt.Sprintf("invalid email=%s", email), int(codes.InvalidArgument), &models.AppErrorErrorsArgs{ErrorsInternal: map[string]*models.AppErrorError{"email": {ID: "email.invalid"}}})
 	}
 
 	if len(password) < UserPasswordMinLength {
 		params := map[string]any{"Min": UserPasswordMinLength}
-		return NewAppError(ctx, path, "password.min_length", params, "", int(codes.InvalidArgument), &AppErrorErrorsArgs{ErrorsInternal: map[string]*AppErrorError{"password": {ID: "password.min_length", Params: params}}})
+		return models.NewAppError(ctx, path, "password.min_length", params, "", int(codes.InvalidArgument), &models.AppErrorErrorsArgs{ErrorsInternal: map[string]*models.AppErrorError{"password": {ID: "password.min_length", Params: params}}})
 	}
 
 	if len(password) > UserPasswordMaxLength {
 		params := map[string]any{"Max": UserPasswordMaxLength}
-		return NewAppError(ctx, path, "password.max_length", params, "", int(codes.InvalidArgument), &AppErrorErrorsArgs{ErrorsInternal: map[string]*AppErrorError{"password": {ID: "password.min_length", Params: params}}})
+		return models.NewAppError(ctx, path, "password.max_length", params, "", int(codes.InvalidArgument), &models.AppErrorErrorsArgs{ErrorsInternal: map[string]*models.AppErrorError{"password": {ID: "password.min_length", Params: params}}})
 	}
 
 	if len(challenge) == 0 {
-		return NewAppError(ctx, path, "oauth.login_challenge.missing", nil, "", int(codes.InvalidArgument), nil)
+		return models.NewAppError(ctx, path, "oauth.login_challenge.missing", nil, "", int(codes.InvalidArgument), nil)
 	}
 
 	return nil
@@ -44,7 +45,7 @@ func LoginRequestIsValid(ctx *Context, req *pb.LoginRequest) *AppError {
 
 func GetOAuthRequestErrMsg(lang, code, desc string) string {
 	tr := func(id string) string {
-		return Tr(lang, id, nil)
+		return models.Tr(lang, id, nil)
 	}
 	switch code {
 	case "invalid_request":

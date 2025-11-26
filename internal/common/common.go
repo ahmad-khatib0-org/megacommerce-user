@@ -3,21 +3,22 @@ package common
 
 import (
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/logger"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"google.golang.org/grpc"
 )
 
 type CommonClient struct {
 	com.UnimplementedCommonServiceServer
-	cfg    *models.Config
+	cfg    *intModels.Config
 	conn   *grpc.ClientConn
 	client com.CommonServiceClient
 	log    *logger.Logger
 }
 
 type CommonArgs struct {
-	Config *models.Config
+	Config *intModels.Config
 	Log    *logger.Logger
 }
 

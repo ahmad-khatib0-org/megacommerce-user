@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 )
 
 // Builds a mock token with optional overrides
@@ -24,7 +24,7 @@ func getToken(t *testing.T, req *pb.EmailConfirmationRequest, opts ...func(token
 	token := &pb.Token{
 		Id:        req.TokenId,
 		Token:     pass,
-		Type:      string(models.TokenTypeEmailConfirmation),
+		Type:      string(intModels.TokenTypeEmailConfirmation),
 		Used:      false,
 		CreatedAt: utils.TimeGetMillis(),
 		ExpiresAt: time.Now().Add(1 * time.Hour).UnixMilli(),
@@ -149,7 +149,7 @@ func TestEmailConfirmation(t *testing.T) {
 
 		th.store.On("TokensGet", mock.Anything, req.TokenId).Return(valid, nil)
 		th.store.On("MarkEmailAsConfirmed", mock.Anything, req.TokenId).
-			Return(&store.DBError{
+			Return(&models.DBError{
 				Path: "users.store.MarkEmailAsConfirmed",
 				Msg:  "db failed",
 			})

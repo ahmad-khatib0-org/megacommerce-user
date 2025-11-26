@@ -6,9 +6,9 @@ package mocks
 
 import (
 	"github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
+	models0 "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -40,19 +40,19 @@ func (_m *MockUsersStore) EXPECT() *MockUsersStore_Expecter {
 }
 
 // MarkEmailAsConfirmed provides a mock function for the type MockUsersStore
-func (_mock *MockUsersStore) MarkEmailAsConfirmed(ctx *models.Context, tokenID string) *store.DBError {
+func (_mock *MockUsersStore) MarkEmailAsConfirmed(ctx *models.Context, tokenID string) *models.DBError {
 	ret := _mock.Called(ctx, tokenID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for MarkEmailAsConfirmed")
 	}
 
-	var r0 *store.DBError
-	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) *store.DBError); ok {
+	var r0 *models.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) *models.DBError); ok {
 		r0 = returnFunc(ctx, tokenID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*store.DBError)
+			r0 = ret.Get(0).(*models.DBError)
 		}
 	}
 	return r0
@@ -88,30 +88,30 @@ func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) Run(run func(ctx *models.Con
 	return _c
 }
 
-func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) Return(dBError *store.DBError) *MockUsersStore_MarkEmailAsConfirmed_Call {
+func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) Return(dBError *models.DBError) *MockUsersStore_MarkEmailAsConfirmed_Call {
 	_c.Call.Return(dBError)
 	return _c
 }
 
-func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) RunAndReturn(run func(ctx *models.Context, tokenID string) *store.DBError) *MockUsersStore_MarkEmailAsConfirmed_Call {
+func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) RunAndReturn(run func(ctx *models.Context, tokenID string) *models.DBError) *MockUsersStore_MarkEmailAsConfirmed_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // SignupSupplier provides a mock function for the type MockUsersStore
-func (_mock *MockUsersStore) SignupSupplier(ctx *models.Context, s *v1.User, token *utils.Token) *store.DBError {
+func (_mock *MockUsersStore) SignupSupplier(ctx *models.Context, s *v1.User, token *utils.Token) *models.DBError {
 	ret := _mock.Called(ctx, s, token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for SignupSupplier")
 	}
 
-	var r0 *store.DBError
-	if returnFunc, ok := ret.Get(0).(func(*models.Context, *v1.User, *utils.Token) *store.DBError); ok {
+	var r0 *models.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, *v1.User, *utils.Token) *models.DBError); ok {
 		r0 = returnFunc(ctx, s, token)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*store.DBError)
+			r0 = ret.Get(0).(*models.DBError)
 		}
 	}
 	return r0
@@ -153,30 +153,30 @@ func (_c *MockUsersStore_SignupSupplier_Call) Run(run func(ctx *models.Context, 
 	return _c
 }
 
-func (_c *MockUsersStore_SignupSupplier_Call) Return(dBError *store.DBError) *MockUsersStore_SignupSupplier_Call {
+func (_c *MockUsersStore_SignupSupplier_Call) Return(dBError *models.DBError) *MockUsersStore_SignupSupplier_Call {
 	_c.Call.Return(dBError)
 	return _c
 }
 
-func (_c *MockUsersStore_SignupSupplier_Call) RunAndReturn(run func(ctx *models.Context, s *v1.User, token *utils.Token) *store.DBError) *MockUsersStore_SignupSupplier_Call {
+func (_c *MockUsersStore_SignupSupplier_Call) RunAndReturn(run func(ctx *models.Context, s *v1.User, token *utils.Token) *models.DBError) *MockUsersStore_SignupSupplier_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // TokensAdd provides a mock function for the type MockUsersStore
-func (_mock *MockUsersStore) TokensAdd(ctx *models.Context, userID string, token *utils.Token, tokenType models.TokenType, path string) *store.DBError {
+func (_mock *MockUsersStore) TokensAdd(ctx *models.Context, userID string, token *utils.Token, tokenType models0.TokenType, path string) *models.DBError {
 	ret := _mock.Called(ctx, userID, token, tokenType, path)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TokensAdd")
 	}
 
-	var r0 *store.DBError
-	if returnFunc, ok := ret.Get(0).(func(*models.Context, string, *utils.Token, models.TokenType, string) *store.DBError); ok {
+	var r0 *models.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string, *utils.Token, models0.TokenType, string) *models.DBError); ok {
 		r0 = returnFunc(ctx, userID, token, tokenType, path)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*store.DBError)
+			r0 = ret.Get(0).(*models.DBError)
 		}
 	}
 	return r0
@@ -191,13 +191,13 @@ type MockUsersStore_TokensAdd_Call struct {
 //   - ctx *models.Context
 //   - userID string
 //   - token *utils.Token
-//   - tokenType models.TokenType
+//   - tokenType models0.TokenType
 //   - path string
 func (_e *MockUsersStore_Expecter) TokensAdd(ctx interface{}, userID interface{}, token interface{}, tokenType interface{}, path interface{}) *MockUsersStore_TokensAdd_Call {
 	return &MockUsersStore_TokensAdd_Call{Call: _e.mock.On("TokensAdd", ctx, userID, token, tokenType, path)}
 }
 
-func (_c *MockUsersStore_TokensAdd_Call) Run(run func(ctx *models.Context, userID string, token *utils.Token, tokenType models.TokenType, path string)) *MockUsersStore_TokensAdd_Call {
+func (_c *MockUsersStore_TokensAdd_Call) Run(run func(ctx *models.Context, userID string, token *utils.Token, tokenType models0.TokenType, path string)) *MockUsersStore_TokensAdd_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 *models.Context
 		if args[0] != nil {
@@ -211,9 +211,9 @@ func (_c *MockUsersStore_TokensAdd_Call) Run(run func(ctx *models.Context, userI
 		if args[2] != nil {
 			arg2 = args[2].(*utils.Token)
 		}
-		var arg3 models.TokenType
+		var arg3 models0.TokenType
 		if args[3] != nil {
-			arg3 = args[3].(models.TokenType)
+			arg3 = args[3].(models0.TokenType)
 		}
 		var arg4 string
 		if args[4] != nil {
@@ -230,18 +230,18 @@ func (_c *MockUsersStore_TokensAdd_Call) Run(run func(ctx *models.Context, userI
 	return _c
 }
 
-func (_c *MockUsersStore_TokensAdd_Call) Return(dBError *store.DBError) *MockUsersStore_TokensAdd_Call {
+func (_c *MockUsersStore_TokensAdd_Call) Return(dBError *models.DBError) *MockUsersStore_TokensAdd_Call {
 	_c.Call.Return(dBError)
 	return _c
 }
 
-func (_c *MockUsersStore_TokensAdd_Call) RunAndReturn(run func(ctx *models.Context, userID string, token *utils.Token, tokenType models.TokenType, path string) *store.DBError) *MockUsersStore_TokensAdd_Call {
+func (_c *MockUsersStore_TokensAdd_Call) RunAndReturn(run func(ctx *models.Context, userID string, token *utils.Token, tokenType models0.TokenType, path string) *models.DBError) *MockUsersStore_TokensAdd_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // TokensDeleteAllPasswordResetByUserID provides a mock function for the type MockUsersStore
-func (_mock *MockUsersStore) TokensDeleteAllPasswordResetByUserID(ctx *models.Context, userID string) (int64, *store.DBError) {
+func (_mock *MockUsersStore) TokensDeleteAllPasswordResetByUserID(ctx *models.Context, userID string) (int64, *models.DBError) {
 	ret := _mock.Called(ctx, userID)
 
 	if len(ret) == 0 {
@@ -249,8 +249,8 @@ func (_mock *MockUsersStore) TokensDeleteAllPasswordResetByUserID(ctx *models.Co
 	}
 
 	var r0 int64
-	var r1 *store.DBError
-	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) (int64, *store.DBError)); ok {
+	var r1 *models.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) (int64, *models.DBError)); ok {
 		return returnFunc(ctx, userID)
 	}
 	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) int64); ok {
@@ -258,11 +258,11 @@ func (_mock *MockUsersStore) TokensDeleteAllPasswordResetByUserID(ctx *models.Co
 	} else {
 		r0 = ret.Get(0).(int64)
 	}
-	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *store.DBError); ok {
+	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *models.DBError); ok {
 		r1 = returnFunc(ctx, userID)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(*store.DBError)
+			r1 = ret.Get(1).(*models.DBError)
 		}
 	}
 	return r0, r1
@@ -298,18 +298,18 @@ func (_c *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call) Run(run func
 	return _c
 }
 
-func (_c *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call) Return(n int64, dBError *store.DBError) *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call {
+func (_c *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call) Return(n int64, dBError *models.DBError) *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call {
 	_c.Call.Return(n, dBError)
 	return _c
 }
 
-func (_c *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call) RunAndReturn(run func(ctx *models.Context, userID string) (int64, *store.DBError)) *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call {
+func (_c *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call) RunAndReturn(run func(ctx *models.Context, userID string) (int64, *models.DBError)) *MockUsersStore_TokensDeleteAllPasswordResetByUserID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // TokensGet provides a mock function for the type MockUsersStore
-func (_mock *MockUsersStore) TokensGet(ctx *models.Context, tokenID string) (*v1.Token, *store.DBError) {
+func (_mock *MockUsersStore) TokensGet(ctx *models.Context, tokenID string) (*v1.Token, *models.DBError) {
 	ret := _mock.Called(ctx, tokenID)
 
 	if len(ret) == 0 {
@@ -317,8 +317,8 @@ func (_mock *MockUsersStore) TokensGet(ctx *models.Context, tokenID string) (*v1
 	}
 
 	var r0 *v1.Token
-	var r1 *store.DBError
-	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) (*v1.Token, *store.DBError)); ok {
+	var r1 *models.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) (*v1.Token, *models.DBError)); ok {
 		return returnFunc(ctx, tokenID)
 	}
 	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) *v1.Token); ok {
@@ -328,11 +328,11 @@ func (_mock *MockUsersStore) TokensGet(ctx *models.Context, tokenID string) (*v1
 			r0 = ret.Get(0).(*v1.Token)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *store.DBError); ok {
+	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *models.DBError); ok {
 		r1 = returnFunc(ctx, tokenID)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(*store.DBError)
+			r1 = ret.Get(1).(*models.DBError)
 		}
 	}
 	return r0, r1
@@ -368,18 +368,18 @@ func (_c *MockUsersStore_TokensGet_Call) Run(run func(ctx *models.Context, token
 	return _c
 }
 
-func (_c *MockUsersStore_TokensGet_Call) Return(token *v1.Token, dBError *store.DBError) *MockUsersStore_TokensGet_Call {
+func (_c *MockUsersStore_TokensGet_Call) Return(token *v1.Token, dBError *models.DBError) *MockUsersStore_TokensGet_Call {
 	_c.Call.Return(token, dBError)
 	return _c
 }
 
-func (_c *MockUsersStore_TokensGet_Call) RunAndReturn(run func(ctx *models.Context, tokenID string) (*v1.Token, *store.DBError)) *MockUsersStore_TokensGet_Call {
+func (_c *MockUsersStore_TokensGet_Call) RunAndReturn(run func(ctx *models.Context, tokenID string) (*v1.Token, *models.DBError)) *MockUsersStore_TokensGet_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // TokensGetAllByUserID provides a mock function for the type MockUsersStore
-func (_mock *MockUsersStore) TokensGetAllByUserID(ctx *models.Context, userID string) ([]*v1.Token, *store.DBError) {
+func (_mock *MockUsersStore) TokensGetAllByUserID(ctx *models.Context, userID string) ([]*v1.Token, *models.DBError) {
 	ret := _mock.Called(ctx, userID)
 
 	if len(ret) == 0 {
@@ -387,8 +387,8 @@ func (_mock *MockUsersStore) TokensGetAllByUserID(ctx *models.Context, userID st
 	}
 
 	var r0 []*v1.Token
-	var r1 *store.DBError
-	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) ([]*v1.Token, *store.DBError)); ok {
+	var r1 *models.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) ([]*v1.Token, *models.DBError)); ok {
 		return returnFunc(ctx, userID)
 	}
 	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) []*v1.Token); ok {
@@ -398,11 +398,11 @@ func (_mock *MockUsersStore) TokensGetAllByUserID(ctx *models.Context, userID st
 			r0 = ret.Get(0).([]*v1.Token)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *store.DBError); ok {
+	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *models.DBError); ok {
 		r1 = returnFunc(ctx, userID)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(*store.DBError)
+			r1 = ret.Get(1).(*models.DBError)
 		}
 	}
 	return r0, r1
@@ -438,18 +438,18 @@ func (_c *MockUsersStore_TokensGetAllByUserID_Call) Run(run func(ctx *models.Con
 	return _c
 }
 
-func (_c *MockUsersStore_TokensGetAllByUserID_Call) Return(tokens []*v1.Token, dBError *store.DBError) *MockUsersStore_TokensGetAllByUserID_Call {
+func (_c *MockUsersStore_TokensGetAllByUserID_Call) Return(tokens []*v1.Token, dBError *models.DBError) *MockUsersStore_TokensGetAllByUserID_Call {
 	_c.Call.Return(tokens, dBError)
 	return _c
 }
 
-func (_c *MockUsersStore_TokensGetAllByUserID_Call) RunAndReturn(run func(ctx *models.Context, userID string) ([]*v1.Token, *store.DBError)) *MockUsersStore_TokensGetAllByUserID_Call {
+func (_c *MockUsersStore_TokensGetAllByUserID_Call) RunAndReturn(run func(ctx *models.Context, userID string) ([]*v1.Token, *models.DBError)) *MockUsersStore_TokensGetAllByUserID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UsersGetByEmail provides a mock function for the type MockUsersStore
-func (_mock *MockUsersStore) UsersGetByEmail(ctx *models.Context, email string) (*v1.User, *store.DBError) {
+func (_mock *MockUsersStore) UsersGetByEmail(ctx *models.Context, email string) (*v1.User, *models.DBError) {
 	ret := _mock.Called(ctx, email)
 
 	if len(ret) == 0 {
@@ -457,8 +457,8 @@ func (_mock *MockUsersStore) UsersGetByEmail(ctx *models.Context, email string) 
 	}
 
 	var r0 *v1.User
-	var r1 *store.DBError
-	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) (*v1.User, *store.DBError)); ok {
+	var r1 *models.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) (*v1.User, *models.DBError)); ok {
 		return returnFunc(ctx, email)
 	}
 	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) *v1.User); ok {
@@ -468,11 +468,11 @@ func (_mock *MockUsersStore) UsersGetByEmail(ctx *models.Context, email string) 
 			r0 = ret.Get(0).(*v1.User)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *store.DBError); ok {
+	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *models.DBError); ok {
 		r1 = returnFunc(ctx, email)
 	} else {
 		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(*store.DBError)
+			r1 = ret.Get(1).(*models.DBError)
 		}
 	}
 	return r0, r1
@@ -508,12 +508,12 @@ func (_c *MockUsersStore_UsersGetByEmail_Call) Run(run func(ctx *models.Context,
 	return _c
 }
 
-func (_c *MockUsersStore_UsersGetByEmail_Call) Return(user *v1.User, dBError *store.DBError) *MockUsersStore_UsersGetByEmail_Call {
+func (_c *MockUsersStore_UsersGetByEmail_Call) Return(user *v1.User, dBError *models.DBError) *MockUsersStore_UsersGetByEmail_Call {
 	_c.Call.Return(user, dBError)
 	return _c
 }
 
-func (_c *MockUsersStore_UsersGetByEmail_Call) RunAndReturn(run func(ctx *models.Context, email string) (*v1.User, *store.DBError)) *MockUsersStore_UsersGetByEmail_Call {
+func (_c *MockUsersStore_UsersGetByEmail_Call) RunAndReturn(run func(ctx *models.Context, email string) (*v1.User, *models.DBError)) *MockUsersStore_UsersGetByEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }

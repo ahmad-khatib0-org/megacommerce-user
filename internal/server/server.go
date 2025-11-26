@@ -7,14 +7,14 @@ import (
 	"sync"
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/logger"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/common"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/controller"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/mailer"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/minio/minio-go/v7"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -28,7 +28,6 @@ type Server struct {
 	errors         chan *models.InternalError
 	objectStorage  *minio.Client
 	tracerProvider *sdktrace.TracerProvider
-	metrics        *grpcprom.ServerMetrics
 	log            *logger.Logger
 	dbConn         *pgxpool.Pool
 	dbStore        store.UsersStore
@@ -38,7 +37,7 @@ type Server struct {
 
 type ServerArgs struct {
 	Log *logger.Logger
-	Cfg *models.Config
+	Cfg *intModels.Config
 }
 
 func RunServer(s *ServerArgs) error {
@@ -57,9 +56,7 @@ func RunServer(s *ServerArgs) error {
 
 	app.initSharedConfig()
 	app.initTrans()
-	app.initTracerProvider(ctx)
 	app.initObjectStorage()
-	app.initMetrics()
 
 	app.initDB()
 	defer app.dbConn.Close()
@@ -73,7 +70,6 @@ func RunServer(s *ServerArgs) error {
 		Store:          app.dbStore,
 		ObjStorage:     app.objectStorage,
 		TracerProvider: app.tracerProvider,
-		Metrics:        app.metrics,
 		Log:            app.log,
 		Tasker:         app.tasker,
 	})

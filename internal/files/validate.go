@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
 	"github.com/gabriel-vasile/mimetype"
 )
 

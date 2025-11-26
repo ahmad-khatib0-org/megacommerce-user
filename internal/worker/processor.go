@@ -5,9 +5,9 @@ import (
 	"time"
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/logger"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/mailer"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/logger"
 	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
 	"github.com/hibiken/asynq"
 )

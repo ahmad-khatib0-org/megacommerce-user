@@ -2,9 +2,10 @@ package server
 
 import (
 	"context"
+	"strings"
 	"time"
 
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -18,9 +19,10 @@ func (s *Server) initObjectStorage() {
 	defer cancel()
 
 	done := make(chan struct{})
+	endpoint := strings.TrimPrefix(strings.TrimPrefix(config.GetAmazonS3Endpoint(), "http://"), "https://")
 
 	go func() {
-		client, err := minio.New(config.GetAmazonS3Endpoint(), &minio.Options{
+		client, err := minio.New(endpoint, &minio.Options{
 			Creds:  credentials.NewStaticV4(config.GetAmazonS3AccessKeyId(), config.GetAmazonS3SecretAccessKey(), ""),
 			Secure: config.GetAmazonS3Ssl(),
 		})

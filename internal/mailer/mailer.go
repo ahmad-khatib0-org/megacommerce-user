@@ -5,8 +5,8 @@ import (
 	"time"
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
 	"github.com/k3a/html2text"
 	"github.com/throttled/throttled/v2"
 	"github.com/vanng822/go-premailer/premailer"

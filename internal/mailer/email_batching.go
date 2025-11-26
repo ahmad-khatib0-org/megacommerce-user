@@ -4,7 +4,7 @@ import (
 	"sync"
 
 	com "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/common/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
 )
 
 type EmailBatchingJob struct {

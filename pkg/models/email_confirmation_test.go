@@ -5,7 +5,8 @@ import (
 	"time"
 
 	v1 "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
-	"github.com/ahmad-khatib0-org/megacommerce-user/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,7 +29,7 @@ func getValidEmailConfirmationRequet(t *testing.T, hours uint) *v1.EmailConfirma
 
 func TestEmailConfirmationIsValid(t *testing.T) {
 	hours := 24
-	ctx := ContextForTesting()
+	ctx := models.ContextForTesting()
 
 	t.Run("invalid email ", func(t *testing.T) {
 		req := getValidEmailConfirmationRequet(t, uint(hours))
