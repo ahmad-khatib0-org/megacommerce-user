@@ -61,8 +61,6 @@ func AttachmentsValidateSizeAndTypes(cfg *AttachmentValidationConfig) *Attachmen
 		}
 
 		mime := mimetype.Detect(data)
-		fmt.Println(mime)
-		fmt.Println(len(file.GetBase64()))
 		allowed := false
 		for _, at := range allowedTypes {
 			if strings.HasPrefix(mime.String(), at) {

@@ -64,12 +64,15 @@ func (c *Controller) Login(context ctxPkg.Context, req *pb.LoginRequest) (*pb.Lo
 
 	// TODO: handle if this user is using mobile or not
 	expiry := c.config().Security.GetAccessTokenExpiryWebInHours()
-	fmt.Println(expiry)
 	body := map[string]any{
 		"subject":      user.GetId(),
 		"remember":     true,
 		"remember_for": expiry * 60 * 60,
-		"context":      map[string]any{"lang": ctx.AcceptLanguage},
+		"context": map[string]any{
+			"lang":       ctx.AcceptLanguage,
+			"email":      user.GetEmail(),
+			"first_name": user.GetFirstName(),
+		},
 	}
 
 	oauthPayload, marErr := json.Marshal(body)

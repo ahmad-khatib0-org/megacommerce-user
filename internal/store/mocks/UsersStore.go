@@ -98,6 +98,71 @@ func (_c *MockUsersStore_MarkEmailAsConfirmed_Call) RunAndReturn(run func(ctx *m
 	return _c
 }
 
+// SignupCustomer provides a mock function for the type MockUsersStore
+func (_mock *MockUsersStore) SignupCustomer(ctx *models.Context, c *v1.User, token *utils.Token) *models.DBError {
+	ret := _mock.Called(ctx, c, token)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SignupCustomer")
+	}
+
+	var r0 *models.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, *v1.User, *utils.Token) *models.DBError); ok {
+		r0 = returnFunc(ctx, c, token)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.DBError)
+		}
+	}
+	return r0
+}
+
+// MockUsersStore_SignupCustomer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SignupCustomer'
+type MockUsersStore_SignupCustomer_Call struct {
+	*mock.Call
+}
+
+// SignupCustomer is a helper method to define mock.On call
+//   - ctx *models.Context
+//   - c *v1.User
+//   - token *utils.Token
+func (_e *MockUsersStore_Expecter) SignupCustomer(ctx interface{}, c interface{}, token interface{}) *MockUsersStore_SignupCustomer_Call {
+	return &MockUsersStore_SignupCustomer_Call{Call: _e.mock.On("SignupCustomer", ctx, c, token)}
+}
+
+func (_c *MockUsersStore_SignupCustomer_Call) Run(run func(ctx *models.Context, c *v1.User, token *utils.Token)) *MockUsersStore_SignupCustomer_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *models.Context
+		if args[0] != nil {
+			arg0 = args[0].(*models.Context)
+		}
+		var arg1 *v1.User
+		if args[1] != nil {
+			arg1 = args[1].(*v1.User)
+		}
+		var arg2 *utils.Token
+		if args[2] != nil {
+			arg2 = args[2].(*utils.Token)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUsersStore_SignupCustomer_Call) Return(dBError *models.DBError) *MockUsersStore_SignupCustomer_Call {
+	_c.Call.Return(dBError)
+	return _c
+}
+
+func (_c *MockUsersStore_SignupCustomer_Call) RunAndReturn(run func(ctx *models.Context, c *v1.User, token *utils.Token) *models.DBError) *MockUsersStore_SignupCustomer_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SignupSupplier provides a mock function for the type MockUsersStore
 func (_mock *MockUsersStore) SignupSupplier(ctx *models.Context, s *v1.User, token *utils.Token) *models.DBError {
 	ret := _mock.Called(ctx, s, token)

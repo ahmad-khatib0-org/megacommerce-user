@@ -4,6 +4,7 @@ type EventName string
 
 const (
 	EventNameSupplierCreate    = "supplier_create"
+	EventNameCustomerCreate    = "customer_create"
 	EventNameEmailConfirmation = "email_confirmation"
 	EventNamePasswordForgot    = "password_forgot"
 	EventNameLogin             = "login"

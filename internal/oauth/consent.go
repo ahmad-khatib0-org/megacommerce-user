@@ -67,9 +67,17 @@ func (oa *OAuth) Consent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	email := ""
+	firstName := ""
 	if consentRequest.Context != nil {
 		if v, ok := consentRequest.Context["lang"].(string); ok && v != "" {
 			lang = v
+		}
+		if v, ok := consentRequest.Context["email"].(string); ok && v != "" {
+			email = v
+		}
+		if v, ok := consentRequest.Context["first_name"].(string); ok && v != "" {
+			firstName = v
 		}
 	}
 
@@ -81,7 +89,7 @@ func (oa *OAuth) Consent(w http.ResponseWriter, r *http.Request) {
 		"remember":                    true,
 		"remember_for":                expiry * 60 * 60,
 		"session": map[string]any{
-			"id_token": map[string]any{"email": consentRequest.Subject},
+			"id_token": map[string]any{"email": email, "first_name": firstName},
 		},
 	}
 

@@ -10,6 +10,7 @@ import (
 
 type UsersStore interface {
 	SignupSupplier(ctx *models.Context, s *pb.User, token *utils.Token) *models.DBError
+	SignupCustomer(ctx *models.Context, c *pb.User, token *utils.Token) *models.DBError
 	MarkEmailAsConfirmed(ctx *models.Context, tokenID string) *models.DBError
 	UsersGetByEmail(ctx *models.Context, email string) (*pb.User, *models.DBError)
 	TokensGet(ctx *models.Context, tokenID string) (*pb.Token, *models.DBError)

@@ -1,0 +1,128 @@
+package controller
+
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"time"
+
+	shPb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/shared/v1"
+	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
+	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-user/internal/files"
+	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
+	intModels "github.com/ahmad-khatib0-org/megacommerce-user/pkg/models"
+	"github.com/hibiken/asynq"
+	"github.com/minio/minio-go/v7"
+	"github.com/oklog/ulid/v2"
+	"google.golang.org/grpc/codes"
+)
+
+func (c *Controller) CreateCustomer(context context.Context, req *pb.CustomerCreateRequest) (*pb.CustomerCreateResponse, error) {
+	path := "user.controller.SignupCustomer"
+	errBuilder := func(e *models.AppError) (*pb.CustomerCreateResponse, error) {
+		return &pb.CustomerCreateResponse{Response: &pb.CustomerCreateResponse_Error{Error: models.AppErrorToProto(e)}}, nil
+	}
+	ctx, err := models.ContextGet(context)
+	if err != nil {
+		return errBuilder(err)
+	}
+
+	internalErr := func(err error) *models.AppError {
+		c.log.ErrorStruct("an error occurred", err)
+		return models.NewAppError(ctx, path, models.ErrMsgInternal, nil, "", int(codes.Internal), &models.AppErrorErrorsArgs{Err: err})
+	}
+
+	ar := models.AuditRecordNew(ctx, intModels.EventNameCustomerCreate, models.EventStatusFail)
+	models.AuditEventDataParameter(ar, "customer", intModels.SignupCustomerRequestAuditable(req))
+	defer c.ProcessAudit(ar)
+
+	sanitized := intModels.SignupCustomerRequestSanitize(req)
+	if err = intModels.SignupCustomerRequestIsValid(ctx, sanitized, c.config().Password); err != nil {
+		return errBuilder(err)
+	}
+
+	if sanitized.Image != nil {
+		if imgErr := files.AttachmentsValidateSizeAndTypes(&files.AttachmentValidationConfig{
+			Files:        []*shPb.Attachment{sanitized.Image},
+			MaxSize:      intModels.UserImageMaxSizeBytes,
+			AllowedTypes: intModels.UserImageAllowedTypes,
+			Unit:         files.FileSizeUnitMB,
+		}); imgErr != nil {
+			errors := &models.AppErrorErrorsArgs{ErrorsInternal: map[string]*models.AppErrorError{"image": imgErr.Err}}
+			err = models.NewAppError(ctx, path, imgErr.Err.ID, imgErr.Err.Params, "", int(codes.InvalidArgument), errors)
+			return errBuilder(err)
+		}
+	}
+
+	dbPay, err := intModels.SignupCustomerRequestPreSave(
+		ctx,
+		&pb.User{
+			Username:  utils.NewPointer(sanitized.GetUsername()),
+			FirstName: utils.NewPointer(sanitized.GetFirstName()),
+			LastName:  utils.NewPointer(sanitized.GetLastName()),
+			Email:     utils.NewPointer(sanitized.GetEmail()),
+			Password:  utils.NewPointer(req.GetPassword()),
+		},
+	)
+	if err != nil {
+		return errBuilder(err)
+	}
+
+	token := &utils.Token{}
+	tokenData, errTok := token.GenerateToken(time.Duration(time.Hour * time.Duration(c.config().Security.GetTokenConfirmationExpiryInHours())))
+	if errTok != nil {
+		return errBuilder(internalErr(errTok))
+	}
+
+	if sanitized.GetImage() != nil {
+		imgContent := sanitized.GetImage().GetData()
+		imgName := ulid.Make().String()
+		_, imgErr := c.objStorage.PutObject(ctx.Context, c.config().File.GetAmazonS3Bucket(), imgName, bytes.NewReader(imgContent), int64(len(imgContent)), minio.PutObjectOptions{
+			ContentType: sanitized.GetImage().GetMime(),
+		})
+		if imgErr != nil {
+			return errBuilder(internalErr(imgErr))
+		}
+
+		dbPay.Image = utils.NewPointer(fmt.Sprintf("%s/%s", c.config().File.GetAmazonS3Bucket(), imgName))
+		im := &pb.UserImageMetadata{
+			Mime:      sanitized.Image.Mime,
+			Height:    int32(sanitized.Image.Crop.Height),
+			Widht:     int32(sanitized.Image.Crop.Width),
+			SizeBytes: int64(sanitized.Image.FileSize),
+		}
+		dbPay.ImageMetadata = im
+	}
+
+	if err := c.store.SignupCustomer(ctx, dbPay, tokenData); err != nil {
+		if err.ErrType == models.DBErrorTypeUniqueViolation {
+			id := "user.create.email.not_unique"
+			details := fmt.Sprintf("the email %s is already in use", dbPay.GetEmail())
+			errors := &models.AppErrorErrorsArgs{Err: err, ErrorsInternal: map[string]*models.AppErrorError{"email": {ID: id}}}
+			return errBuilder(models.NewAppError(ctx, path, id, nil, details, int(codes.AlreadyExists), errors))
+		} else {
+			return errBuilder(internalErr(err))
+		}
+	}
+
+	options := []asynq.Option{asynq.MaxRetry(10), asynq.ProcessIn(time.Second * 10), asynq.Queue(worker.QueuePriorityCritical)}
+	taskPayload := &intModels.TaskSendVerifyEmailPayload{
+		Ctx:     ctx,
+		Email:   dbPay.GetEmail(),
+		Token:   tokenData.Token,
+		TokenID: tokenData.ID,
+		Hours:   int(c.config().Security.GetTokenConfirmationExpiryInHours()),
+	}
+
+	if err := c.tasker.SendVerifyEmail(context, taskPayload, options...); err != nil {
+		return errBuilder(internalErr(err))
+	}
+
+	ar.AuditEventDataResultState(intModels.SignupCustomerRequestResultState(dbPay))
+	ar.Success()
+
+	msg := models.Tr(ctx.AcceptLanguage, "account.create.success", nil)
+	return &pb.CustomerCreateResponse{Response: &pb.CustomerCreateResponse_Data{Data: &shPb.SuccessResponseData{Message: &msg}}}, nil
+}

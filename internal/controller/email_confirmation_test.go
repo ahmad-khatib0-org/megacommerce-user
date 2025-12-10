@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -59,7 +58,6 @@ func getValidEmailConfirmationRequest(t *testing.T, hours uint) *pb.EmailConfirm
 
 func TestEmailConfirmation(t *testing.T) {
 	th, err := NewTestHelper(t)
-	fmt.Println(err)
 	require.Nil(t, err)
 	defer th.TearDown()
 
