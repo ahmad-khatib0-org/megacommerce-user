@@ -48,6 +48,13 @@ func (ds *DBStore) UsersGetByEmail(ctx *models.Context, email string) (*usersPb.
 	return ds.scanUser(ctx, row, path)
 }
 
+func (ds *DBStore) UsersGetByID(ctx *models.Context, userID string) (*usersPb.User, *models.DBError) {
+	path := "users.store.UsersGetByID"
+	row := ds.db.QueryRow(ctx.Context, fmt.Sprintf("%s %s", SelectUserStatment, "WHERE id = $1"), userID)
+
+	return ds.scanUser(ctx, row, path)
+}
+
 // scanUser scans the whole user row given by a pgx.Row result
 func (ds *DBStore) scanUser(ctx *models.Context, row pgx.Row, path string) (*usersPb.User, *models.DBError) {
 	user := &usersPb.User{}

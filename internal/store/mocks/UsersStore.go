@@ -582,3 +582,73 @@ func (_c *MockUsersStore_UsersGetByEmail_Call) RunAndReturn(run func(ctx *models
 	_c.Call.Return(run)
 	return _c
 }
+
+// UsersGetByID provides a mock function for the type MockUsersStore
+func (_mock *MockUsersStore) UsersGetByID(ctx *models.Context, userID string) (*v1.User, *models.DBError) {
+	ret := _mock.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UsersGetByID")
+	}
+
+	var r0 *v1.User
+	var r1 *models.DBError
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) (*v1.User, *models.DBError)); ok {
+		return returnFunc(ctx, userID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(*models.Context, string) *v1.User); ok {
+		r0 = returnFunc(ctx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1.User)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(*models.Context, string) *models.DBError); ok {
+		r1 = returnFunc(ctx, userID)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*models.DBError)
+		}
+	}
+	return r0, r1
+}
+
+// MockUsersStore_UsersGetByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UsersGetByID'
+type MockUsersStore_UsersGetByID_Call struct {
+	*mock.Call
+}
+
+// UsersGetByID is a helper method to define mock.On call
+//   - ctx *models.Context
+//   - userID string
+func (_e *MockUsersStore_Expecter) UsersGetByID(ctx interface{}, userID interface{}) *MockUsersStore_UsersGetByID_Call {
+	return &MockUsersStore_UsersGetByID_Call{Call: _e.mock.On("UsersGetByID", ctx, userID)}
+}
+
+func (_c *MockUsersStore_UsersGetByID_Call) Run(run func(ctx *models.Context, userID string)) *MockUsersStore_UsersGetByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *models.Context
+		if args[0] != nil {
+			arg0 = args[0].(*models.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUsersStore_UsersGetByID_Call) Return(user *v1.User, dBError *models.DBError) *MockUsersStore_UsersGetByID_Call {
+	_c.Call.Return(user, dBError)
+	return _c
+}
+
+func (_c *MockUsersStore_UsersGetByID_Call) RunAndReturn(run func(ctx *models.Context, userID string) (*v1.User, *models.DBError)) *MockUsersStore_UsersGetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
