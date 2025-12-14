@@ -9,6 +9,7 @@ const (
 	EventNamePasswordForgot     = "password_forgot"
 	EventNameLogin              = "login"
 	EventNameCustomerProfileGet = "customer_profile_get"
+	EventNameSupplierProfileGet = "supplier_profile_get"
 )
 
 type TokenType string

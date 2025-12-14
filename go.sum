@@ -8,6 +8,8 @@ github.com/ahmad-khatib0-org/megacommerce-proto v0.4.54 h1:KjVvoTG8WEefYzQk8554I
 github.com/ahmad-khatib0-org/megacommerce-proto v0.4.54/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.4.57 h1:vQVP+/DGgXWo1qGXjmy9WEh6gUJbMP99K7Hn6WSNX0I=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.4.57/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.4.59 h1:fWw5U2oZPqf75esSzkoReDnGc4vIv3/9qeXRyqtASyA=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.4.59/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/ahmad-khatib0-org/megacommerce-shared-go v0.1.21 h1:MfuL5LlOgLBk4MgxqbIu+SEkPys1XLwJtswk5hrign4=
 github.com/ahmad-khatib0-org/megacommerce-shared-go v0.1.21/go.mod h1:IRj0OGBPXuCiFjRNwBekFRhidZ95NlBLjOz+DjqSuIU=
 github.com/andybalholm/cascadia v1.3.3 h1:AG2YHrzJIm4BZ19iwJ/DAua6Btl3IwJX+VI4kktS1LM=
