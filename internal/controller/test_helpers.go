@@ -179,7 +179,7 @@ func (th *TestHelper) initServiceConfig() *models.InternalError {
 }
 
 func (th *TestHelper) initSharedConfig() *models.InternalError {
-	config, err := th.common.ConfigGet()
+	config, err := th.common.ConfigGet(com.Environment_LOCAL)
 	if err != nil {
 		return &models.InternalError{Err: err, Msg: "failed to initialize shared config", Path: "users.controller.initSharedConfig"}
 	}
@@ -192,7 +192,6 @@ func (th *TestHelper) initCommonService() *models.InternalError {
 	if err != nil {
 		return &models.InternalError{Err: err, Msg: "failed to initialize common service client", Path: "users.controller.initCommonService"}
 	}
-
 	th.common = srv
 	return nil
 }
@@ -202,7 +201,6 @@ func (th *TestHelper) initTrans() *models.InternalError {
 	if err != nil {
 		return err
 	}
-
 	if err := models.TranslationsInit(trans, th.config().GetLocalization().GetDefaultClientLocale()); err != nil {
 		return &models.InternalError{Err: err, Msg: "failed to init translations", Path: "user.controller.initTrans"}
 	}

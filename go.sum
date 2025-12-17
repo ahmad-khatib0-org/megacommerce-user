@@ -14,6 +14,8 @@ github.com/ahmad-khatib0-org/megacommerce-proto v0.4.60 h1:3551U4TlaNcEYFB9XL0bz
 github.com/ahmad-khatib0-org/megacommerce-proto v0.4.60/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.4.62 h1:SYBnPslP4+OtKbF3ssTxHJB9l70FsTAvN9xg32w2Fvg=
 github.com/ahmad-khatib0-org/megacommerce-proto v0.4.62/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.4.65 h1:luANTN/VGBrqgxnYW82UwNQ+cOh0sNm42VRn0MzlrT0=
+github.com/ahmad-khatib0-org/megacommerce-proto v0.4.65/go.mod h1:SlGKyd2+oVzcuzhBg6yzo4bUufJ0LVrF/oXK9aFaJwg=
 github.com/ahmad-khatib0-org/megacommerce-shared-go v0.1.21 h1:MfuL5LlOgLBk4MgxqbIu+SEkPys1XLwJtswk5hrign4=
 github.com/ahmad-khatib0-org/megacommerce-shared-go v0.1.21/go.mod h1:IRj0OGBPXuCiFjRNwBekFRhidZ95NlBLjOz+DjqSuIU=
 github.com/ahmad-khatib0-org/megacommerce-shared-go v0.1.22 h1:G+ZZCGPEb5ap+NfHEYJSzAZmbH8NmqARcKi2wHMI4n8=

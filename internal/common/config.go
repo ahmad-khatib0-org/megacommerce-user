@@ -9,18 +9,31 @@ import (
 	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
 )
 
-func (cc *CommonClient) ConfigGet() (*com.Config, *models.InternalError) {
+func (cc *CommonClient) GetServiceEnv() com.Environment {
+	env := cc.cfg.Service.Env
+	switch env {
+	case "local":
+		return com.Environment_LOCAL
+	case "dev":
+		return com.Environment_DEV
+	case "production":
+		return com.Environment_PRODUCTION
+	default:
+		return com.Environment_DEV
+	}
+}
+
+func (cc *CommonClient) ConfigGet(env com.Environment) (*com.Config, *models.InternalError) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	res, err := cc.client.ConfigGet(ctx, &com.ConfigGetRequest{})
+	res, err := cc.client.ConfigGet(ctx, &com.ConfigGetRequest{Env: env})
+	ie := func(err error, msg string) (*com.Config, *models.InternalError) {
+		return nil, &models.InternalError{Err: err, Msg: msg, Path: "user.common.ConfigGet"}
+	}
+
 	if err != nil {
-		return nil, &models.InternalError{
-			Temp: false,
-			Err:  err,
-			Msg:  "failed to get configurations from common service",
-			Path: "user.common.ConfigGet",
-		}
+		return ie(err, "failed to get configurations from common service")
 	}
 
 	switch res := res.Response.(type) {
@@ -28,12 +41,7 @@ func (cc *CommonClient) ConfigGet() (*com.Config, *models.InternalError) {
 		return res.Data, nil
 	case *com.ConfigGetResponse_Error:
 		err := models.AppErrorFromProto(nil, res.Error) // no need for ctx here
-		return nil, &models.InternalError{
-			Temp: false,
-			Err:  err,
-			Msg:  "failed to get configurations from common service",
-			Path: "user.common.ConfigGet",
-		}
+		return ie(err, "failed to get configurations from common service")
 	}
 
 	return nil, nil
@@ -45,13 +53,9 @@ func (cc *CommonClient) ConfigListener(clientID string) *models.InternalError {
 	defer cancel()
 
 	stream, err := cc.client.ConfigListener(ctx, &com.ConfigListenerRequest{ClientId: clientID})
+	path := "user.common.ConfigListener"
 	if err != nil {
-		return &models.InternalError{
-			Temp: false,
-			Err:  err,
-			Msg:  "failed to register a listener call",
-			Path: "user.common.ConfigListener",
-		}
+		return &models.InternalError{Err: err, Msg: "failed to register a listener call", Path: path}
 	}
 
 	for {
