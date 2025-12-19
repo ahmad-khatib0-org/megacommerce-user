@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"time"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
@@ -10,6 +11,7 @@ import (
 )
 
 func (c *Controller) GetSupplierDashboard(context context.Context, req *pb.DashboardRequest) (*pb.DashboardResponse, error) {
+	start := time.Now()
 	path := "user.controller.GetSupplierDashboard"
 	errBuilder := func(e *models.AppError) (*pb.DashboardResponse, error) {
 		return &pb.DashboardResponse{Response: &pb.DashboardResponse_Error{Error: models.AppErrorToProto(e)}}, nil
@@ -17,6 +19,8 @@ func (c *Controller) GetSupplierDashboard(context context.Context, req *pb.Dashb
 
 	ctx, err := models.ContextGet(context)
 	if err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordDashboardGetRequest(false, duration)
 		return errBuilder(err)
 	}
 
@@ -26,11 +30,15 @@ func (c *Controller) GetSupplierDashboard(context context.Context, req *pb.Dashb
 	// Get user ID from context session
 	userID := ctx.Session.UserID
 	if userID == "" {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordDashboardGetRequest(false, duration)
 		return errBuilder(models.NewAppError(ctx, path, "error.unauthenticated", nil, "user not authenticated", int(codes.Unauthenticated), nil))
 	}
 
 	user, dbErr := c.store.UsersGetByID(ctx, userID)
 	if dbErr != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordDashboardGetRequest(false, duration)
 		if dbErr.ErrType == models.DBErrorTypeNoRows {
 			return errBuilder(models.NewAppError(ctx, path, "error.not_found", nil, "supplier not found", int(codes.NotFound), nil))
 		}
@@ -39,6 +47,8 @@ func (c *Controller) GetSupplierDashboard(context context.Context, req *pb.Dashb
 
 	// Verify user is a supplier
 	if !isSupplier(user) {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordDashboardGetRequest(false, duration)
 		return errBuilder(models.NewAppError(ctx, path, "error.permission_denied", nil, "user is not a supplier", int(codes.PermissionDenied), nil))
 	}
 
@@ -64,6 +74,9 @@ func (c *Controller) GetSupplierDashboard(context context.Context, req *pb.Dashb
 
 	// Generate random data for now
 	mockStats := generateMockDashboardStats()
+
+	duration := time.Since(start).Seconds()
+	c.metricsCollector.RecordDashboardGetRequest(true, duration)
 
 	return &pb.DashboardResponse{Response: &pb.DashboardResponse_Data{Data: mockStats}}, nil
 }

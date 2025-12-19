@@ -20,12 +20,15 @@ import (
 )
 
 func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCreateRequest) (*pb.SupplierCreateResponse, error) {
+	start := time.Now()
 	path := "user.controller.SignupSupplier"
 	errBuilder := func(e *models.AppError) (*pb.SupplierCreateResponse, error) {
 		return &pb.SupplierCreateResponse{Response: &pb.SupplierCreateResponse_Error{Error: models.AppErrorToProto(e)}}, nil
 	}
 	ctx, err := models.ContextGet(context)
 	if err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordSupplierCreateRequest(false, duration)
 		return errBuilder(err)
 	}
 
@@ -40,6 +43,8 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 
 	sanitized := intModels.SignupSupplierRequestSanitize(req)
 	if err = intModels.SignupSupplierRequestIsValid(ctx, sanitized, c.config().Password); err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordSupplierCreateRequest(false, duration)
 		return errBuilder(err)
 	}
 
@@ -50,6 +55,8 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 			AllowedTypes: intModels.UserImageAllowedTypes,
 			Unit:         files.FileSizeUnitMB,
 		}); imgErr != nil {
+			duration := time.Since(start).Seconds()
+			c.metricsCollector.RecordSupplierCreateRequest(false, duration)
 			errors := &models.AppErrorErrorsArgs{ErrorsInternal: map[string]*models.AppErrorError{"image": imgErr.Err}}
 			err = models.NewAppError(ctx, path, imgErr.Err.ID, imgErr.Err.Params, "", int(codes.InvalidArgument), errors)
 			return errBuilder(err)
@@ -69,12 +76,16 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 		},
 	)
 	if err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordSupplierCreateRequest(false, duration)
 		return errBuilder(err)
 	}
 
 	token := &utils.Token{}
 	tokenData, errTok := token.GenerateToken(time.Duration(time.Hour * time.Duration(c.config().Security.GetTokenConfirmationExpiryInHours())))
 	if errTok != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordSupplierCreateRequest(false, duration)
 		return errBuilder(internalErr(errTok))
 	}
 
@@ -85,6 +96,8 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 			ContentType: sanitized.GetImage().GetMime(),
 		})
 		if imgErr != nil {
+			duration := time.Since(start).Seconds()
+			c.metricsCollector.RecordSupplierCreateRequest(false, duration)
 			return errBuilder(internalErr(err))
 		}
 
@@ -99,6 +112,8 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 	}
 
 	if err := c.store.SignupSupplier(ctx, dbPay, tokenData); err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordSupplierCreateRequest(false, duration)
 		if err.ErrType == models.DBErrorTypeUniqueViolation {
 			id := "user.create.email.not_unique"
 			details := fmt.Sprintf("the email %s is already in use", dbPay.GetEmail())
@@ -120,11 +135,16 @@ func (c *Controller) CreateSupplier(context context.Context, req *pb.SupplierCre
 
 	// TODO: handle error
 	if err := c.tasker.SendVerifyEmail(context, taskPayload, optoins...); err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordSupplierCreateRequest(false, duration)
 		return errBuilder(internalErr(err))
 	}
 
 	ar.AuditEventDataResultState(intModels.SignupSupplierRequestResultState(dbPay))
 	ar.Success()
+
+	duration := time.Since(start).Seconds()
+	c.metricsCollector.RecordSupplierCreateRequest(true, duration)
 
 	msg := models.Tr(ctx.AcceptLanguage, "account.create.success", nil)
 	return &pb.SupplierCreateResponse{Response: &pb.SupplierCreateResponse_Data{Data: &shPb.SuccessResponseData{Message: &msg}}}, nil

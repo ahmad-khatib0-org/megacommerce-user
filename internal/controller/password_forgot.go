@@ -16,6 +16,7 @@ import (
 )
 
 func (c *Controller) PasswordForgot(context context.Context, req *usersPb.PasswordForgotRequest) (*usersPb.PasswordForgotResponse, error) {
+	start := time.Now()
 	path := "users.controller.PasswordForgot"
 	errBuilder := func(e *models.AppError) (*usersPb.PasswordForgotResponse, error) {
 		return &usersPb.PasswordForgotResponse{Response: &usersPb.PasswordForgotResponse_Error{Error: models.AppErrorToProto(e)}}, nil
@@ -29,11 +30,15 @@ func (c *Controller) PasswordForgot(context context.Context, req *usersPb.Passwo
 
 	ctx, err := models.ContextGet(context)
 	if err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordPasswordForgotRequest(false, duration)
 		return errBuilder(err)
 	}
 
 	email := req.GetEmail()
 	if !utils.IsValidEmail(email) {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordPasswordForgotRequest(false, duration)
 		details := fmt.Sprintf("invalid email: %s ", email)
 		return errBuilder(models.NewAppError(ctx, path, "email.invalid", nil, details, int(codes.InvalidArgument), nil))
 	}
@@ -44,6 +49,8 @@ func (c *Controller) PasswordForgot(context context.Context, req *usersPb.Passwo
 
 	user, dbErr := c.store.UsersGetByEmail(ctx, email)
 	if dbErr != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordPasswordForgotRequest(false, duration)
 		if dbErr.ErrType == models.DBErrorTypeNoRows {
 			return errBuilder(models.NewAppError(ctx, path, "email.not_found", nil, dbErr.Details, int(codes.NotFound), &models.AppErrorErrorsArgs{Err: dbErr}))
 		} else {
@@ -53,22 +60,30 @@ func (c *Controller) PasswordForgot(context context.Context, req *usersPb.Passwo
 
 	// SSO account has no password
 	if user.GetAuthData() != "" {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordPasswordForgotRequest(false, duration)
 		return errBuilder(models.NewAppError(ctx, path, "forgot.password.sso.error", nil, "", int(codes.InvalidArgument), nil))
 	}
 
 	token := &utils.Token{}
 	tokenData, errTok := token.GenerateToken(time.Duration(time.Hour * time.Duration(c.config().Security.GetTokenPasswordResetExpiryInHours())))
 	if errTok != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordPasswordForgotRequest(false, duration)
 		return errBuilder(internalErr(ctx, errTok))
 	}
 
 	_, dbErr = c.store.TokensDeleteAllPasswordResetByUserID(ctx, user.GetId())
 	if dbErr != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordPasswordForgotRequest(false, duration)
 		return errBuilder(internalErr(ctx, dbErr))
 	}
 
 	dbErr = c.store.TokensAdd(ctx, user.GetId(), tokenData, intModels.TokenTypePasswordReset, path)
 	if dbErr != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordPasswordForgotRequest(false, duration)
 		return errBuilder(internalErr(ctx, dbErr))
 	}
 
@@ -81,10 +96,14 @@ func (c *Controller) PasswordForgot(context context.Context, req *usersPb.Passwo
 		Hours:   int(c.config().Security.GetTokenPasswordResetExpiryInHours()),
 	}
 	if err := c.tasker.SendPasswordResetEmail(context, taskPayload, optoins...); err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordPasswordForgotRequest(false, duration)
 		return errBuilder(internalErr(ctx, err))
 	}
 
 	ar.Success()
+	duration := time.Since(start).Seconds()
+	c.metricsCollector.RecordPasswordForgotRequest(true, duration)
 	msg := models.Tr(ctx.AcceptLanguage, "forgot.password.success_message", nil)
 	metadata := map[string]string{"description": models.Tr(ctx.AcceptLanguage, "forgot.password.success_message.description", map[string]any{"Email": req.GetEmail()})}
 	return sucBuilder(&sharedPb.SuccessResponseData{Message: &msg, Metadata: metadata})

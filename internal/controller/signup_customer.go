@@ -20,12 +20,15 @@ import (
 )
 
 func (c *Controller) CreateCustomer(context context.Context, req *pb.CustomerCreateRequest) (*pb.CustomerCreateResponse, error) {
+	start := time.Now()
 	path := "user.controller.SignupCustomer"
 	errBuilder := func(e *models.AppError) (*pb.CustomerCreateResponse, error) {
 		return &pb.CustomerCreateResponse{Response: &pb.CustomerCreateResponse_Error{Error: models.AppErrorToProto(e)}}, nil
 	}
 	ctx, err := models.ContextGet(context)
 	if err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordCustomerCreateRequest(false, duration)
 		return errBuilder(err)
 	}
 
@@ -40,6 +43,8 @@ func (c *Controller) CreateCustomer(context context.Context, req *pb.CustomerCre
 
 	sanitized := intModels.SignupCustomerRequestSanitize(req)
 	if err = intModels.SignupCustomerRequestIsValid(ctx, sanitized, c.config().Password); err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordCustomerCreateRequest(false, duration)
 		return errBuilder(err)
 	}
 
@@ -50,6 +55,8 @@ func (c *Controller) CreateCustomer(context context.Context, req *pb.CustomerCre
 			AllowedTypes: intModels.UserImageAllowedTypes,
 			Unit:         files.FileSizeUnitMB,
 		}); imgErr != nil {
+			duration := time.Since(start).Seconds()
+			c.metricsCollector.RecordCustomerCreateRequest(false, duration)
 			errors := &models.AppErrorErrorsArgs{ErrorsInternal: map[string]*models.AppErrorError{"image": imgErr.Err}}
 			err = models.NewAppError(ctx, path, imgErr.Err.ID, imgErr.Err.Params, "", int(codes.InvalidArgument), errors)
 			return errBuilder(err)
@@ -67,12 +74,16 @@ func (c *Controller) CreateCustomer(context context.Context, req *pb.CustomerCre
 		},
 	)
 	if err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordCustomerCreateRequest(false, duration)
 		return errBuilder(err)
 	}
 
 	token := &utils.Token{}
 	tokenData, errTok := token.GenerateToken(time.Duration(time.Hour * time.Duration(c.config().Security.GetTokenConfirmationExpiryInHours())))
 	if errTok != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordCustomerCreateRequest(false, duration)
 		return errBuilder(internalErr(errTok))
 	}
 
@@ -83,6 +94,8 @@ func (c *Controller) CreateCustomer(context context.Context, req *pb.CustomerCre
 			ContentType: sanitized.GetImage().GetMime(),
 		})
 		if imgErr != nil {
+			duration := time.Since(start).Seconds()
+			c.metricsCollector.RecordCustomerCreateRequest(false, duration)
 			return errBuilder(internalErr(imgErr))
 		}
 
@@ -97,6 +110,8 @@ func (c *Controller) CreateCustomer(context context.Context, req *pb.CustomerCre
 	}
 
 	if err := c.store.SignupCustomer(ctx, dbPay, tokenData); err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordCustomerCreateRequest(false, duration)
 		if err.ErrType == models.DBErrorTypeUniqueViolation {
 			id := "user.create.email.not_unique"
 			details := fmt.Sprintf("the email %s is already in use", dbPay.GetEmail())
@@ -117,11 +132,16 @@ func (c *Controller) CreateCustomer(context context.Context, req *pb.CustomerCre
 	}
 
 	if err := c.tasker.SendVerifyEmail(context, taskPayload, options...); err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordCustomerCreateRequest(false, duration)
 		return errBuilder(internalErr(err))
 	}
 
 	ar.AuditEventDataResultState(intModels.SignupCustomerRequestResultState(dbPay))
 	ar.Success()
+
+	duration := time.Since(start).Seconds()
+	c.metricsCollector.RecordCustomerCreateRequest(true, duration)
 
 	msg := models.Tr(ctx.AcceptLanguage, "account.create.success", nil)
 	return &pb.CustomerCreateResponse{Response: &pb.CustomerCreateResponse_Data{Data: &shPb.SuccessResponseData{Message: &msg}}}, nil

@@ -10,6 +10,7 @@ import (
 	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/logger"
 	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
 	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/utils"
+	"github.com/ahmad-khatib0-org/megacommerce-user/internal/otel"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/store"
 	"github.com/ahmad-khatib0-org/megacommerce-user/internal/worker"
 	"github.com/minio/minio-go/v7"
@@ -21,13 +22,14 @@ import (
 
 type Controller struct {
 	pb.UnimplementedUsersServiceServer
-	store          store.UsersStore
-	objStorage     *minio.Client
-	config         func() *common.Config
-	tracerProvider *sdktrace.TracerProvider
-	log            *logger.Logger
-	tasker         worker.TaskDistributor
-	httpClient     *http.Client
+	store            store.UsersStore
+	objStorage       *minio.Client
+	config           func() *common.Config
+	tracerProvider   *sdktrace.TracerProvider
+	log              *logger.Logger
+	tasker           worker.TaskDistributor
+	httpClient       *http.Client
+	metricsCollector *MetricsCollector
 }
 
 type ControllerArgs struct {
@@ -40,13 +42,21 @@ type ControllerArgs struct {
 }
 
 func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
+	otlpEndpoint := ca.Config().Observability.GetOtelGrpcEndpoint()
+	if _, _, err := otel.InitOTEL("megacommerce-user", otlpEndpoint); err != nil {
+		return nil, &models.InternalError{Path: "user.controller.NewController", Err: err, Msg: "failed to initialize OTEL"}
+	}
+	// Setup Prometheus metrics endpoint on port 8062
+	otel.SetupPrometheusMetrics("8062")
+
 	c := &Controller{
-		config:         ca.Config,
-		store:          ca.Store,
-		objStorage:     ca.ObjStorage,
-		tracerProvider: ca.TracerProvider,
-		log:            ca.Log,
-		tasker:         ca.Tasker,
+		config:           ca.Config,
+		store:            ca.Store,
+		objStorage:       ca.ObjStorage,
+		tracerProvider:   ca.TracerProvider,
+		log:              ca.Log,
+		tasker:           ca.Tasker,
+		metricsCollector: NewMetricsCollector(),
 	}
 
 	c.httpClient = utils.GetHTTPClient()
@@ -78,7 +88,6 @@ func NewController(ca *ControllerArgs) (*Controller, *models.InternalError) {
 
 	reflection.Register(s)
 	pb.RegisterUsersServiceServer(s, c)
-	// c.metrics.InitializeMetrics(s)
 
 	go func() {
 		c.log.Infof("grpc user service is running on %s", addr)

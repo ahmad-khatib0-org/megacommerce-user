@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"time"
 
 	pb "github.com/ahmad-khatib0-org/megacommerce-proto/gen/go/users/v1"
 	"github.com/ahmad-khatib0-org/megacommerce-shared-go/pkg/models"
@@ -10,6 +11,7 @@ import (
 )
 
 func (c *Controller) GetCustomerProfile(context context.Context, req *pb.CustomerProfileRequest) (*pb.CustomerProfileResponse, error) {
+	start := time.Now()
 	path := "user.controller.GetCustomerProfile"
 	errBuilder := func(e *models.AppError) (*pb.CustomerProfileResponse, error) {
 		return &pb.CustomerProfileResponse{Response: &pb.CustomerProfileResponse_Error{Error: models.AppErrorToProto(e)}}, nil
@@ -17,6 +19,8 @@ func (c *Controller) GetCustomerProfile(context context.Context, req *pb.Custome
 
 	ctx, err := models.ContextGet(context)
 	if err != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordCustomerProfileGetRequest(false, duration)
 		return errBuilder(err)
 	}
 
@@ -26,11 +30,15 @@ func (c *Controller) GetCustomerProfile(context context.Context, req *pb.Custome
 	// Get user ID from context session
 	userID := ctx.Session.UserID
 	if userID == "" {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordCustomerProfileGetRequest(false, duration)
 		return errBuilder(models.NewAppError(ctx, path, "error.unauthenticated", nil, "user not authenticated", int(codes.Unauthenticated), nil))
 	}
 
 	user, dbErr := c.store.UsersGetByID(ctx, userID)
 	if dbErr != nil {
+		duration := time.Since(start).Seconds()
+		c.metricsCollector.RecordCustomerProfileGetRequest(false, duration)
 		if dbErr.ErrType == models.DBErrorTypeNoRows {
 			return errBuilder(models.NewAppError(ctx, path, "error.not_found", nil, "user not found", int(codes.NotFound), nil))
 		}
@@ -60,6 +68,9 @@ func (c *Controller) GetCustomerProfile(context context.Context, req *pb.Custome
 		CreatedAt:       user.GetCreatedAt(),
 		UpdatedAt:       user.GetUpdatedAt(),
 	}
+
+	duration := time.Since(start).Seconds()
+	c.metricsCollector.RecordCustomerProfileGetRequest(true, duration)
 
 	return &pb.CustomerProfileResponse{Response: &pb.CustomerProfileResponse_Data{Data: profile}}, nil
 }
